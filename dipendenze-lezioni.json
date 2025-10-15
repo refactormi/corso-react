@@ -1,0 +1,38 @@
+{
+  "lezioni-avanzate": {
+    "react-query": {
+      "package": "@tanstack/react-query",
+      "version": "^5.59.16",
+      "descrizione": "Per le lezioni 17-17b: gestione stato server e cache",
+      "lezione": "17-introduzione-react-query"
+    },
+    "react-query-devtools": {
+      "package": "react-query-devtools",
+      "version": "^5.59.16", 
+      "descrizione": "Per debugging e monitoraggio React Query",
+      "lezione": "17b-debug-monitoraggio"
+    }
+  },
+  "lezioni-performance": {
+    "react-devtools": {
+      "package": "react-devtools",
+      "version": "latest",
+      "descrizione": "Per analisi performance e profiling",
+      "lezione": "13-analisi-performance"
+    }
+  },
+  "esempi-pratici": {
+    "axios": {
+      "package": "axios",
+      "version": "^1.7.7",
+      "descrizione": "Per esempi di chiamate API",
+      "lezione": "15b-custom-hook-api"
+    },
+    "lodash": {
+      "package": "lodash",
+      "version": "^4.17.21",
+      "descrizione": "Per esempi di utility functions",
+      "lezione": "14-memoization-usecallback"
+    }
+  }
+}

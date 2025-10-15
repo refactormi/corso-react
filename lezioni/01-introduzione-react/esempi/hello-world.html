@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lezione 1 - Hello World React</title>
+    <script crossorigin src="https://unpkg.com/react@19/umd/react.development.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@19/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .example {
+            margin: 20px 0;
+            padding: 20px;
+            border: 2px solid #61dafb;
+            border-radius: 8px;
+            background-color: #f8f9fa;
+        }
+        .code {
+            background-color: #282c34;
+            color: #abb2bf;
+            padding: 15px;
+            border-radius: 5px;
+            font-family: 'Courier New', monospace;
+            margin: 10px 0;
+            overflow-x: auto;
+        }
+        .highlight {
+            color: #61dafb;
+            font-weight: bold;
+        }
+        .button {
+            background-color: #61dafb;
+            color: #282c34;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 5px;
+            transition: background-color 0.3s;
+        }
+        .button:hover {
+            background-color: #21a0c4;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 Lezione 1: Introduzione a React</h1>
+        <p>Questo esempio dimostra i concetti fondamentali di React che abbiamo appena imparato.</p>
+        
+        <div class="example">
+            <h2>1. Componente Semplice</h2>
+            <p>Un componente React che mostra un messaggio di benvenuto:</p>
+            <div id="simple-component"></div>
+            <div class="code">
+function Welcome() {<br>
+&nbsp;&nbsp;return &lt;h2&gt;Benvenuto in React! 🎉&lt;/h2&gt;;<br>
+}
+            </div>
+        </div>
+
+        <div class="example">
+            <h2>2. Componente con Props</h2>
+            <p>Un componente che accetta dati tramite props:</p>
+            <div id="props-component"></div>
+            <div class="code">
+function Greeting({ name, age }) {<br>
+&nbsp;&nbsp;return (<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;div&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;h3&gt;Ciao, {name}! 👋&lt;/h3&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;p&gt;Hai {age} anni&lt;/p&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;/div&gt;<br>
+&nbsp;&nbsp;);<br>
+}
+            </div>
+        </div>
+
+        <div class="example">
+            <h2>3. Componente con Stato (useState)</h2>
+            <p>Un componente che gestisce lo stato interno:</p>
+            <div id="state-component"></div>
+            <div class="code">
+function Counter() {<br>
+&nbsp;&nbsp;const [count, setCount] = React.useState(0);<br>
+&nbsp;&nbsp;return (<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;div&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;p&gt;Contatore: &lt;span class="highlight"&gt;{count}&lt;/span&gt;&lt;/p&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;button onClick={() =&gt; setCount(count + 1)}&gt;+1&lt;/button&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;button onClick={() =&gt; setCount(count - 1)}&gt;-1&lt;/button&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;button onClick={() =&gt; setCount(0)}&gt;Reset&lt;/button&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;/div&gt;<br>
+&nbsp;&nbsp;);<br>
+}
+            </div>
+        </div>
+
+        <div class="example">
+            <h2>4. Componente Interattivo</h2>
+            <p>Un componente che risponde alle interazioni dell'utente:</p>
+            <div id="interactive-component"></div>
+            <div class="code">
+function InteractiveDemo() {<br>
+&nbsp;&nbsp;const [message, setMessage] = React.useState('Clicca i pulsanti!');<br>
+&nbsp;&nbsp;const [color, setColor] = React.useState('#61dafb');<br>
+&nbsp;&nbsp;<br>
+&nbsp;&nbsp;return (<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;div&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;h3 style={{color: color}}&gt;{message}&lt;/h3&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;button onClick={() =&gt; setMessage('Hai cliccato il pulsante blu!')}&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Messaggio Blu<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;/button&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;button onClick={() =&gt; setColor('#ff6b6b')}&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Cambia Colore<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&lt;/button&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&lt;/div&gt;<br>
+&nbsp;&nbsp;);<br>
+}
+            </div>
+        </div>
+
+        <div class="example">
+            <h2>🎯 Concetti Chiave Dimostrati</h2>
+            <ul>
+                <li><strong>Componenti:</strong> Funzioni che restituiscono JSX</li>
+                <li><strong>Props:</strong> Dati passati ai componenti</li>
+                <li><strong>Stato:</strong> Dati interni del componente con useState</li>
+                <li><strong>Eventi:</strong> Gestione delle interazioni utente</li>
+                <li><strong>JSX:</strong> Sintassi che combina HTML e JavaScript</li>
+            </ul>
+        </div>
+    </div>
+
+    <script type="text/babel">
+        // 1. Componente Semplice
+        function Welcome() {
+            return <h2>Benvenuto in React! 🎉</h2>;
+        }
+
+        // 2. Componente con Props
+        function Greeting({ name, age }) {
+            return (
+                <div>
+                    <h3>Ciao, {name}! 👋</h3>
+                    <p>Hai {age} anni</p>
+                </div>
+            );
+        }
+
+        // 3. Componente con Stato
+        function Counter() {
+            const [count, setCount] = React.useState(0);
+            return (
+                <div>
+                    <p>Contatore: <span className="highlight">{count}</span></p>
+                    <button className="button" onClick={() => setCount(count + 1)}>+1</button>
+                    <button className="button" onClick={() => setCount(count - 1)}>-1</button>
+                    <button className="button" onClick={() => setCount(0)}>Reset</button>
+                </div>
+            );
+        }
+
+        // 4. Componente Interattivo
+        function InteractiveDemo() {
+            const [message, setMessage] = React.useState('Clicca i pulsanti!');
+            const [color, setColor] = React.useState('#61dafb');
+            
+            return (
+                <div>
+                    <h3 style={{color: color}}>{message}</h3>
+                    <button className="button" onClick={() => setMessage('Hai cliccato il pulsante blu!')}>
+                        Messaggio Blu
+                    </button>
+                    <button className="button" onClick={() => setColor('#ff6b6b')}>
+                        Cambia Colore
+                    </button>
+                </div>
+            );
+        }
+
+        // Rendering dei componenti
+        const simpleRoot = ReactDOM.createRoot(document.getElementById('simple-component'));
+        simpleRoot.render(<Welcome />);
+
+        const propsRoot = ReactDOM.createRoot(document.getElementById('props-component'));
+        propsRoot.render(<Greeting name="Mario" age={25} />);
+
+        const stateRoot = ReactDOM.createRoot(document.getElementById('state-component'));
+        stateRoot.render(<Counter />);
+
+        const interactiveRoot = ReactDOM.createRoot(document.getElementById('interactive-component'));
+        interactiveRoot.render(<InteractiveDemo />);
+    </script>
+</body>
+</html>
