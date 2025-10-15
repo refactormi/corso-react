@@ -1,6 +1,6 @@
 # Corso React Base - Piano di Sviluppo
 
-## Background and Motivation
+## Background and Motivation 
 
 L'obiettivo è creare un repository completo per un corso di React base che includa:
 - Teoria dettagliata in file Markdown
