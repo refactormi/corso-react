@@ -18,49 +18,49 @@ Al termine di questa lezione sarai in grado di:
 #### Eventi Sintetici (Synthetic Events)
 React utilizza un sistema di eventi sintetici che normalizza le differenze tra browser:
 
-```jsx
-function EventExample() {
-  const handleClick = (event) => {
+```tsx
+function EventExample(): JSX.Element {
+  const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
     // event è un SyntheticEvent
-    event.preventDefault(); // Previene comportamento default
-    event.stopPropagation(); // Ferma propagazione
-    console.log('Evento cliccato:', event.type);
-  };
+    event.preventDefault() // Previene comportamento default
+    event.stopPropagation() // Ferma propagazione
+    console.log('Evento cliccato:', event.type)
+  }
   
-  const handleInputChange = (event) => {
-    console.log('Valore input:', event.target.value);
-  };
+  const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    console.log('Valore input:', event.target.value)
+  }
   
   return (
     <div>
       <button onClick={handleClick}>Clicca qui</button>
       <input onChange={handleInputChange} placeholder="Digita qualcosa" />
     </div>
-  );
+  )
 }
 ```
 
 #### Pattern di Gestione Eventi
 
 **Pattern 1: Handler Inline**
-```jsx
-function InlineHandlers() {
+```tsx
+function InlineHandlers(): JSX.Element {
   return (
     <div>
       <button onClick={() => console.log('Cliccato!')}>
         Handler Inline
       </button>
     </div>
-  );
+  )
 }
 ```
 
 **Pattern 2: Handler Separato**
-```jsx
-function SeparateHandlers() {
+```tsx
+function SeparateHandlers(): JSX.Element {
   const handleClick = () => {
-    console.log('Cliccato!');
-  };
+    console.log('Cliccato!')
+  }
   
   return (
     <div>
@@ -68,16 +68,16 @@ function SeparateHandlers() {
         Handler Separato
       </button>
     </div>
-  );
+  )
 }
 ```
 
 **Pattern 3: Handler con Parametri**
-```jsx
-function ParameterizedHandlers() {
-  const handleClick = (id, name) => {
-    console.log(`Cliccato item ${id}: ${name}`);
-  };
+```tsx
+function ParameterizedHandlers(): JSX.Element {
+  const handleClick = (id: number, name: string) => {
+    console.log(`Cliccato item ${id}: ${name}`)
+  }
   
   return (
     <div>
@@ -88,7 +88,7 @@ function ParameterizedHandlers() {
         Clicca Luigi
       </button>
     </div>
-  );
+  )
 }
 ```
 
@@ -97,13 +97,13 @@ function ParameterizedHandlers() {
 #### Input Controllati vs Non Controllati
 
 **Input Controllati:**
-```jsx
-function ControlledInput() {
-  const [value, setValue] = useState('');
+```tsx
+function ControlledInput(): JSX.Element {
+  const [value, setValue] = useState<string>('')
   
-  const handleChange = (event) => {
-    setValue(event.target.value);
-  };
+  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setValue(event.target.value)
+  }
   
   return (
     <input
@@ -112,19 +112,19 @@ function ControlledInput() {
       onChange={handleChange}
       placeholder="Input controllato"
     />
-  );
+  )
 }
 ```
 
 **Input Non Controllati:**
-```jsx
-function UncontrolledInput() {
-  const inputRef = useRef(null);
+```tsx
+function UncontrolledInput(): JSX.Element {
+  const inputRef = useRef<HTMLInputElement>(null)
   
-  const handleSubmit = (event) => {
-    event.preventDefault();
-    console.log('Valore:', inputRef.current.value);
-  };
+  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault()
+    console.log('Valore:', inputRef.current?.value)
+  }
   
   return (
     <form onSubmit={handleSubmit}>
@@ -135,92 +135,108 @@ function UncontrolledInput() {
       />
       <button type="submit">Invia</button>
     </form>
-  );
+  )
 }
 ```
 
 #### Form Complesso con Validazione
 
-```jsx
-function AdvancedForm() {
-  const [formData, setFormData] = useState({
+```tsx
+interface FormData {
+  name: string
+  email: string
+  password: string
+  confirmPassword: string
+  terms: boolean
+}
+
+interface FormErrors {
+  [key: string]: string
+}
+
+interface FormTouched {
+  [key: string]: boolean
+}
+
+function AdvancedForm(): JSX.Element {
+  const [formData, setFormData] = useState<FormData>({
     name: '',
     email: '',
     password: '',
     confirmPassword: '',
     terms: false
-  });
+  })
   
-  const [errors, setErrors] = useState({});
-  const [touched, setTouched] = useState({});
+  const [errors, setErrors] = useState<FormErrors>({})
+  const [touched, setTouched] = useState<FormTouched>({})
   
-  const validateField = (name, value) => {
+  const validateField = (name: string, value: any): string => {
     switch (name) {
       case 'name':
-        return value.length < 2 ? 'Nome deve essere di almeno 2 caratteri' : '';
+        return value.length < 2 ? 'Nome deve essere di almeno 2 caratteri' : ''
       case 'email':
-        return !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value) ? 'Email non valida' : '';
+        return !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value) ? 'Email non valida' : ''
       case 'password':
-        return value.length < 8 ? 'Password deve essere di almeno 8 caratteri' : '';
+        return value.length < 8 ? 'Password deve essere di almeno 8 caratteri' : ''
       case 'confirmPassword':
-        return value !== formData.password ? 'Le password non coincidono' : '';
+        return value !== formData.password ? 'Le password non coincidono' : ''
       case 'terms':
-        return !value ? 'Devi accettare i termini' : '';
+        return !value ? 'Devi accettare i termini' : ''
       default:
-        return '';
+        return ''
     }
-  };
+  }
   
-  const handleChange = (event) => {
-    const { name, value, type, checked } = event.target;
-    const fieldValue = type === 'checkbox' ? checked : value;
+  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value, type, checked } = event.target
+    const fieldValue = type === 'checkbox' ? checked : value
     
     setFormData(prev => ({
       ...prev,
       [name]: fieldValue
-    }));
+    }))
     
     // Validazione in tempo reale
     if (touched[name]) {
-      const error = validateField(name, fieldValue);
+      const error = validateField(name, fieldValue)
       setErrors(prev => ({
         ...prev,
         [name]: error
-      }));
+      }))
     }
-  };
+  }
   
-  const handleBlur = (event) => {
-    const { name, value, type, checked } = event.target;
-    const fieldValue = type === 'checkbox' ? checked : value;
+  const handleBlur = (event: React.FocusEvent<HTMLInputElement>) => {
+    const { name, value, type, checked } = event.target
+    const fieldValue = type === 'checkbox' ? checked : value
     
-    setTouched(prev => ({ ...prev, [name]: true }));
+    setTouched(prev => ({ ...prev, [name]: true }))
     
-    const error = validateField(name, fieldValue);
+    const error = validateField(name, fieldValue)
     setErrors(prev => ({
       ...prev,
       [name]: error
-    }));
-  };
+    }))
+  }
   
-  const handleSubmit = (event) => {
-    event.preventDefault();
+  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault()
     
     // Valida tutti i campi
-    const newErrors = {};
+    const newErrors: FormErrors = {}
     Object.keys(formData).forEach(name => {
-      const error = validateField(name, formData[name]);
-      if (error) newErrors[name] = error;
-    });
+      const error = validateField(name, formData[name as keyof FormData])
+      if (error) newErrors[name] = error
+    })
     
-    setErrors(newErrors);
-    setTouched(Object.keys(formData).reduce((acc, key) => ({ ...acc, [key]: true }), {}));
+    setErrors(newErrors)
+    setTouched(Object.keys(formData).reduce((acc, key) => ({ ...acc, [key]: true }), {}))
     
     if (Object.keys(newErrors).length === 0) {
-      console.log('Form valido:', formData);
+      console.log('Form valido:', formData)
       // Invia i dati
     }
-  };
+  }
   
   return (
     <form onSubmit={handleSubmit}>
@@ -287,7 +303,7 @@ function AdvancedForm() {
       
       <button type="submit">Registrati</button>
     </form>
-  );
+  )
 }
 ```
 
@@ -295,95 +311,127 @@ function AdvancedForm() {
 
 #### Hook Personalizzato per Validazione
 
-```jsx
-function useValidation(initialValues, validationRules) {
-  const [values, setValues] = useState(initialValues);
-  const [errors, setErrors] = useState({});
-  const [touched, setTouched] = useState({});
+```tsx
+type ValidationRule<T = any> = (value: any, allValues?: T) => string
+
+interface ValidationRules<T = any> {
+  [key: string]: ValidationRule<T>[]
+}
+
+interface UseValidationReturn<T> {
+  values: T
+  errors: Record<string, string>
+  touched: Record<string, boolean>
+  setValue: (name: string, value: any) => void
+  setFieldTouched: (name: string) => void
+  validateAll: () => boolean
+  reset: () => void
+  isValid: boolean
+}
+
+function useValidation<T extends Record<string, any>>(
+  initialValues: T,
+  validationRules: ValidationRules<T>
+): UseValidationReturn<T> {
+  const [values, setValues] = useState<T>(initialValues)
+  const [errors, setErrors] = useState<Record<string, string>>({})
+  const [touched, setTouched] = useState<Record<string, boolean>>({})
   
-  const validateField = (name, value) => {
-    const rules = validationRules[name];
-    if (!rules) return '';
+  const validateField = (name: string, value: any): string => {
+    const rules = validationRules[name]
+    if (!rules) return ''
     
     for (const rule of rules) {
-      const error = rule(value, values);
-      if (error) return error;
+      const error = rule(value, values)
+      if (error) return error
     }
-    return '';
-  };
+    return ''
+  }
   
-  const setValue = (name, value) => {
-    setValues(prev => ({ ...prev, [name]: value }));
+  const setValue = (name: string, value: any) => {
+    setValues(prev => ({ ...prev, [name]: value }))
     
     if (touched[name]) {
-      const error = validateField(name, value);
-      setErrors(prev => ({ ...prev, [name]: error }));
+      const error = validateField(name, value)
+      setErrors(prev => ({ ...prev, [name]: error }))
     }
-  };
+  }
   
-  const setTouched = (name) => {
-    setTouched(prev => ({ ...prev, [name]: true }));
-    const error = validateField(name, values[name]);
-    setErrors(prev => ({ ...prev, [name]: error }));
-  };
+  const setFieldTouched = (name: string) => {
+    setTouched(prev => ({ ...prev, [name]: true }))
+    const error = validateField(name, values[name])
+    setErrors(prev => ({ ...prev, [name]: error }))
+  }
   
-  const validateAll = () => {
-    const newErrors = {};
+  const validateAll = (): boolean => {
+    const newErrors: Record<string, string> = {}
     Object.keys(validationRules).forEach(name => {
-      const error = validateField(name, values[name]);
-      if (error) newErrors[name] = error;
-    });
-    setErrors(newErrors);
-    setTouched(Object.keys(validationRules).reduce((acc, key) => ({ ...acc, [key]: true }), {}));
-    return Object.keys(newErrors).length === 0;
-  };
+      const error = validateField(name, values[name])
+      if (error) newErrors[name] = error
+    })
+    setErrors(newErrors)
+    setTouched(Object.keys(validationRules).reduce((acc, key) => ({ ...acc, [key]: true }), {}))
+    return Object.keys(newErrors).length === 0
+  }
   
   const reset = () => {
-    setValues(initialValues);
-    setErrors({});
-    setTouched({});
-  };
+    setValues(initialValues)
+    setErrors({})
+    setTouched({})
+  }
   
   return {
     values,
     errors,
     touched,
     setValue,
-    setTouched,
+    setFieldTouched,
     validateAll,
     reset,
     isValid: Object.keys(errors).length === 0
-  };
+  }
 }
 
 // Regole di validazione
-const validationRules = {
+interface FormValues {
+  name: string
+  email: string
+  password: string
+  confirmPassword: string
+}
+
+const validationRules: ValidationRules<FormValues> = {
   name: [
-    (value) => !value ? 'Nome richiesto' : '',
-    (value) => value.length < 2 ? 'Nome troppo corto' : '',
-    (value) => value.length > 50 ? 'Nome troppo lungo' : ''
+    (value: string) => !value ? 'Nome richiesto' : '',
+    (value: string) => value.length < 2 ? 'Nome troppo corto' : '',
+    (value: string) => value.length > 50 ? 'Nome troppo lungo' : ''
   ],
   email: [
-    (value) => !value ? 'Email richiesta' : '',
-    (value) => !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value) ? 'Email non valida' : ''
+    (value: string) => !value ? 'Email richiesta' : '',
+    (value: string) => !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value) ? 'Email non valida' : ''
   ],
   password: [
-    (value) => !value ? 'Password richiesta' : '',
-    (value) => value.length < 8 ? 'Password troppo corta' : '',
-    (value) => !/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(value) ? 'Password deve contenere maiuscole, minuscole e numeri' : ''
+    (value: string) => !value ? 'Password richiesta' : '',
+    (value: string) => value.length < 8 ? 'Password troppo corta' : '',
+    (value: string) => !/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(value) ? 'Password deve contenere maiuscole, minuscole e numeri' : ''
   ],
   confirmPassword: [
-    (value, allValues) => value !== allValues.password ? 'Le password non coincidono' : ''
+    (value: string, allValues?: FormValues) => value !== allValues?.password ? 'Le password non coincidono' : ''
   ]
-};
+}
 ```
 
 ### 4. Feedback Visivo e Stati di Loading
 
 #### Componente con Stati di Loading
 
-```jsx
-function LoadingButton({ onClick, children, loading, disabled, ...props }) {
+```tsx
+interface LoadingButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+  loading?: boolean
+  children: React.ReactNode
+}
+
+function LoadingButton({ onClick, children, loading, disabled, ...props }: LoadingButtonProps): JSX.Element {
   return (
     <button
       onClick={onClick}
@@ -392,7 +440,7 @@ function LoadingButton({ onClick, children, loading, disabled, ...props }) {
         position: 'relative',
         opacity: loading ? 0.7 : 1,
         cursor: loading ? 'not-allowed' : 'pointer'
-      }}
+      } as React.CSSProperties}
       {...props}
     >
       {loading && (
@@ -407,43 +455,43 @@ function LoadingButton({ onClick, children, loading, disabled, ...props }) {
           borderTop: '2px solid #3498db',
           borderRadius: '50%',
           animation: 'spin 1s linear infinite'
-        }} />
+        } as React.CSSProperties} />
       )}
       {children}
     </button>
-  );
+  )
 }
 
-function FormWithLoading() {
-  const [loading, setLoading] = useState(false);
-  const [success, setSuccess] = useState(false);
-  const [error, setError] = useState(null);
+function FormWithLoading(): JSX.Element {
+  const [loading, setLoading] = useState<boolean>(false)
+  const [success, setSuccess] = useState<boolean>(false)
+  const [error, setError] = useState<string | null>(null)
   
-  const handleSubmit = async (formData) => {
-    setLoading(true);
-    setError(null);
+  const handleSubmit = async (formData: Record<string, any>) => {
+    setLoading(true)
+    setError(null)
     
     try {
       // Simula chiamata API
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      setSuccess(true);
+      await new Promise(resolve => setTimeout(resolve, 2000))
+      setSuccess(true)
     } catch (err) {
-      setError('Errore durante l\'invio');
+      setError('Errore durante l\'invio')
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
   
   return (
     <div>
       {success && (
-        <div style={{color: 'green', padding: '10px', backgroundColor: '#d4edda'}}>
+        <div style={{color: 'green', padding: '10px', backgroundColor: '#d4edda'} as React.CSSProperties}>
           ✅ Form inviato con successo!
         </div>
       )}
       
       {error && (
-        <div style={{color: 'red', padding: '10px', backgroundColor: '#f8d7da'}}>
+        <div style={{color: 'red', padding: '10px', backgroundColor: '#f8d7da'} as React.CSSProperties}>
           ❌ {error}
         </div>
       )}
@@ -455,7 +503,7 @@ function FormWithLoading() {
         {loading ? 'Invio in corso...' : 'Invia Form'}
       </LoadingButton>
     </div>
-  );
+  )
 }
 ```
 
@@ -465,19 +513,23 @@ function FormWithLoading() {
 
 > 💡 **Nota**: Il debouncing richiede l'uso di `useEffect` per gestire timer e cleanup. Questo pattern verrà approfondito nella Lezione 12 dopo aver imparato `useEffect`. Per ora, puoi implementare la ricerca senza debouncing, chiamando `onSearch` direttamente nell'`onChange`.
 
-```jsx
-function SearchInput({ onSearch }) {
-  const [query, setQuery] = useState('');
+```tsx
+interface SearchInputProps {
+  onSearch: (query: string) => void
+}
+
+function SearchInput({ onSearch }: SearchInputProps): JSX.Element {
+  const [query, setQuery] = useState<string>('')
   
-  const handleChange = (e) => {
-    const newQuery = e.target.value;
-    setQuery(newQuery);
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newQuery = e.target.value
+    setQuery(newQuery)
     // Chiamata diretta senza debouncing
     // Nota: Per implementare debouncing serve useEffect (Lezione 12)
     if (newQuery.trim()) {
-      onSearch(newQuery);
+      onSearch(newQuery)
     }
-  };
+  }
   
   return (
     <input
@@ -486,16 +538,22 @@ function SearchInput({ onSearch }) {
       onChange={handleChange}
       placeholder="Cerca..."
     />
-  );
+  )
 }
 ```
 
 #### Input con Autocomplete
 
-```jsx
-function AutocompleteInput({ suggestions, onSelect, placeholder }) {
-  const [value, setValue] = useState('');
-  const [showSuggestions, setShowSuggestions] = useState(false);
+```tsx
+interface AutocompleteInputProps {
+  suggestions: string[]
+  onSelect: (suggestion: string) => void
+  placeholder?: string
+}
+
+function AutocompleteInput({ suggestions, onSelect, placeholder }: AutocompleteInputProps): JSX.Element {
+  const [value, setValue] = useState<string>('')
+  const [showSuggestions, setShowSuggestions] = useState<boolean>(false)
   
   // Calcola i suggerimenti filtrati direttamente nel render
   // Nota: Per ottimizzare con memoizzazione serve useMemo o useEffect,
@@ -504,22 +562,22 @@ function AutocompleteInput({ suggestions, onSelect, placeholder }) {
     ? suggestions.filter(suggestion =>
         suggestion.toLowerCase().includes(value.toLowerCase())
       )
-    : [];
+    : []
   
-  const handleChange = (e) => {
-    const newValue = e.target.value;
-    setValue(newValue);
-    setShowSuggestions(true);
-  };
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newValue = e.target.value
+    setValue(newValue)
+    setShowSuggestions(true)
+  }
   
-  const handleSelect = (suggestion) => {
-    setValue(suggestion);
-    setShowSuggestions(false);
-    onSelect(suggestion);
-  };
+  const handleSelect = (suggestion: string) => {
+    setValue(suggestion)
+    setShowSuggestions(false)
+    onSelect(suggestion)
+  }
   
   return (
-    <div style={{ position: 'relative' }}>
+    <div style={{ position: 'relative' } as React.CSSProperties}>
       <input
         type="text"
         value={value}
@@ -540,7 +598,7 @@ function AutocompleteInput({ suggestions, onSelect, placeholder }) {
           maxHeight: '200px',
           overflowY: 'auto',
           zIndex: 1000
-        }}>
+        } as React.CSSProperties}>
           {filteredSuggestions.map((suggestion, index) => (
             <li
               key={index}
@@ -549,7 +607,7 @@ function AutocompleteInput({ suggestions, onSelect, placeholder }) {
                 padding: '10px',
                 cursor: 'pointer',
                 borderBottom: '1px solid #eee'
-              }}
+              } as React.CSSProperties}
             >
               {suggestion}
             </li>
@@ -557,7 +615,7 @@ function AutocompleteInput({ suggestions, onSelect, placeholder }) {
         </ul>
       )}
     </div>
-  );
+  )
 }
 ```
 
@@ -565,54 +623,66 @@ function AutocompleteInput({ suggestions, onSelect, placeholder }) {
 
 #### Sistema di Notifiche
 
-```jsx
-function useNotifications() {
-  const [notifications, setNotifications] = useState([]);
+```tsx
+interface Notification {
+  id: number
+  type: 'success' | 'error'
+  message: string
+}
+
+interface UseNotificationsReturn {
+  notifications: Notification[]
+  addNotification: (notification: Omit<Notification, 'id'>) => void
+  removeNotification: (id: number) => void
+}
+
+function useNotifications(): UseNotificationsReturn {
+  const [notifications, setNotifications] = useState<Notification[]>([])
   
-  const addNotification = (notification) => {
-    const id = Date.now();
-    setNotifications(prev => [...prev, { id, ...notification }]);
+  const addNotification = (notification: Omit<Notification, 'id'>) => {
+    const id = Date.now()
+    setNotifications(prev => [...prev, { id, ...notification }])
     
     // Auto-remove dopo 5 secondi
     setTimeout(() => {
-      setNotifications(prev => prev.filter(n => n.id !== id));
-    }, 5000);
-  };
+      setNotifications(prev => prev.filter(n => n.id !== id))
+    }, 5000)
+  }
   
-  const removeNotification = (id) => {
-    setNotifications(prev => prev.filter(n => n.id !== id));
-  };
+  const removeNotification = (id: number) => {
+    setNotifications(prev => prev.filter(n => n.id !== id))
+  }
   
   return {
     notifications,
     addNotification,
     removeNotification
-  };
+  }
 }
 
-function NotificationSystem() {
-  const { notifications, addNotification, removeNotification } = useNotifications();
+function NotificationSystem(): JSX.Element {
+  const { notifications, addNotification, removeNotification } = useNotifications()
   
   const showSuccess = () => {
     addNotification({
       type: 'success',
       message: 'Operazione completata con successo!'
-    });
-  };
+    })
+  }
   
   const showError = () => {
     addNotification({
       type: 'error',
       message: 'Si è verificato un errore!'
-    });
-  };
+    })
+  }
   
   return (
     <div>
       <button onClick={showSuccess}>Mostra Successo</button>
       <button onClick={showError}>Mostra Errore</button>
       
-      <div style={{ position: 'fixed', top: '20px', right: '20px', zIndex: 1000 }}>
+      <div style={{ position: 'fixed', top: '20px', right: '20px', zIndex: 1000 } as React.CSSProperties}>
         {notifications.map(notification => (
           <div
             key={notification.id}
@@ -623,12 +693,12 @@ function NotificationSystem() {
               border: `1px solid ${notification.type === 'success' ? '#c3e6cb' : '#f5c6cb'}`,
               borderRadius: '4px',
               color: notification.type === 'success' ? '#155724' : '#721c24'
-            }}
+            } as React.CSSProperties}
           >
             {notification.message}
             <button
               onClick={() => removeNotification(notification.id)}
-              style={{ marginLeft: '10px', background: 'none', border: 'none' }}
+              style={{ marginLeft: '10px', background: 'none', border: 'none' } as React.CSSProperties}
             >
               ✕
             </button>
@@ -636,7 +706,7 @@ function NotificationSystem() {
         ))}
       </div>
     </div>
-  );
+  )
 }
 ```
 
@@ -667,9 +737,21 @@ function NotificationSystem() {
 ## Esempi Pratici
 
 ### Esempio 1: Form di Registrazione Completo
-```jsx
-function RegistrationForm() {
-  const [formData, setFormData] = useState({
+```tsx
+interface RegistrationFormData {
+  firstName: string
+  lastName: string
+  email: string
+  password: string
+  confirmPassword: string
+  dateOfBirth: string
+  gender: string
+  newsletter: boolean
+  terms: boolean
+}
+
+function RegistrationForm(): JSX.Element {
+  const [formData, setFormData] = useState<RegistrationFormData>({
     firstName: '',
     lastName: '',
     email: '',
@@ -679,15 +761,15 @@ function RegistrationForm() {
     gender: '',
     newsletter: false,
     terms: false
-  });
+  })
   
-  const [errors, setErrors] = useState({});
-  const [touched, setTouched] = useState({});
-  const [loading, setLoading] = useState(false);
-  const [success, setSuccess] = useState(false);
+  const [errors, setErrors] = useState<Record<string, string>>({})
+  const [touched, setTouched] = useState<Record<string, boolean>>({})
+  const [loading, setLoading] = useState<boolean>(false)
+  const [success, setSuccess] = useState<boolean>(false)
   
-  const validateField = (name, value) => {
-    const validations = {
+  const validateField = (name: string, value: any): string => {
+    const validations: Record<string, string> = {
       firstName: value.length < 2 ? 'Nome deve essere di almeno 2 caratteri' : '',
       lastName: value.length < 2 ? 'Cognome deve essere di almeno 2 caratteri' : '',
       email: !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value) ? 'Email non valida' : '',
@@ -696,57 +778,59 @@ function RegistrationForm() {
       dateOfBirth: !value ? 'Data di nascita richiesta' : '',
       gender: !value ? 'Genere richiesto' : '',
       terms: !value ? 'Devi accettare i termini' : ''
-    };
-    return validations[name] || '';
-  };
+    }
+    return validations[name] || ''
+  }
   
-  const handleChange = (event) => {
-    const { name, value, type, checked } = event.target;
-    const fieldValue = type === 'checkbox' ? checked : value;
+  const handleChange = (event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    const { name, value, type } = event.target
+    const checked = (event.target as HTMLInputElement).checked
+    const fieldValue = type === 'checkbox' ? checked : value
     
-    setFormData(prev => ({ ...prev, [name]: fieldValue }));
+    setFormData(prev => ({ ...prev, [name]: fieldValue }))
     
     if (touched[name]) {
-      const error = validateField(name, fieldValue);
-      setErrors(prev => ({ ...prev, [name]: error }));
+      const error = validateField(name, fieldValue)
+      setErrors(prev => ({ ...prev, [name]: error }))
     }
-  };
+  }
   
-  const handleBlur = (event) => {
-    const { name, value, type, checked } = event.target;
-    const fieldValue = type === 'checkbox' ? checked : value;
+  const handleBlur = (event: React.FocusEvent<HTMLInputElement | HTMLSelectElement>) => {
+    const { name, value, type } = event.target
+    const checked = (event.target as HTMLInputElement).checked
+    const fieldValue = type === 'checkbox' ? checked : value
     
-    setTouched(prev => ({ ...prev, [name]: true }));
-    const error = validateField(name, fieldValue);
-    setErrors(prev => ({ ...prev, [name]: error }));
-  };
+    setTouched(prev => ({ ...prev, [name]: true }))
+    const error = validateField(name, fieldValue)
+    setErrors(prev => ({ ...prev, [name]: error }))
+  }
   
-  const handleSubmit = async (event) => {
-    event.preventDefault();
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault()
     
     // Valida tutti i campi
-    const newErrors = {};
+    const newErrors: Record<string, string> = {}
     Object.keys(formData).forEach(name => {
-      const error = validateField(name, formData[name]);
-      if (error) newErrors[name] = error;
-    });
+      const error = validateField(name, formData[name as keyof RegistrationFormData])
+      if (error) newErrors[name] = error
+    })
     
-    setErrors(newErrors);
-    setTouched(Object.keys(formData).reduce((acc, key) => ({ ...acc, [key]: true }), {}));
+    setErrors(newErrors)
+    setTouched(Object.keys(formData).reduce((acc, key) => ({ ...acc, [key]: true }), {}))
     
     if (Object.keys(newErrors).length === 0) {
-      setLoading(true);
+      setLoading(true)
       try {
         // Simula chiamata API
-        await new Promise(resolve => setTimeout(resolve, 2000));
-        setSuccess(true);
+        await new Promise(resolve => setTimeout(resolve, 2000))
+        setSuccess(true)
       } catch (error) {
-        console.error('Errore registrazione:', error);
+        console.error('Errore registrazione:', error)
       } finally {
-        setLoading(false);
+        setLoading(false)
       }
     }
-  };
+  }
   
   if (success) {
     return (

@@ -113,13 +113,13 @@ my-react-app/
 │   └── vite.svg           # Icona Vite
 ├── src/                   # Codice sorgente
 │   ├── App.css           # Stili del componente App
-│   ├── App.jsx           # Componente principale
+│   ├── App.tsx           # Componente principale
 │   ├── index.css         # Stili globali
-│   ├── main.jsx          # Entry point dell'app
-│   └── vite-env.d.ts     # Tipi TypeScript (se usi TS)
+│   ├── main.tsx          # Entry point dell'app
+│   └── vite-env.d.ts     # Tipi TypeScript
 ├── index.html            # Template HTML principale
 ├── package.json          # Dipendenze e script
-├── vite.config.js        # Configurazione Vite
+├── vite.config.ts        # Configurazione Vite
 └── README.md            # Documentazione del progetto
 ```
 
@@ -137,27 +137,33 @@ my-react-app/
   </head>
   <body>
     <div id="root"></div>
-    <script type="module" src="/src/main.jsx"></script>
+    <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
 ```
 
-#### **main.jsx** (Entry Point)
-```jsx
-import React from 'react'
-import ReactDOM from 'react-dom/client'
-import App from './App.jsx'
+#### **main.tsx** (Entry Point)
+```tsx
+import { StrictMode } from 'react'
+import { createRoot } from 'react-dom/client'
+import App from './App'
 import './index.css'
 
-ReactDOM.createRoot(document.getElementById('root')).render(
-  <React.StrictMode>
+const rootElement = document.getElementById('root')
+
+if (!rootElement) {
+  throw new Error('Root element not found')
+}
+
+createRoot(rootElement).render(
+  <StrictMode>
     <App />
-  </React.StrictMode>,
+  </StrictMode>
 )
 ```
 
-#### **App.jsx** (Componente Principale)
-```jsx
+#### **App.tsx** (Componente Principale)
+```tsx
 import reactLogo from './assets/react.svg'
 import viteLogo from '/vite.svg'
 import './App.css'
@@ -166,17 +172,17 @@ function App() {
   return (
     <div className="App">
       <div>
-        <a href="https://vitejs.dev" target="_blank">
+        <a href="https://vitejs.dev" target="_blank" rel="noopener noreferrer">
           <img src={viteLogo} className="logo" alt="Vite logo" />
         </a>
-        <a href="https://react.dev" target="_blank">
+        <a href="https://react.dev" target="_blank" rel="noopener noreferrer">
           <img src={reactLogo} className="logo react" alt="React logo" />
         </a>
       </div>
       <h1>Vite + React</h1>
       <div className="card">
         <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
+          Edit <code>src/App.tsx</code> and save to test HMR
         </p>
       </div>
       <p className="read-the-docs">
@@ -191,9 +197,9 @@ export default App
 
 ## ⚙️ Configurazione Vite
 
-### **vite.config.js** (Configurazione Base)
+### **vite.config.ts** (Configurazione Base)
 
-```javascript
+```typescript
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 
@@ -206,7 +212,7 @@ export default defineConfig({
 ### Configurazioni Avanzate
 
 #### **Con Alias di Percorso**
-```javascript
+```typescript
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import path from 'path'
@@ -224,7 +230,7 @@ export default defineConfig({
 ```
 
 #### **Con Variabili d'Ambiente**
-```javascript
+```typescript
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 
@@ -320,7 +326,7 @@ npm install -D vitest @testing-library/react @testing-library/jest-dom
   </head>
   <body>
     <div id="root"></div>
-    <script type="module" src="/src/main.jsx"></script>
+    <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
 ```
@@ -399,7 +405,7 @@ Vai su [http://localhost:5173](http://localhost:5173)
 src/
 ├── components/          # Componenti riutilizzabili
 │   ├── Button/
-│   │   ├── Button.jsx
+│   │   ├── Button.tsx
 │   │   ├── Button.css
 │   │   └── index.js
 ├── pages/              # Pagine dell'app
@@ -411,7 +417,7 @@ src/
 ```
 
 ### **Naming Conventions**
-- **Componenti**: PascalCase (`UserProfile.jsx`)
+- **Componenti**: PascalCase (`UserProfile.tsx`)
 - **File**: kebab-case (`user-profile.jsx`)
 - **Variabili**: camelCase (`userName`)
 - **Costanti**: UPPER_SNAKE_CASE (`API_BASE_URL`)

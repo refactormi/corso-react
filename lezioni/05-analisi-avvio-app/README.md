@@ -50,43 +50,55 @@ Browser → Carica index.html → Esegue script → Avvia React
 
 ### **main.jsx - Entry Point**
 
-```jsx
-import React from 'react'
-import ReactDOM from 'react-dom/client'
-import App from './App.jsx'
+```tsx
+import { StrictMode } from 'react'
+import { createRoot } from 'react-dom/client'
+import App from './App'
 import './index.css'
 
-ReactDOM.createRoot(document.getElementById('root')).render(
-  <React.StrictMode>
+const rootElement = document.getElementById('root')
+
+if (!rootElement) {
+  throw new Error('Root element not found')
+}
+
+createRoot(rootElement).render(
+  <StrictMode>
     <App />
-  </React.StrictMode>,
+  </StrictMode>
 )
 ```
 
 **Analisi del codice:**
 
 #### **Import Statements**
-```jsx
-import React from 'react'                    // Libreria React
-import ReactDOM from 'react-dom/client'     // ReactDOM per il rendering
-import App from './App.jsx'                 // Componente principale
-import './index.css'                        // Stili globali
+```tsx
+import { StrictMode } from 'react'        // Libreria React
+import { createRoot } from 'react-dom/client'  // ReactDOM per il rendering
+import App from './App'                  // Componente principale
+import './index.css'                     // Stili globali
 ```
 
 #### **ReactDOM.createRoot()**
-```jsx
-ReactDOM.createRoot(document.getElementById('root'))
+```tsx
+const rootElement = document.getElementById('root')
+
+if (!rootElement) {
+  throw new Error('Root element not found')
+}
+
+const root = createRoot(rootElement)
 ```
 - **Crea un root** per l'applicazione React
 - **Trova l'elemento** con id "root" nel DOM
 - **Restituisce un oggetto** root per il rendering
 
 #### **root.render()**
-```jsx
+```tsx
 root.render(
-  <React.StrictMode>
+  <StrictMode>
     <App />
-  </React.StrictMode>
+  </StrictMode>
 )
 ```
 - **Renderizza** il componente App nel DOM
@@ -120,21 +132,27 @@ root.render(
 
 ### **Fase 2: Esecuzione di main.jsx**
 
-```jsx
+```tsx
 // 1. Import delle dipendenze
-import React from 'react'
-import ReactDOM from 'react-dom/client'
-import App from './App.jsx'
+import { StrictMode } from 'react'
+import { createRoot } from 'react-dom/client'
+import App from './App'
 import './index.css'
 
 // 2. Creazione del root
-const root = ReactDOM.createRoot(document.getElementById('root'))
+const rootElement = document.getElementById('root')
+
+if (!rootElement) {
+  throw new Error('Root element not found')
+}
+
+const root = createRoot(rootElement)
 
 // 3. Rendering dell'app
 root.render(
-  <React.StrictMode>
+  <StrictMode>
     <App />
-  </React.StrictMode>
+  </StrictMode>
 )
 ```
 
@@ -145,23 +163,23 @@ root.render(
 
 ### **Fase 3: Rendering del Componente App**
 
-```jsx
-// App.jsx
+```tsx
+// App.tsx
 function App() {
   return (
     <div className="App">
       <div>
-        <a href="https://vitejs.dev" target="_blank">
+        <a href="https://vitejs.dev" target="_blank" rel="noopener noreferrer">
           <img src={viteLogo} className="logo" alt="Vite logo" />
         </a>
-        <a href="https://react.dev" target="_blank">
+        <a href="https://react.dev" target="_blank" rel="noopener noreferrer">
           <img src={reactLogo} className="logo react" alt="React logo" />
         </a>
       </div>
       <h1>Vite + React</h1>
       <div className="card">
         <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
+          Edit <code>src/App.tsx</code> and save to test HMR
         </p>
       </div>
       <p className="read-the-docs">
@@ -181,9 +199,15 @@ function App() {
 
 ### **ReactDOM.createRoot() - Nuova API (React 18+)**
 
-```jsx
+```tsx
 // Nuova API (React 18+)
-const root = ReactDOM.createRoot(document.getElementById('root'))
+const rootElement = document.getElementById('root')
+
+if (!rootElement) {
+  throw new Error('Root element not found')
+}
+
+const root = createRoot(rootElement)
 root.render(<App />)
 ```
 
@@ -194,9 +218,15 @@ root.render(<App />)
 
 ### **ReactDOM.render() - API Legacy**
 
-```jsx
+```tsx
 // API Legacy (React 17 e precedenti)
-ReactDOM.render(<App />, document.getElementById('root'))
+import { render } from 'react-dom'
+
+const rootElement = document.getElementById('root')
+
+if (rootElement) {
+  render(<App />, rootElement)
+}
 ```
 
 **Differenze:**

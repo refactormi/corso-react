@@ -23,10 +23,17 @@ React segue un principio fondamentale: **"Data flows down, events flow up"** (I 
 - **Events Up**: Gli eventi vengono comunicati dai figli al padre tramite callback functions
 - **Single Source of Truth**: Lo stato dovrebbe essere mantenuto nel componente più vicino alla radice che ne ha bisogno
 
-```jsx
+```tsx
+import { useState } from 'react'
+
 // Esempio base di flusso di dati
+interface ChildProps {
+  count: number
+  onIncrement: () => void
+}
+
 function Parent() {
-  const [count, setCount] = useState(0);
+  const [count, setCount] = useState<number>(0)
   
   return (
     <div>
@@ -36,16 +43,16 @@ function Parent() {
         onIncrement={() => setCount(count + 1)} 
       />
     </div>
-  );
+  )
 }
 
-function Child({ count, onIncrement }) {
+function Child({ count, onIncrement }: ChildProps) {
   return (
     <div>
       <p>Child: {count}</p>
       <button onClick={onIncrement}>Incrementa</button>
     </div>
-  );
+  )
 }
 ```
 
@@ -60,34 +67,54 @@ Il "lifting state up" è il processo di spostare lo stato da un componente figli
 
 #### Esempio di Lifting State Up:
 
-```jsx
+```tsx
+import { useState } from 'react'
+
 // ❌ Stato nel componente figlio (non condivisibile)
-function TemperatureInput() {
-  const [temperature, setTemperature] = useState('');
+function TemperatureInputBad() {
+  const [temperature, setTemperature] = useState<string>('')
   
   return (
     <input
       value={temperature}
-      onChange={(e) => setTemperature(e.target.value)}
+      onChange={(e: React.ChangeEvent<HTMLInputElement>) => setTemperature(e.target.value)}
       placeholder="Temperatura"
     />
-  );
+  )
 }
 
 // ✅ Stato sollevato al componente padre
+interface TemperatureInputProps {
+  scale: 'celsius' | 'fahrenheit'
+  temperature: string
+  onTemperatureChange: (value: string) => void
+}
+
+function TemperatureInput({ scale, temperature, onTemperatureChange }: TemperatureInputProps) {
+  return (
+    <fieldset>
+      <legend>Temperatura in {scale === 'celsius' ? 'Celsius' : 'Fahrenheit'}:</legend>
+      <input
+        value={temperature}
+        onChange={(e: React.ChangeEvent<HTMLInputElement>) => onTemperatureChange(e.target.value)}
+      />
+    </fieldset>
+  )
+}
+
 function TemperatureConverter() {
-  const [celsius, setCelsius] = useState('');
-  const [fahrenheit, setFahrenheit] = useState('');
+  const [celsius, setCelsius] = useState<string>('')
+  const [fahrenheit, setFahrenheit] = useState<string>('')
   
-  const handleCelsiusChange = (value) => {
-    setCelsius(value);
-    setFahrenheit(value ? (value * 9/5 + 32).toFixed(2) : '');
-  };
+  const handleCelsiusChange = (value: string) => {
+    setCelsius(value)
+    setFahrenheit(value ? (parseFloat(value) * 9/5 + 32).toFixed(2) : '')
+  }
   
-  const handleFahrenheitChange = (value) => {
-    setFahrenheit(value);
-    setCelsius(value ? ((value - 32) * 5/9).toFixed(2) : '');
-  };
+  const handleFahrenheitChange = (value: string) => {
+    setFahrenheit(value)
+    setCelsius(value ? ((parseFloat(value) - 32) * 5/9).toFixed(2) : '')
+  }
   
   return (
     <div>
@@ -102,19 +129,7 @@ function TemperatureConverter() {
         onTemperatureChange={handleFahrenheitChange}
       />
     </div>
-  );
-}
-
-function TemperatureInput({ scale, temperature, onTemperatureChange }) {
-  return (
-    <fieldset>
-      <legend>Temperatura in {scale === 'celsius' ? 'Celsius' : 'Fahrenheit'}:</legend>
-      <input
-        value={temperature}
-        onChange={(e) => onTemperatureChange(e.target.value)}
-      />
-    </fieldset>
-  );
+  )
 }
 ```
 
@@ -122,64 +137,48 @@ function TemperatureInput({ scale, temperature, onTemperatureChange }) {
 
 #### Pattern 1: Props e Callback
 
-```jsx
-function TodoApp() {
-  const [todos, setTodos] = useState([]);
-  const [filter, setFilter] = useState('all');
-  
-  const addTodo = (text) => {
-    setTodos(prev => [...prev, {
-      id: Date.now(),
-      text,
-      completed: false
-    }]);
-  };
-  
-  const toggleTodo = (id) => {
-    setTodos(prev => prev.map(todo =>
-      todo.id === id ? { ...todo, completed: !todo.completed } : todo
-    ));
-  };
-  
-  const filteredTodos = todos.filter(todo => {
-    if (filter === 'active') return !todo.completed;
-    if (filter === 'completed') return todo.completed;
-    return true;
-  });
-  
-  return (
-    <div>
-      <TodoForm onAddTodo={addTodo} />
-      <TodoFilter filter={filter} onFilterChange={setFilter} />
-      <TodoList todos={filteredTodos} onToggleTodo={toggleTodo} />
-    </div>
-  );
+```tsx
+import { useState } from 'react'
+
+interface Todo {
+  id: number
+  text: string
+  completed: boolean
 }
 
-function TodoForm({ onAddTodo }) {
-  const [text, setText] = useState('');
+interface TodoFormProps {
+  onAddTodo: (text: string) => void
+}
+
+function TodoForm({ onAddTodo }: TodoFormProps) {
+  const [text, setText] = useState<string>('')
   
-  const handleSubmit = (e) => {
-    e.preventDefault();
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
     if (text.trim()) {
-      onAddTodo(text);
-      setText('');
+      onAddTodo(text)
+      setText('')
     }
-  };
+  }
   
   return (
     <form onSubmit={handleSubmit}>
       <input
         value={text}
-        onChange={(e) => setText(e.target.value)}
+        onChange={(e: React.ChangeEvent<HTMLInputElement>) => setText(e.target.value)}
         placeholder="Nuovo todo..."
       />
       <button type="submit">Aggiungi</button>
     </form>
-  );
+  )
 }
 
-function TodoFilter({ filter, onFilterChange }) {
+interface TodoFilterProps {
+  filter: 'all' | 'active' | 'completed'
+  onFilterChange: (filter: 'all' | 'active' | 'completed') => void
+}
+
+function TodoFilter({ filter, onFilterChange }: TodoFilterProps) {
   return (
     <div>
       <button 
@@ -201,10 +200,15 @@ function TodoFilter({ filter, onFilterChange }) {
         Completati
       </button>
     </div>
-  );
+  )
 }
 
-function TodoList({ todos, onToggleTodo }) {
+interface TodoListProps {
+  todos: Todo[]
+  onToggleTodo: (id: number) => void
+}
+
+function TodoList({ todos, onToggleTodo }: TodoListProps) {
   return (
     <ul>
       {todos.map(todo => (
@@ -215,10 +219,15 @@ function TodoList({ todos, onToggleTodo }) {
         />
       ))}
     </ul>
-  );
+  )
 }
 
-function TodoItem({ todo, onToggle }) {
+interface TodoItemProps {
+  todo: Todo
+  onToggle: (id: number) => void
+}
+
+function TodoItem({ todo, onToggle }: TodoItemProps) {
   return (
     <li>
       <input
@@ -228,42 +237,87 @@ function TodoItem({ todo, onToggle }) {
       />
       <span style={{
         textDecoration: todo.completed ? 'line-through' : 'none'
-      }}>
+      } as React.CSSProperties}>
         {todo.text}
       </span>
     </li>
-  );
+  )
+}
+
+function TodoApp() {
+  const [todos, setTodos] = useState<Todo[]>([])
+  const [filter, setFilter] = useState<'all' | 'active' | 'completed'>('all')
+  
+  const addTodo = (text: string) => {
+    setTodos(prev => [...prev, {
+      id: Date.now(),
+      text,
+      completed: false
+    }])
+  }
+  
+  const toggleTodo = (id: number) => {
+    setTodos(prev => prev.map(todo =>
+      todo.id === id ? { ...todo, completed: !todo.completed } : todo
+    ))
+  }
+  
+  const filteredTodos = todos.filter(todo => {
+    if (filter === 'active') return !todo.completed
+    if (filter === 'completed') return todo.completed
+    return true
+  })
+  
+  return (
+    <div>
+      <TodoForm onAddTodo={addTodo} />
+      <TodoFilter filter={filter} onFilterChange={setFilter} />
+      <TodoList todos={filteredTodos} onToggleTodo={toggleTodo} />
+    </div>
+  )
 }
 ```
 
 #### Pattern 2: Render Props
 
-```jsx
-function DataProvider({ children }) {
-  const [data, setData] = useState(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
+```tsx
+import { useState } from 'react'
+
+interface DataProviderProps {
+  children: (props: {
+    data: any
+    loading: boolean
+    error: string | null
+    fetchData: () => Promise<void>
+  }) => React.ReactNode
+}
+
+function DataProvider({ children }: DataProviderProps) {
+  const [data, setData] = useState<any>(null)
+  const [loading, setLoading] = useState<boolean>(false)
+  const [error, setError] = useState<string | null>(null)
   
-  const fetchData = async () => {
-    setLoading(true);
-    setError(null);
+  const fetchData = async (): Promise<void> => {
+    setLoading(true)
+    setError(null)
     try {
-      const response = await fetch('/api/data');
-      const result = await response.json();
-      setData(result);
+      const response = await fetch('/api/data')
+      const result = await response.json()
+      setData(result)
     } catch (err) {
-      setError(err.message);
+      const errorMessage = err instanceof Error ? err.message : 'Errore sconosciuto'
+      setError(errorMessage)
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
   
   return children({
     data,
     loading,
     error,
     fetchData
-  });
+  }) as React.ReactElement
 }
 
 function App() {
@@ -286,7 +340,7 @@ function App() {
         </div>
       )}
     </DataProvider>
-  );
+  )
 }
 ```
 
@@ -294,42 +348,25 @@ function App() {
 
 #### Pattern 1: Stato Condiviso nel Padre
 
-```jsx
-function ShoppingCart() {
-  const [items, setItems] = useState([]);
-  const [cartOpen, setCartOpen] = useState(false);
-  
-  const addItem = (item) => {
-    setItems(prev => [...prev, item]);
-  };
-  
-  const removeItem = (id) => {
-    setItems(prev => prev.filter(item => item.id !== id));
-  };
-  
-  const clearCart = () => {
-    setItems([]);
-  };
-  
-  return (
-    <div>
-      <Header 
-        itemCount={items.length}
-        onCartToggle={() => setCartOpen(!cartOpen)}
-      />
-      <ProductList onAddItem={addItem} />
-      <CartSidebar
-        isOpen={cartOpen}
-        items={items}
-        onRemoveItem={removeItem}
-        onClearCart={clearCart}
-        onClose={() => setCartOpen(false)}
-      />
-    </div>
-  );
+```tsx
+import { useState } from 'react'
+
+interface Product {
+  id: number
+  name: string
+  price: number
 }
 
-function Header({ itemCount, onCartToggle }) {
+interface CartItem extends Product {
+  quantity: number
+}
+
+interface HeaderProps {
+  itemCount: number
+  onCartToggle: () => void
+}
+
+function Header({ itemCount, onCartToggle }: HeaderProps) {
   return (
     <header>
       <h1>Shop</h1>
@@ -337,15 +374,19 @@ function Header({ itemCount, onCartToggle }) {
         Carrello ({itemCount})
       </button>
     </header>
-  );
+  )
 }
 
-function ProductList({ onAddItem }) {
-  const products = [
+interface ProductListProps {
+  onAddItem: (item: Product) => void
+}
+
+function ProductList({ onAddItem }: ProductListProps) {
+  const products: Product[] = [
     { id: 1, name: 'Laptop', price: 999 },
     { id: 2, name: 'Mouse', price: 29 },
     { id: 3, name: 'Tastiera', price: 79 }
-  ];
+  ]
   
   return (
     <div>
@@ -359,11 +400,19 @@ function ProductList({ onAddItem }) {
         </div>
       ))}
     </div>
-  );
+  )
 }
 
-function CartSidebar({ isOpen, items, onRemoveItem, onClearCart, onClose }) {
-  if (!isOpen) return null;
+interface CartSidebarProps {
+  isOpen: boolean
+  items: CartItem[]
+  onRemoveItem: (id: number) => void
+  onClearCart: () => void
+  onClose: () => void
+}
+
+function CartSidebar({ isOpen, items, onRemoveItem, onClearCart, onClose }: CartSidebarProps) {
+  if (!isOpen) return null
   
   return (
     <div style={{
@@ -375,8 +424,8 @@ function CartSidebar({ isOpen, items, onRemoveItem, onClearCart, onClose }) {
       backgroundColor: 'white',
       border: '1px solid #ccc',
       padding: '20px'
-    }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+    } as React.CSSProperties}>
+      <div style={{ display: 'flex', justifyContent: 'space-between' } as React.CSSProperties}>
         <h2>Carrello</h2>
         <button onClick={onClose}>✕</button>
       </div>
@@ -386,7 +435,7 @@ function CartSidebar({ isOpen, items, onRemoveItem, onClearCart, onClose }) {
       ) : (
         <>
           {items.map(item => (
-            <div key={item.id} style={{ display: 'flex', justifyContent: 'space-between' }}>
+            <div key={item.id} style={{ display: 'flex', justifyContent: 'space-between' } as React.CSSProperties}>
               <span>{item.name}</span>
               <button onClick={() => onRemoveItem(item.id)}>Rimuovi</button>
             </div>
@@ -395,49 +444,117 @@ function CartSidebar({ isOpen, items, onRemoveItem, onClearCart, onClose }) {
         </>
       )}
     </div>
-  );
+  )
+}
+
+function ShoppingCart() {
+  const [items, setItems] = useState<CartItem[]>([])
+  const [cartOpen, setCartOpen] = useState<boolean>(false)
+  
+  const addItem = (item: Product) => {
+    setItems(prev => {
+      const existingItem = prev.find(i => i.id === item.id)
+      if (existingItem) {
+        return prev.map(i =>
+          i.id === item.id ? { ...i, quantity: i.quantity + 1 } : i
+        )
+      }
+      return [...prev, { ...item, quantity: 1 }]
+    })
+  }
+  
+  const removeItem = (id: number) => {
+    setItems(prev => prev.filter(item => item.id !== id))
+  }
+  
+  const clearCart = () => {
+    setItems([])
+  }
+  
+  return (
+    <div>
+      <Header 
+        itemCount={items.reduce((sum, item) => sum + item.quantity, 0)}
+        onCartToggle={() => setCartOpen(!cartOpen)}
+      />
+      <ProductList onAddItem={addItem} />
+      <CartSidebar
+        isOpen={cartOpen}
+        items={items}
+        onRemoveItem={removeItem}
+        onClearCart={clearCart}
+        onClose={() => setCartOpen(false)}
+      />
+    </div>
+  )
 }
 ```
 
 #### Pattern 2: Context API per Stato Globale
 
-```jsx
-import { createContext, useContext, useState } from 'react';
+```tsx
+import { createContext, useContext, useState, ReactNode } from 'react'
+
+interface User {
+  name: string
+  id: number
+}
+
+interface Notification {
+  id: number
+  message: string
+  timestamp: Date
+}
+
+interface AppContextValue {
+  user: User | null
+  theme: 'light' | 'dark'
+  notifications: Notification[]
+  login: (userData: User) => void
+  logout: () => void
+  toggleTheme: () => void
+  addNotification: (message: string) => void
+  removeNotification: (id: number) => void
+}
 
 // Creazione del Context
-const AppContext = createContext();
+const AppContext = createContext<AppContextValue | undefined>(undefined)
 
 // Provider del Context
-function AppProvider({ children }) {
-  const [user, setUser] = useState(null);
-  const [theme, setTheme] = useState('light');
-  const [notifications, setNotifications] = useState([]);
+interface AppProviderProps {
+  children: ReactNode
+}
+
+function AppProvider({ children }: AppProviderProps) {
+  const [user, setUser] = useState<User | null>(null)
+  const [theme, setTheme] = useState<'light' | 'dark'>('light')
+  const [notifications, setNotifications] = useState<Notification[]>([])
   
-  const login = (userData) => {
-    setUser(userData);
-  };
+  const login = (userData: User) => {
+    setUser(userData)
+  }
   
   const logout = () => {
-    setUser(null);
-  };
+    setUser(null)
+  }
   
   const toggleTheme = () => {
-    setTheme(prev => prev === 'light' ? 'dark' : 'light');
-  };
+    setTheme(prev => prev === 'light' ? 'dark' : 'light')
+  }
   
-  const addNotification = (message) => {
+  const addNotification = (message: string) => {
     setNotifications(prev => [...prev, {
       id: Date.now(),
       message,
       timestamp: new Date()
-    }]);
-  };
+    }])
+  }
   
-  const removeNotification = (id) => {
-    setNotifications(prev => prev.filter(n => n.id !== id));
-  };
+  const removeNotification = (id: number) => {
+    setNotifications(prev => prev.filter(n => n.id !== id))
+  }
   
-  const value = {
+  const value: AppContextValue = {
     user,
     theme,
     notifications,
@@ -446,30 +563,30 @@ function AppProvider({ children }) {
     toggleTheme,
     addNotification,
     removeNotification
-  };
+  }
   
   return (
     <AppContext.Provider value={value}>
       {children}
     </AppContext.Provider>
-  );
+  )
 }
 
 // Hook personalizzato per usare il Context
-function useApp() {
-  const context = useContext(AppContext);
+function useApp(): AppContextValue {
+  const context = useContext(AppContext)
   if (!context) {
-    throw new Error('useApp deve essere usato dentro AppProvider');
+    throw new Error('useApp deve essere usato dentro AppProvider')
   }
-  return context;
+  return context
 }
 
 // Componenti che usano il Context
 function Header() {
-  const { user, theme, toggleTheme, notifications } = useApp();
+  const { user, theme, toggleTheme, notifications } = useApp()
   
   return (
-    <header style={{ backgroundColor: theme === 'light' ? '#fff' : '#333' }}>
+    <header style={{ backgroundColor: theme === 'light' ? '#fff' : '#333' } as React.CSSProperties}>
       <h1>App</h1>
       <div>
         {user ? (
@@ -483,33 +600,33 @@ function Header() {
         <span>Notifiche: {notifications.length}</span>
       </div>
     </header>
-  );
+  )
 }
 
 function LoginForm() {
-  const { login } = useApp();
-  const [username, setUsername] = useState('');
+  const { login } = useApp()
+  const [username, setUsername] = useState<string>('')
   
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    login({ name: username, id: Date.now() });
-    setUsername('');
-  };
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
+    login({ name: username, id: Date.now() })
+    setUsername('')
+  }
   
   return (
     <form onSubmit={handleSubmit}>
       <input
         value={username}
-        onChange={(e) => setUsername(e.target.value)}
+        onChange={(e: React.ChangeEvent<HTMLInputElement>) => setUsername(e.target.value)}
         placeholder="Username"
       />
       <button type="submit">Login</button>
     </form>
-  );
+  )
 }
 
 function NotificationCenter() {
-  const { notifications, removeNotification } = useApp();
+  const { notifications, removeNotification } = useApp()
   
   return (
     <div>
@@ -523,7 +640,7 @@ function NotificationCenter() {
         </div>
       ))}
     </div>
-  );
+  )
 }
 
 function App() {
@@ -533,7 +650,7 @@ function App() {
       <LoginForm />
       <NotificationCenter />
     </AppProvider>
-  );
+  )
 }
 ```
 
@@ -541,79 +658,86 @@ function App() {
 
 #### Pattern 1: Event Bus (per componenti distanti)
 
-```jsx
+```tsx
+import { useState, useCallback } from 'react'
+
 // Event Bus semplice
+type EventCallback = (data: any) => void
+
 class EventBus {
-  constructor() {
-    this.events = {};
-  }
+  private events: Record<string, EventCallback[]> = {}
   
-  on(event, callback) {
+  on(event: string, callback: EventCallback): void {
     if (!this.events[event]) {
-      this.events[event] = [];
+      this.events[event] = []
     }
-    this.events[event].push(callback);
+    this.events[event].push(callback)
   }
   
-  off(event, callback) {
+  off(event: string, callback: EventCallback): void {
     if (this.events[event]) {
-      this.events[event] = this.events[event].filter(cb => cb !== callback);
+      this.events[event] = this.events[event].filter(cb => cb !== callback)
     }
   }
   
-  emit(event, data) {
+  emit(event: string, data: any): void {
     if (this.events[event]) {
-      this.events[event].forEach(callback => callback(data));
+      this.events[event].forEach(callback => callback(data))
     }
   }
 }
 
-const eventBus = new EventBus();
+const eventBus = new EventBus()
+
+interface Message {
+  text: string
+  timestamp: number
+}
 
 // Hook per usare l'Event Bus
 function useEventBus() {
-  const [events, setEvents] = useState({});
+  const [events, setEvents] = useState<Record<string, boolean>>({})
   
-  const subscribe = useCallback((event, callback) => {
-    eventBus.on(event, callback);
-    setEvents(prev => ({ ...prev, [event]: true }));
+  const subscribe = useCallback((event: string, callback: EventCallback) => {
+    eventBus.on(event, callback)
+    setEvents(prev => ({ ...prev, [event]: true }))
     
     return () => {
-      eventBus.off(event, callback);
+      eventBus.off(event, callback)
       setEvents(prev => {
-        const newEvents = { ...prev };
-        delete newEvents[event];
-        return newEvents;
-      });
-    };
-  }, []);
+        const newEvents = { ...prev }
+        delete newEvents[event]
+        return newEvents
+      })
+    }
+  }, [])
   
-  const emit = useCallback((event, data) => {
-    eventBus.emit(event, data);
-  }, []);
+  const emit = useCallback((event: string, data: any) => {
+    eventBus.emit(event, data)
+  }, [])
   
-  return { subscribe, emit };
+  return { subscribe, emit }
 }
 
 // Esempio di utilizzo
 function ComponentA() {
-  const { emit } = useEventBus();
+  const { emit } = useEventBus()
   
   const sendMessage = () => {
-    emit('message', { text: 'Ciao da ComponentA!', timestamp: Date.now() });
-  };
+    emit('message', { text: 'Ciao da ComponentA!', timestamp: Date.now() })
+  }
   
   return (
     <div>
       <h3>Componente A</h3>
       <button onClick={sendMessage}>Invia Messaggio</button>
     </div>
-  );
+  )
 }
 
 function ComponentB() {
-  const { subscribe } = useEventBus();
-  const [messages, setMessages] = useState([]);
+  const { subscribe } = useEventBus()
+  const [messages, setMessages] = useState<Message[]>([])
   
   // Nota: Per sottoscriversi agli eventi dell'event bus serve useEffect,
   // che verrà spiegato nella Lezione 12. Per ora, questo esempio mostra
@@ -630,41 +754,91 @@ function ComponentB() {
         ))}
       </ul>
     </div>
-  );
+  )
 }
 ```
 
 #### Pattern 2: Custom Hooks per Logica Condivisa
 
-```jsx
+```tsx
+import { useState, useCallback } from 'react'
+
 // Custom hook per gestione form
-function useForm(initialValues, validationRules) {
-  const [values, setValues] = useState(initialValues);
-  const [errors, setErrors] = useState({});
-  const [touched, setTouched] = useState({});
+interface ValidationRule {
+  required?: boolean
+  minLength?: number
+  pattern?: RegExp
+  custom?: (value: any) => string | boolean
+}
+
+interface ValidationRules {
+  [key: string]: ValidationRule
+}
+
+interface FormValues {
+  [key: string]: any
+}
+
+interface FormErrors {
+  [key: string]: string
+}
+
+interface FormTouched {
+  [key: string]: boolean
+}
+
+function validateField(name: string, value: any, rules: ValidationRules): string {
+  const rule = rules[name]
+  if (!rule) return ''
   
-  const setValue = (name, value) => {
-    setValues(prev => ({ ...prev, [name]: value }));
+  if (rule.required && (!value || (typeof value === 'string' && value.trim() === ''))) {
+    return `${name} è richiesto`
+  }
+  
+  if (rule.minLength && typeof value === 'string' && value.length < rule.minLength) {
+    return `${name} deve essere almeno ${rule.minLength} caratteri`
+  }
+  
+  if (rule.pattern && typeof value === 'string' && !rule.pattern.test(value)) {
+    return `${name} non è valido`
+  }
+  
+  if (rule.custom) {
+    const customResult = rule.custom(value)
+    if (typeof customResult === 'string') return customResult
+    if (customResult === false) return `${name} non è valido`
+  }
+  
+  return ''
+}
+
+function useForm<T extends FormValues>(initialValues: T, validationRules: ValidationRules) {
+  const [values, setValues] = useState<T>(initialValues)
+  const [errors, setErrors] = useState<FormErrors>({})
+  const [touched, setTouchedState] = useState<FormTouched>({})
+  
+  const setValue = (name: keyof T, value: any) => {
+    setValues(prev => ({ ...prev, [name]: value }))
     
-    if (touched[name]) {
-      const error = validateField(name, value, validationRules);
-      setErrors(prev => ({ ...prev, [name]: error }));
+    if (touched[name as string]) {
+      const error = validateField(name as string, value, validationRules)
+      setErrors(prev => ({ ...prev, [name as string]: error }))
     }
-  };
+  }
   
-  const setTouched = (name) => {
-    setTouched(prev => ({ ...prev, [name]: true }));
-    const error = validateField(name, values[name], validationRules);
-    setErrors(prev => ({ ...prev, [name]: error }));
-  };
+  const setTouched = (name: string) => {
+    setTouchedState(prev => ({ ...prev, [name]: true }))
+    const error = validateField(name, values[name], validationRules)
+    setErrors(prev => ({ ...prev, [name]: error }))
+  }
   
   const reset = () => {
-    setValues(initialValues);
-    setErrors({});
-    setTouched({});
-  };
+    setValues(initialValues)
+    setErrors({})
+    setTouchedState({})
+  }
   
-  const isValid = Object.keys(errors).length === 0;
+  const isValid = Object.keys(errors).length === 0
   
   return {
     values,
@@ -674,58 +848,64 @@ function useForm(initialValues, validationRules) {
     setTouched,
     reset,
     isValid
-  };
+  }
 }
 
 // Custom hook per gestione API
-function useApi(url) {
-  const [data, setData] = useState(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
+function useApi<T>(url: string) {
+  const [data, setData] = useState<T | null>(null)
+  const [loading, setLoading] = useState<boolean>(false)
+  const [error, setError] = useState<string | null>(null)
   
   const fetchData = useCallback(async () => {
-    setLoading(true);
-    setError(null);
+    setLoading(true)
+    setError(null)
     try {
-      const response = await fetch(url);
-      const result = await response.json();
-      setData(result);
+      const response = await fetch(url)
+      const result = await response.json()
+      setData(result as T)
     } catch (err) {
-      setError(err.message);
+      const errorMessage = err instanceof Error ? err.message : 'Errore sconosciuto'
+      setError(errorMessage)
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  }, [url]);
+  }, [url])
   
   // Nota: Per caricare automaticamente i dati al mount serve useEffect,
   // che verrà spiegato nella Lezione 12. Per ora, chiama fetchData manualmente.
   
-  return { data, loading, error, refetch: fetchData };
+  return { data, loading, error, refetch: fetchData }
 }
 
 // Utilizzo dei custom hooks
+interface UserFormData {
+  name: string
+  email: string
+}
+
 function UserForm() {
-  const { values, errors, setValue, setTouched, reset, isValid } = useForm(
+  const { values, errors, setValue, setTouched, reset, isValid } = useForm<UserFormData>(
     { name: '', email: '' },
     {
       name: { required: true, minLength: 2 },
       email: { required: true, pattern: /^[^\s@]+@[^\s@]+\.[^\s@]+$/ }
     }
-  );
+  )
   
-  const handleSubmit = (e) => {
-    e.preventDefault();
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
     if (isValid) {
-      console.log('Form valido:', values);
-      reset();
+      console.log('Form valido:', values)
+      reset()
     }
-  };
+  }
   
   return (
     <form onSubmit={handleSubmit}>
       <input
         value={values.name}
-        onChange={(e) => setValue('name', e.target.value)}
+        onChange={(e: React.ChangeEvent<HTMLInputElement>) => setValue('name', e.target.value)}
         onBlur={() => setTouched('name')}
         placeholder="Nome"
       />
@@ -733,7 +913,7 @@ function UserForm() {
       
       <input
         value={values.email}
-        onChange={(e) => setValue('email', e.target.value)}
+        onChange={(e: React.ChangeEvent<HTMLInputElement>) => setValue('email', e.target.value)}
         onBlur={() => setTouched('email')}
         placeholder="Email"
       />
@@ -743,14 +923,20 @@ function UserForm() {
         Invia
       </button>
     </form>
-  );
+  )
+}
+
+interface User {
+  id: number
+  name: string
+  email: string
 }
 
 function UserList() {
-  const { data: users, loading, error, refetch } = useApi('/api/users');
+  const { data: users, loading, error, refetch } = useApi<User[]>('/api/users')
   
-  if (loading) return <div>Caricamento...</div>;
-  if (error) return <div>Errore: {error}</div>;
+  if (loading) return <div>Caricamento...</div>
+  if (error) return <div>Errore: {error}</div>
   
   return (
     <div>
@@ -761,7 +947,7 @@ function UserList() {
         ))}
       </ul>
     </div>
-  );
+  )
 }
 ```
 
@@ -769,36 +955,46 @@ function UserList() {
 
 #### Problema del Prop Drilling:
 
-```jsx
+```tsx
+import { useState } from 'react'
+
 // ❌ Prop drilling - passaggio di props attraverso molti livelli
-function App() {
-  const [user, setUser] = useState(null);
-  
-  return (
-    <div>
-      <Header user={user} onUserChange={setUser} />
-      <Main user={user} onUserChange={setUser} />
-    </div>
-  );
+interface User {
+  name: string
 }
 
-function Header({ user, onUserChange }) {
+interface AppProps {
+  user: User | null
+  onUserChange: (user: User | null) => void
+}
+
+function Header({ user, onUserChange }: AppProps) {
   return (
     <header>
       <Navigation user={user} onUserChange={onUserChange} />
     </header>
-  );
+  )
 }
 
-function Navigation({ user, onUserChange }) {
+interface NavigationProps {
+  user: User | null
+  onUserChange: (user: User | null) => void
+}
+
+function Navigation({ user, onUserChange }: NavigationProps) {
   return (
     <nav>
       <UserMenu user={user} onUserChange={onUserChange} />
     </nav>
-  );
+  )
 }
 
-function UserMenu({ user, onUserChange }) {
+interface UserMenuProps {
+  user: User | null
+  onUserChange: (user: User | null) => void
+}
+
+function UserMenu({ user, onUserChange }: UserMenuProps) {
   return (
     <div>
       {user ? (
@@ -807,19 +1003,45 @@ function UserMenu({ user, onUserChange }) {
         <button onClick={() => onUserChange({ name: 'User' })}>Login</button>
       )}
     </div>
-  );
+  )
+}
+
+function Main({ user }: { user: User | null }) {
+  return <main>Main content</main>
+}
+
+function AppBad() {
+  const [user, setUser] = useState<User | null>(null)
+  
+  return (
+    <div>
+      <Header user={user} onUserChange={setUser} />
+      <Main user={user} />
+    </div>
+  )
 }
 ```
 
 #### Soluzioni per Evitare Prop Drilling:
 
 **Soluzione 1: Context API**
-```jsx
+```tsx
+import { createContext, useContext, useState, ReactNode } from 'react'
+
 // ✅ Usando Context API
-const UserContext = createContext();
+interface User {
+  name: string
+}
+
+interface UserContextValue {
+  user: User | null
+  setUser: (user: User | null) => void
+}
+
+const UserContext = createContext<UserContextValue | undefined>(undefined)
 
 function App() {
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState<User | null>(null)
   
   return (
     <UserContext.Provider value={{ user, setUser }}>
@@ -828,11 +1050,19 @@ function App() {
         <Main />
       </div>
     </UserContext.Provider>
-  );
+  )
+}
+
+function useUser(): UserContextValue {
+  const context = useContext(UserContext)
+  if (!context) {
+    throw new Error('useUser deve essere usato dentro UserContext.Provider')
+  }
+  return context
 }
 
 function UserMenu() {
-  const { user, setUser } = useContext(UserContext);
+  const { user, setUser } = useUser()
   
   return (
     <div>
@@ -842,15 +1072,78 @@ function UserMenu() {
         <button onClick={() => setUser({ name: 'User' })}>Login</button>
       )}
     </div>
-  );
+  )
+}
+
+function Header() {
+  return (
+    <header>
+      <Navigation />
+    </header>
+  )
+}
+
+function Navigation() {
+  return (
+    <nav>
+      <UserMenu />
+    </nav>
+  )
+}
+
+function Main() {
+  return <main>Main content</main>
 }
 ```
 
 **Soluzione 2: Component Composition**
-```jsx
+```tsx
+import { useState, ReactNode } from 'react'
+
 // ✅ Usando component composition
+interface User {
+  name: string
+}
+
+interface HeaderProps {
+  children: ReactNode
+}
+
+function Header({ children }: HeaderProps) {
+  return <header>{children}</header>
+}
+
+interface NavigationProps {
+  children: ReactNode
+}
+
+function Navigation({ children }: NavigationProps) {
+  return <nav>{children}</nav>
+}
+
+interface UserMenuProps {
+  user: User | null
+  onUserChange: (user: User | null) => void
+}
+
+function UserMenu({ user, onUserChange }: UserMenuProps) {
+  return (
+    <div>
+      {user ? (
+        <button onClick={() => onUserChange(null)}>Logout</button>
+      ) : (
+        <button onClick={() => onUserChange({ name: 'User' })}>Login</button>
+      )}
+    </div>
+  )
+}
+
+function Main({ user }: { user: User | null }) {
+  return <main>Main content - User: {user?.name || 'Not logged in'}</main>
+}
+
 function App() {
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState<User | null>(null)
   
   return (
     <div>
@@ -861,15 +1154,7 @@ function App() {
       </Header>
       <Main user={user} />
     </div>
-  );
-}
-
-function Header({ children }) {
-  return <header>{children}</header>;
-}
-
-function Navigation({ children }) {
-  return <nav>{children}</nav>;
+  )
 }
 ```
 
@@ -900,63 +1185,27 @@ function Navigation({ children }) {
 ## Esempi Pratici
 
 ### Esempio 1: Dashboard con Stato Condiviso
-```jsx
-function Dashboard() {
-  const [selectedUser, setSelectedUser] = useState(null);
-  const [users, setUsers] = useState([]);
-  const [loading, setLoading] = useState(false);
-  
-  const fetchUsers = async () => {
-    setLoading(true);
-    try {
-      const response = await fetch('/api/users');
-      const data = await response.json();
-      setUsers(data);
-    } catch (error) {
-      console.error('Errore nel caricamento utenti:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-  
-  const handleUserSelect = (user) => {
-    setSelectedUser(user);
-  };
-  
-  // Nota: Il caricamento iniziale dei dati richiede useEffect,
-  // che verrà spiegato nella Lezione 12. Per ora, chiama fetchUsers manualmente
-  // (ad esempio con un pulsante o al click dell'utente).
-  
-  const handleUserUpdate = (updatedUser) => {
-    setUsers(prev => prev.map(user => 
-      user.id === updatedUser.id ? updatedUser : user
-    ));
-    if (selectedUser?.id === updatedUser.id) {
-      setSelectedUser(updatedUser);
-    }
-  };
-  
-  return (
-    <div style={{ display: 'flex', height: '100vh' }}>
-      <Sidebar
-        users={users}
-        selectedUser={selectedUser}
-        onUserSelect={handleUserSelect}
-        loading={loading}
-        onRefresh={fetchUsers}
-      />
-      <MainContent
-        selectedUser={selectedUser}
-        onUserUpdate={handleUserUpdate}
-      />
-    </div>
-  );
+```tsx
+import { useState } from 'react'
+
+interface User {
+  id: number
+  name: string
+  email: string
 }
 
-function Sidebar({ users, selectedUser, onUserSelect, loading, onRefresh }) {
+interface SidebarProps {
+  users: User[]
+  selectedUser: User | null
+  onUserSelect: (user: User) => void
+  loading: boolean
+  onRefresh: () => void
+}
+
+function Sidebar({ users, selectedUser, onUserSelect, loading, onRefresh }: SidebarProps) {
   return (
-    <div style={{ width: '300px', borderRight: '1px solid #ccc', padding: '20px' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+    <div style={{ width: '300px', borderRight: '1px solid #ccc', padding: '20px' } as React.CSSProperties}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' } as React.CSSProperties}>
         <h2>Utenti</h2>
         <button onClick={onRefresh} disabled={loading}>
           {loading ? '⏳' : '🔄'}
@@ -966,7 +1215,7 @@ function Sidebar({ users, selectedUser, onUserSelect, loading, onRefresh }) {
       {loading ? (
         <div>Caricamento...</div>
       ) : (
-        <ul style={{ listStyle: 'none', padding: 0 }}>
+        <ul style={{ listStyle: 'none', padding: 0 } as React.CSSProperties}>
           {users.map(user => (
             <li
               key={user.id}
@@ -978,7 +1227,7 @@ function Sidebar({ users, selectedUser, onUserSelect, loading, onRefresh }) {
                 border: '1px solid #ddd',
                 marginBottom: '5px',
                 borderRadius: '4px'
-              }}
+              } as React.CSSProperties}
             >
               <strong>{user.name}</strong>
               <br />
@@ -988,70 +1237,83 @@ function Sidebar({ users, selectedUser, onUserSelect, loading, onRefresh }) {
         </ul>
       )}
     </div>
-  );
+  )
 }
 
-function MainContent({ selectedUser, onUserUpdate }) {
-  const [isEditing, setIsEditing] = useState(false);
-  const [editForm, setEditForm] = useState({});
+interface MainContentProps {
+  selectedUser: User | null
+  onUserUpdate: (user: User) => void
+}
+
+function MainContent({ selectedUser, onUserUpdate }: MainContentProps) {
+  const [isEditing, setIsEditing] = useState<boolean>(false)
+  const [editForm, setEditForm] = useState<User | null>(null)
   
   // Nota: Per sincronizzare editForm con selectedUser quando cambia serve useEffect,
   // che verrà spiegato nella Lezione 12. Per ora, puoi aggiornare editForm
   // direttamente quando entra in modalità editing.
   
   const handleEdit = () => {
-    setEditForm(selectedUser);
-    setIsEditing(true);
-  };
+    if (selectedUser) {
+      setEditForm({ ...selectedUser })
+      setIsEditing(true)
+    }
+  }
   
   const handleSave = () => {
-    onUserUpdate(editForm);
-    setIsEditing(false);
-  };
+    if (editForm) {
+      onUserUpdate(editForm)
+      setIsEditing(false)
+    }
+  }
   
   const handleCancel = () => {
-    setEditForm(selectedUser);
-    setIsEditing(false);
-  };
+    setEditForm(null)
+    setIsEditing(false)
+  }
   
   if (!selectedUser) {
     return (
-      <div style={{ flex: 1, padding: '20px', textAlign: 'center' }}>
+      <div style={{ flex: 1, padding: '20px', textAlign: 'center' } as React.CSSProperties}>
         <h2>Seleziona un utente</h2>
         <p>Seleziona un utente dalla sidebar per visualizzare i dettagli</p>
       </div>
-    );
+    )
   }
   
   return (
-    <div style={{ flex: 1, padding: '20px' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+    <div style={{ flex: 1, padding: '20px' } as React.CSSProperties}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' } as React.CSSProperties}>
         <h2>Dettagli Utente</h2>
         <button onClick={isEditing ? handleCancel : handleEdit}>
           {isEditing ? 'Annulla' : 'Modifica'}
         </button>
       </div>
       
-      {isEditing ? (
+      {isEditing && editForm ? (
         <div>
-          <div style={{ marginBottom: '15px' }}>
+          <div style={{ marginBottom: '15px' } as React.CSSProperties}>
             <label>Nome:</label>
             <input
               value={editForm.name}
-              onChange={(e) => setEditForm(prev => ({ ...prev, name: e.target.value }))}
-              style={{ width: '100%', padding: '8px', marginTop: '5px' }}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => 
+                setEditForm(prev => prev ? { ...prev, name: e.target.value } : null)
+              }
+              style={{ width: '100%', padding: '8px', marginTop: '5px' } as React.CSSProperties}
             />
           </div>
-          <div style={{ marginBottom: '15px' }}>
+          <div style={{ marginBottom: '15px' } as React.CSSProperties}>
             <label>Email:</label>
             <input
               value={editForm.email}
-              onChange={(e) => setEditForm(prev => ({ ...prev, email: e.target.value }))}
-              style={{ width: '100%', padding: '8px', marginTop: '5px' }}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => 
+                setEditForm(prev => prev ? { ...prev, email: e.target.value } : null)
+              }
+              style={{ width: '100%', padding: '8px', marginTop: '5px' } as React.CSSProperties}
             />
           </div>
           <div>
-            <button onClick={handleSave} style={{ marginRight: '10px' }}>
+            <button onClick={handleSave} style={{ marginRight: '10px' } as React.CSSProperties}>
               Salva
             </button>
             <button onClick={handleCancel}>
@@ -1067,112 +1329,185 @@ function MainContent({ selectedUser, onUserUpdate }) {
         </div>
       )}
     </div>
-  );
+  )
+}
+
+function Dashboard() {
+  const [selectedUser, setSelectedUser] = useState<User | null>(null)
+  const [users, setUsers] = useState<User[]>([])
+  const [loading, setLoading] = useState<boolean>(false)
+  
+  const fetchUsers = async (): Promise<void> => {
+    setLoading(true)
+    try {
+      const response = await fetch('/api/users')
+      const data = await response.json()
+      setUsers(data as User[])
+    } catch (error) {
+      console.error('Errore nel caricamento utenti:', error)
+    } finally {
+      setLoading(false)
+    }
+  }
+  
+  const handleUserSelect = (user: User) => {
+    setSelectedUser(user)
+  }
+  
+  // Nota: Il caricamento iniziale dei dati richiede useEffect,
+  // che verrà spiegato nella Lezione 12. Per ora, chiama fetchUsers manualmente
+  // (ad esempio con un pulsante o al click dell'utente).
+  
+  const handleUserUpdate = (updatedUser: User) => {
+    setUsers(prev => prev.map(user => 
+      user.id === updatedUser.id ? updatedUser : user
+    ))
+    if (selectedUser?.id === updatedUser.id) {
+      setSelectedUser(updatedUser)
+    }
+  }
+  
+  return (
+    <div style={{ display: 'flex', height: '100vh' } as React.CSSProperties}>
+      <Sidebar
+        users={users}
+        selectedUser={selectedUser}
+        onUserSelect={handleUserSelect}
+        loading={loading}
+        onRefresh={fetchUsers}
+      />
+      <MainContent
+        selectedUser={selectedUser}
+        onUserUpdate={handleUserUpdate}
+      />
+    </div>
+  )
 }
 ```
 
 ### Esempio 2: Sistema di Notifiche con Context
-```jsx
-const NotificationContext = createContext();
+```tsx
+import { createContext, useContext, useState, useCallback, ReactNode } from 'react'
 
-function NotificationProvider({ children }) {
-  const [notifications, setNotifications] = useState([]);
+interface Notification {
+  id: number
+  message: string
+  type?: 'success' | 'error' | 'warning' | 'info'
+  title?: string
+  timestamp: Date
+}
+
+interface NotificationContextValue {
+  notifications: Notification[]
+  addNotification: (notification: Omit<Notification, 'id' | 'timestamp'>) => number
+  removeNotification: (id: number) => void
+  clearAll: () => void
+}
+
+const NotificationContext = createContext<NotificationContextValue | undefined>(undefined)
+
+interface NotificationProviderProps {
+  children: ReactNode
+}
+
+function NotificationProvider({ children }: NotificationProviderProps) {
+  const [notifications, setNotifications] = useState<Notification[]>([])
   
-  const addNotification = useCallback((notification) => {
-    const id = Date.now();
-    const newNotification = {
+  const removeNotification = useCallback((id: number) => {
+    setNotifications(prev => prev.filter(n => n.id !== id))
+  }, [])
+  
+  const addNotification = useCallback((notification: Omit<Notification, 'id' | 'timestamp'>): number => {
+    const id = Date.now()
+    const newNotification: Notification = {
       id,
       ...notification,
       timestamp: new Date()
-    };
+    }
     
-    setNotifications(prev => [...prev, newNotification]);
+    setNotifications(prev => [...prev, newNotification])
     
     // Auto-remove dopo 5 secondi
     setTimeout(() => {
-      removeNotification(id);
-    }, 5000);
+      removeNotification(id)
+    }, 5000)
     
-    return id;
-  }, []);
-  
-  const removeNotification = useCallback((id) => {
-    setNotifications(prev => prev.filter(n => n.id !== id));
-  }, []);
+    return id
+  }, [removeNotification])
   
   const clearAll = useCallback(() => {
-    setNotifications([]);
-  }, []);
+    setNotifications([])
+  }, [])
   
-  const value = {
+  const value: NotificationContextValue = {
     notifications,
     addNotification,
     removeNotification,
     clearAll
-  };
+  }
   
   return (
     <NotificationContext.Provider value={value}>
       {children}
     </NotificationContext.Provider>
-  );
+  )
 }
 
-function useNotifications() {
-  const context = useContext(NotificationContext);
+function useNotifications(): NotificationContextValue {
+  const context = useContext(NotificationContext)
   if (!context) {
-    throw new Error('useNotifications deve essere usato dentro NotificationProvider');
+    throw new Error('useNotifications deve essere usato dentro NotificationProvider')
   }
-  return context;
+  return context
 }
 
 function NotificationButton() {
-  const { addNotification } = useNotifications();
+  const { addNotification } = useNotifications()
   
   const showSuccess = () => {
     addNotification({
       type: 'success',
       message: 'Operazione completata con successo!',
       title: 'Successo'
-    });
-  };
+    })
+  }
   
   const showError = () => {
     addNotification({
       type: 'error',
       message: 'Si è verificato un errore durante l\'operazione.',
       title: 'Errore'
-    });
-  };
+    })
+  }
   
   const showWarning = () => {
     addNotification({
       type: 'warning',
       message: 'Attenzione: questa operazione non può essere annullata.',
       title: 'Attenzione'
-    });
-  };
+    })
+  }
   
   return (
     <div>
-      <button onClick={showSuccess} style={{ marginRight: '10px' }}>
+      <button onClick={showSuccess} style={{ marginRight: '10px' } as React.CSSProperties}>
         Mostra Successo
       </button>
-      <button onClick={showError} style={{ marginRight: '10px' }}>
+      <button onClick={showError} style={{ marginRight: '10px' } as React.CSSProperties}>
         Mostra Errore
       </button>
       <button onClick={showWarning}>
         Mostra Avviso
       </button>
     </div>
-  );
+  )
 }
 
 function NotificationList() {
-  const { notifications, removeNotification, clearAll } = useNotifications();
+  const { notifications, removeNotification, clearAll } = useNotifications()
   
   if (notifications.length === 0) {
-    return null;
+    return null
   }
   
   return (
@@ -1181,8 +1516,8 @@ function NotificationList() {
       top: '20px',
       right: '20px',
       zIndex: 1000
-    }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
+    } as React.CSSProperties}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' } as React.CSSProperties}>
         <h3>Notifiche ({notifications.length})</h3>
         <button onClick={clearAll}>Pulisci Tutto</button>
       </div>
@@ -1195,21 +1530,26 @@ function NotificationList() {
         />
       ))}
     </div>
-  );
+  )
 }
 
-function NotificationItem({ notification, onRemove }) {
-  const getStyle = (type) => {
-    const styles = {
+interface NotificationItemProps {
+  notification: Notification
+  onRemove: (id: number) => void
+}
+
+function NotificationItem({ notification, onRemove }: NotificationItemProps) {
+  const getStyle = (type?: string): React.CSSProperties => {
+    const styles: Record<string, React.CSSProperties> = {
       success: { backgroundColor: '#d4edda', borderColor: '#c3e6cb', color: '#155724' },
       error: { backgroundColor: '#f8d7da', borderColor: '#f5c6cb', color: '#721c24' },
       warning: { backgroundColor: '#fff3cd', borderColor: '#ffeaa7', color: '#856404' },
       info: { backgroundColor: '#d1ecf1', borderColor: '#bee5eb', color: '#0c5460' }
-    };
-    return styles[type] || styles.info;
-  };
+    }
+    return styles[type || 'info'] || styles.info
+  }
   
-  const style = getStyle(notification.type);
+  const style = getStyle(notification.type)
   
   return (
     <div style={{
@@ -1220,13 +1560,13 @@ function NotificationItem({ notification, onRemove }) {
       borderRadius: '4px',
       minWidth: '300px',
       boxShadow: '0 2px 10px rgba(0,0,0,0.1)'
-    }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+    } as React.CSSProperties}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' } as React.CSSProperties}>
         <div>
           {notification.title && (
-            <h4 style={{ margin: '0 0 5px 0' }}>{notification.title}</h4>
+            <h4 style={{ margin: '0 0 5px 0' } as React.CSSProperties}>{notification.title}</h4>
           )}
-          <p style={{ margin: 0 }}>{notification.message}</p>
+          <p style={{ margin: 0 } as React.CSSProperties}>{notification.message}</p>
         </div>
         <button
           onClick={() => onRemove(notification.id)}
@@ -1235,14 +1575,15 @@ function NotificationItem({ notification, onRemove }) {
             border: 'none',
             fontSize: '18px',
             cursor: 'pointer',
-            marginLeft: '10px'
-          }}
+            marginLeft: '10px',
+            color: style.color
+          } as React.CSSProperties}
         >
-          ✕
+          ×
         </button>
       </div>
     </div>
-  );
+  )
 }
 
 function App() {
@@ -1254,7 +1595,7 @@ function App() {
         <NotificationList />
       </div>
     </NotificationProvider>
-  );
+  )
 }
 ```
 

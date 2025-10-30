@@ -1,6 +1,6 @@
 # 🎮 Playground Interattivo - Corso React Base
 
-Un ambiente di sviluppo interattivo per esplorare le funzionalità di React con demo pratiche delle lezioni 08-15.
+Un ambiente di sviluppo interattivo per esplorare le funzionalità di React con demo pratiche delle lezioni 08-19.
 
 ## 🚀 Quick Start
 
@@ -28,9 +28,12 @@ Vai su [http://localhost:5173](http://localhost:5173) per accedere al playground
 | **10** | Passaggio Stato | Context API, lifting state up, comunicazione |
 | **11** | Interazione Utente | Form complessi, validazione avanzata, eventi |
 | **12** | useEffect e Ciclo di Vita | Timer, fetch dati, localStorage, cleanup |
-| **13** | useRef e DOM | Focus, scroll, misurazioni, performance |
-| **14** | useMemo e useCallback | Ottimizzazioni, memoizzazione, calcoli |
-| **15** | Custom Hooks | useLocalStorage, usePrevious, useApi, ecc. |
+| **15** | useRef e DOM | Focus, scroll, misurazioni, performance |
+| **16** | useMemo e useCallback | Ottimizzazioni, memoizzazione, calcoli |
+| **17** | Custom Hooks | useLocalStorage, usePrevious, useApi, ecc. |
+| **18** | React Query | Query, mutations, cache, refetch |
+| **19** | Suspense e Transizioni | Loading states, transizioni, nested suspense |
+| **19a** | Esempi Suspense | Error boundaries, lazy routing, progressive loading |
 
 ### 🎛️ Come Navigare
 
@@ -40,7 +43,7 @@ Vai su [http://localhost:5173](http://localhost:5173) per accedere al playground
 
 ## 🧪 Testing
 
-### Test degli Hook Personalizzati (Lezione 15)
+### Test degli Hook Personalizzati (Lezione 17)
 ```bash
 # Esegui tutti i test
 npm test
@@ -70,18 +73,21 @@ progetto-base/
 │   │   ├── 10-passaggio-stato-componenti/
 │   │   ├── 11-interazione-utente-validazione/
 │   │   ├── 12-useeffect-ciclo-vita/
-│   │   ├── 13-useref-dom-performance/
-│   │   ├── 14-usememo-usecallback/
-│   │   ├── 15-custom-hooks/
-│   │   └── GlobalSwitcher.jsx     # Selettore demo
-│   ├── hooks/                     # Custom hooks (Lezione 15)
+│   │   ├── 15-useref-manipolazione-dom/
+│   │   ├── 16-usememo-usecallback/
+│   │   ├── 17-custom-hooks/
+│   │   ├── 18-introduzione-react-query/
+│   │   ├── 19-suspense-transizioni/
+│   │   ├── 19a-esempi-suspense/
+│   │   └── GlobalSwitcher.tsx     # Selettore demo
+│   ├── hooks/                     # Custom hooks (Lezione 17)
 │   │   ├── useLocalStorage.ts
 │   │   ├── usePrevious.ts
 │   │   ├── useDebouncedValue.ts
 │   │   ├── useInterval.ts
 │   │   └── useApi.ts
-│   ├── App.jsx                    # Componente principale
-│   └── main.jsx                   # Entry point
+│   ├── App.tsx                    # Componente principale
+│   └── main.tsx                   # Entry point
 ├── vitest.config.ts               # Configurazione test
 ├── vitest.setup.ts                # Setup test environment
 └── package.json                   # Dipendenze e script
@@ -108,6 +114,7 @@ npm run lint         # ESLint per controllo codice
 
 - **⚡ Vite** - Build tool veloce e moderno
 - **⚛️ React 19** - Libreria UI con hooks moderni
+- **📘 TypeScript** - Type safety e migliore developer experience
 - **🧪 Vitest** - Framework di testing veloce
 - **🎭 JSDOM** - Ambiente DOM per test
 - **🧩 React Testing Library** - Utility per test componenti
@@ -125,16 +132,19 @@ npm run lint         # ESLint per controllo codice
 - **10**: Impara la comunicazione tra componenti  
 - **11**: Padroneggia form e validazione
 - **12**: Domina useEffect e side effects
-- **13**: Esplora useRef e manipolazione DOM
-- **14**: Ottimizza con memoizzazione
-- **15**: Crea hook riutilizzabili
+- **13-14**: Analizza performance e usa Context API
+- **15**: Esplora useRef e manipolazione DOM
+- **16**: Ottimizza con memoizzazione
+- **17**: Crea hook riutilizzabili
+- **18**: Gestisci stato server con React Query
+- **19-19a**: Implementa Suspense e transizioni
 
 ### 🚀 Prossimi Passi
 Dopo aver esplorato il playground:
 1. Studia la teoria nelle cartelle `lezioni/`
 2. Prova a creare i tuoi componenti
 3. Implementa i pattern appresi nei tuoi progetti
-4. Continua con le lezioni 16-17 (Suspense e React Query)
+4. Completa tutte le 20 lezioni del corso
 
 ## 🆘 Risoluzione Problemi
 

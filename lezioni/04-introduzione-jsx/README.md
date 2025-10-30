@@ -37,8 +37,8 @@ Al termine di questa lezione sarai in grado di:
 
 ### **Elemento Semplice**
 
-```jsx
-// JSX
+```tsx
+// TSX
 const element = <h1>Ciao, mondo!</h1>;
 
 // Equivale a (senza JSX)
@@ -47,8 +47,8 @@ const element = React.createElement('h1', null, 'Ciao, mondo!');
 
 ### **Elemento con Attributi**
 
-```jsx
-// JSX
+```tsx
+// TSX
 const element = <div className="container" id="main">Contenuto</div>;
 
 // Equivale a
@@ -61,8 +61,8 @@ const element = React.createElement(
 
 ### **Elemento Annidato**
 
-```jsx
-// JSX
+```tsx
+// TSX
 const element = (
   <div>
     <h1>Titolo</h1>
@@ -83,10 +83,10 @@ const element = React.createElement(
 
 ### **Variabili e Valori**
 
-```jsx
+```tsx
 function Welcome() {
-  const name = "Mario";
-  const age = 25;
+  const name: string = "Mario";
+  const age: number = 25;
   
   return (
     <div>
@@ -100,10 +100,10 @@ function Welcome() {
 
 ### **Espressioni Complesse**
 
-```jsx
+```tsx
 function Calculator() {
-  const a = 10;
-  const b = 5;
+  const a: number = 10;
+  const b: number = 5;
   
   return (
     <div>
@@ -119,9 +119,9 @@ function Calculator() {
 
 ### **Chiamate di Funzioni**
 
-```jsx
+```tsx
 function Greeting() {
-  const formatName = (firstName, lastName) => {
+  const formatName = (firstName: string, lastName: string): string => {
     return `${firstName} ${lastName}`;
   };
   
@@ -138,10 +138,10 @@ function Greeting() {
 
 ### **Operatori Condizionali**
 
-```jsx
+```tsx
 function ConditionalRendering() {
-  const isLoggedIn = true;
-  const userName = "Mario";
+  const isLoggedIn: boolean = true;
+  const userName: string = "Mario";
   
   return (
     <div>
@@ -159,7 +159,7 @@ function ConditionalRendering() {
 
 ### **Attributi Standard**
 
-```jsx
+```tsx
 function Attributes() {
   return (
     <div>
@@ -182,10 +182,10 @@ function Attributes() {
 
 ### **Classi CSS**
 
-```jsx
+```tsx
 function CSSClasses() {
-  const isActive = true;
-  const theme = "dark";
+  const isActive: boolean = true;
+  const theme: string = "dark";
   
   return (
     <div>
@@ -208,7 +208,7 @@ function CSSClasses() {
 
 ### **Stili Inline**
 
-```jsx
+```tsx
 function InlineStyles() {
   const styles = {
     container: {
@@ -216,12 +216,12 @@ function InlineStyles() {
       padding: '20px',
       borderRadius: '8px',
       margin: '10px 0'
-    },
+    } as React.CSSProperties,
     title: {
       color: '#333',
       fontSize: '24px',
       fontWeight: 'bold'
-    }
+    } as React.CSSProperties
   };
   
   return (
@@ -239,13 +239,13 @@ function InlineStyles() {
 
 ### **Eventi Base**
 
-```jsx
+```tsx
 function EventHandling() {
   const handleClick = () => {
     alert('Pulsante cliccato!');
   };
   
-  const handleInputChange = (event) => {
+  const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     console.log('Valore inserito:', event.target.value);
   };
   
@@ -267,9 +267,9 @@ function EventHandling() {
 
 ### **Eventi con Parametri**
 
-```jsx
+```tsx
 function EventWithParams() {
-  const handleButtonClick = (buttonName) => {
+  const handleButtonClick = (buttonName: string) => {
     console.log(`Pulsante ${buttonName} cliccato`);
   };
   
@@ -290,10 +290,10 @@ function EventWithParams() {
 
 ### **Operatore Ternario**
 
-```jsx
+```tsx
 function ConditionalRendering() {
-  const isVisible = true;
-  const count = 5;
+  const isVisible: boolean = true;
+  const count: number = 5;
   
   return (
     <div>
@@ -314,9 +314,9 @@ function ConditionalRendering() {
 
 ### **Rendering di Liste**
 
-```jsx
+```tsx
 function ListRendering() {
-  const items = ['Mela', 'Banana', 'Arancia'];
+  const items: string[] = ['Mela', 'Banana', 'Arancia'];
   const users = [
     { id: 1, name: 'Mario', age: 25 },
     { id: 2, name: 'Luigi', age: 30 },
@@ -349,11 +349,11 @@ function ListRendering() {
 
 ### **Componente Funzionale**
 
-```jsx
+```tsx
 function UserCard() {
-  const name = "Mario Rossi";
-  const email = "mario@example.com";
-  const age = 25;
+  const name: string = "Mario Rossi";
+  const email: string = "mario@example.com";
+  const age: number = 25;
   
   return (
     <div className="user-card">
@@ -376,13 +376,13 @@ function App() {
 
 ### **Componente con Logica**
 
-```jsx
+```tsx
 function ProductCard() {
-  const productName = "Laptop";
-  const price = 999;
-  const inStock = true;
-  const discount = 0.1;
-  const finalPrice = price - (price * discount);
+  const productName: string = "Laptop";
+  const price: number = 999;
+  const inStock: boolean = true;
+  const discount: number = 0.1;
+  const finalPrice: number = price - (price * discount);
   
   return (
     <div className="product-card">
@@ -403,7 +403,7 @@ function ProductCard() {
 
 ### **1. Un Solo Elemento Radice**
 
-```jsx
+```tsx
 // ❌ SBAGLIATO - Più elementi radice
 function WrongComponent() {
   return (
@@ -435,7 +435,7 @@ function FragmentComponent() {
 
 ### **2. Tag Self-Closing**
 
-```jsx
+```tsx
 // ❌ SBAGLIATO
 <img src="logo.png" alt="Logo"></img>
 <br></br>
@@ -447,7 +447,7 @@ function FragmentComponent() {
 
 ### **3. Attributi JavaScript**
 
-```jsx
+```tsx
 // ❌ SBAGLIATO
 <div class="container" onclick="handleClick()">
 
@@ -457,7 +457,7 @@ function FragmentComponent() {
 
 ### **4. Chiavi per Liste**
 
-```jsx
+```tsx
 // ❌ SBAGLIATO - Manca la key
 {items.map(item => <li>{item}</li>)}
 
@@ -469,7 +469,7 @@ function FragmentComponent() {
 
 ### **Fragment**
 
-```jsx
+```tsx
 function FragmentExample() {
   return (
     <>
@@ -492,7 +492,7 @@ function ExplicitFragment() {
 
 ### **JSX come Variabile**
 
-```jsx
+```tsx
 function JSXVariable() {
   const title = <h1>Il Mio Titolo</h1>;
   const content = (
@@ -513,9 +513,9 @@ function JSXVariable() {
 
 ### **JSX Condizionale Complesso**
 
-```jsx
+```tsx
 function ComplexConditional() {
-  const loading = false;
+  const loading: boolean = false;
   const user = {
     name: "Mario Rossi",
     isAdmin: true,
@@ -550,27 +550,27 @@ function ComplexConditional() {
 
 ### **1. Naming Conventions**
 
-```jsx
+```tsx
 // ✅ Componenti in PascalCase
 function UserProfile() { }
 
 // ✅ Variabili in camelCase
-const userName = "Mario";
+const userName: string = "Mario";
 
 // ✅ Costanti in UPPER_SNAKE_CASE
-const MAX_USERS = 100;
+const MAX_USERS: number = 100;
 ```
 
 ### **2. Organizzazione del Codice**
 
-```jsx
+```tsx
 function WellOrganizedComponent() {
   // 1. Costanti e variabili
-  const title = "Titolo del componente";
-  const items = ["Item 1", "Item 2", "Item 3"];
+  const title: string = "Titolo del componente";
+  const items: string[] = ["Item 1", "Item 2", "Item 3"];
   
   // 2. Funzioni helper
-  const formatDate = (date) => {
+  const formatDate = (date: Date): string => {
     return new Date(date).toLocaleDateString();
   };
   
@@ -596,7 +596,7 @@ function WellOrganizedComponent() {
 
 ### **3. Performance**
 
-```jsx
+```tsx
 // ✅ Usa key uniche per liste
 const items = [
   { id: 1, name: "Item 1" },
@@ -614,7 +614,7 @@ function ItemList() {
 }
 
 // ✅ Evita creazione di oggetti inline
-const styles = { color: 'red', fontSize: '16px' };
+const styles: React.CSSProperties = { color: 'red', fontSize: '16px' };
 
 function StyledComponent() {
   return <div style={styles}>Testo stilizzato</div>;
@@ -625,7 +625,7 @@ function StyledComponent() {
 
 ### **Errore: Adjacent JSX elements**
 
-```jsx
+```tsx
 // ❌ Errore
 function ErrorComponent() {
   return (
@@ -647,7 +647,7 @@ function FixedComponent() {
 
 ### **Errore: className invece di class**
 
-```jsx
+```tsx
 // ❌ Errore
 <div class="container">
 
@@ -657,7 +657,7 @@ function FixedComponent() {
 
 ### **Errore: Stili inline come stringa**
 
-```jsx
+```tsx
 // ❌ Errore
 <div style="color: red; font-size: 16px;">
 

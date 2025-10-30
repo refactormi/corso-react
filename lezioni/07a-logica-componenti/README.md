@@ -20,21 +20,25 @@ Un **componente React** è un pezzo di codice riutilizzabile che incapsula la lo
 
 ### **1. Componenti Funzionali (Function Components)**
 
-```jsx
+```tsx
 // Componente funzionale semplice
 function Welcome() {
-  return <h1>Ciao, mondo!</h1>;
+  return <h1>Ciao, mondo!</h1>
 }
 
 // Componente funzionale con props
-function Welcome({ name }) {
-  return <h1>Ciao, {name}!</h1>;
+interface WelcomeProps {
+  name: string
+}
+
+function Welcome({ name }: WelcomeProps) {
+  return <h1>Ciao, {name}!</h1>
 }
 
 // Componente funzionale con arrow function
-const Welcome = ({ name }) => {
-  return <h1>Ciao, {name}!</h1>;
-};
+const Welcome = ({ name }: WelcomeProps) => {
+  return <h1>Ciao, {name}!</h1>
+}
 ```
 
 **Caratteristiche:**
@@ -45,26 +49,34 @@ const Welcome = ({ name }) => {
 
 ### **2. Componenti a Classe (Class Components)**
 
-```jsx
+```tsx
 // Componente a classe
 class Welcome extends React.Component {
   render() {
-    return <h1>Ciao, mondo!</h1>;
+    return <h1>Ciao, mondo!</h1>
   }
 }
 
 // Componente a classe con props
-class Welcome extends React.Component {
+interface WelcomeProps {
+  name: string
+}
+
+class Welcome extends React.Component<WelcomeProps> {
   render() {
-    return <h1>Ciao, {this.props.name}!</h1>;
+    return <h1>Ciao, {this.props.name}!</h1>
   }
 }
 
 // Componente a classe con stato
-class Counter extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = { count: 0 };
+interface CounterState {
+  count: number
+}
+
+class Counter extends React.Component<{}, CounterState> {
+  constructor(props: {}) {
+    super(props)
+    this.state = { count: 0 }
   }
   
   render() {
@@ -75,7 +87,7 @@ class Counter extends React.Component {
           Incrementa
         </button>
       </div>
-    );
+    )
   }
 }
 ```
@@ -90,9 +102,15 @@ class Counter extends React.Component {
 
 ### **1. Componenti Presentazionali (Presentational Components)**
 
-```jsx
+```tsx
 // Componente presentazionale - solo UI
-function Button({ children, onClick, variant = 'primary' }) {
+interface ButtonProps {
+  children: React.ReactNode
+  onClick?: () => void
+  variant?: 'primary' | 'secondary' | 'success' | 'danger'
+}
+
+function Button({ children, onClick, variant = 'primary' }: ButtonProps) {
   return (
     <button 
       className={`btn btn-${variant}`}
@@ -100,18 +118,28 @@ function Button({ children, onClick, variant = 'primary' }) {
     >
       {children}
     </button>
-  );
+  )
 }
 
 // Componente presentazionale - card
-function UserCard({ user }) {
+interface User {
+  name: string
+  email: string
+  avatar: string
+}
+
+interface UserCardProps {
+  user: User
+}
+
+function UserCard({ user }: UserCardProps) {
   return (
     <div className="user-card">
       <img src={user.avatar} alt={user.name} />
       <h3>{user.name}</h3>
       <p>{user.email}</p>
     </div>
-  );
+  )
 }
 ```
 
@@ -123,20 +151,26 @@ function UserCard({ user }) {
 
 ### **2. Componenti Container (Container Components)**
 
-```jsx
+```tsx
 // Componente container - gestisce logica e dati
+interface User {
+  id: number
+  name: string
+  email: string
+}
+
 function UserList() {
   // In una vera app, questi dati arriverebbero da un'API
   // Per ora li definiamo qui come esempio
-  const users = [
+  const users: User[] = [
     { id: 1, name: 'Mario Rossi', email: 'mario@example.com' },
     { id: 2, name: 'Luigi Bianchi', email: 'luigi@example.com' },
     { id: 3, name: 'Anna Verdi', email: 'anna@example.com' }
-  ];
+  ]
   
-  const loading = false;
+  const loading: boolean = false
   
-  if (loading) return <div>Caricamento...</div>;
+  if (loading) return <div>Caricamento...</div>
   
   return (
     <div>
@@ -144,7 +178,7 @@ function UserList() {
         <UserCard key={user.id} user={user} />
       ))}
     </div>
-  );
+  )
 }
 ```
 
@@ -160,31 +194,36 @@ function UserList() {
 
 ### **1. Single Responsibility Principle**
 
-```jsx
+```tsx
 // ❌ SBAGLIATO - Troppe responsabilità
-function UserDashboard() {
-  const [users, setUsers] = useState([]);
-  const [loading, setLoading] = useState(true);
-  
-  // Gestisce utenti
-  const fetchUsers = async () => { /* ... */ };
-  
-  // Gestisce autenticazione
-  const login = async (credentials) => { /* ... */ };
-  
-  // Gestisce notifiche
-  const showNotification = (message) => { /* ... */ };
-  
-  return (
-    <div>
-      {/* UI complessa */}
-    </div>
-  );
-}
+// function UserDashboard() {
+//   const [users, setUsers] = useState<User[]>([])
+//   const [loading, setLoading] = useState<boolean>(true)
+//   
+//   // Gestisce utenti
+//   const fetchUsers = async () => { /* ... */ }
+//   
+//   // Gestisce autenticazione
+//   const login = async (credentials: Credentials) => { /* ... */ }
+//   
+//   // Gestisce notifiche
+//   const showNotification = (message: string) => { /* ... */ }
+//   
+//   return (
+//     <div>
+//       {/* UI complessa */}
+//     </div>
+//   )
+// }
 
 // ✅ CORRETTO - Responsabilità separate
-function UserList({ users, loading }) {
-  if (loading) return <LoadingSpinner />;
+interface UserListProps {
+  users: User[]
+  loading: boolean
+}
+
+function UserList({ users, loading }: UserListProps) {
+  if (loading) return <div>Caricamento...</div>
   
   return (
     <div>
@@ -192,25 +231,31 @@ function UserList({ users, loading }) {
         <UserCard key={user.id} user={user} />
       ))}
     </div>
-  );
+  )
 }
 
 function UserDashboard() {
-  const { users, loading } = useUsers();
+  // const { users, loading } = useUsers()
   
-  return (
-    <div>
-      <UserList users={users} loading={loading} />
-    </div>
-  );
+  // return (
+  //   <div>
+  //     <UserList users={users} loading={loading} />
+  //   </div>
+  // )
+  return null
 }
 ```
 
 ### **2. Composizione vs Ereditarietà**
 
-```jsx
+```tsx
 // ✅ CORRETTO - Composizione
-function Card({ children, title }) {
+interface CardProps {
+  children: React.ReactNode
+  title?: string
+}
+
+function Card({ children, title }: CardProps) {
   return (
     <div className="card">
       {title && <h3 className="card-title">{title}</h3>}
@@ -218,37 +263,56 @@ function Card({ children, title }) {
         {children}
       </div>
     </div>
-  );
+  )
 }
 
-function UserProfile({ user }) {
+interface User {
+  name: string
+  email: string
+  avatar: string
+}
+
+interface UserProfileProps {
+  user: User
+}
+
+function UserProfile({ user }: UserProfileProps) {
   return (
     <Card title="Profilo Utente">
       <img src={user.avatar} alt={user.name} />
       <h4>{user.name}</h4>
       <p>{user.email}</p>
     </Card>
-  );
+  )
 }
 
-// ❌ SBAGLIATO - Ereditarietà complessa
-class BaseCard extends React.Component {
-  render() {
-    return <div className="card">{this.renderContent()}</div>;
-  }
-}
-
-class UserCard extends BaseCard {
-  renderContent() {
-    return <div>User content</div>;
-  }
-}
+// ❌ SBAGLIATO - Ereditarietà complessa (esempio legacy)
+// class BaseCard extends React.Component {
+//   render() {
+//     return <div className="card">{this.renderContent()}</div>
+//   }
+// }
+//
+// class UserCard extends BaseCard {
+//   renderContent() {
+//     return <div>User content</div>
+//   }
+// }
 ```
 
 ### **3. Props Interface Design**
 
-```jsx
+```tsx
 // ✅ CORRETTO - Props chiare e tipizzate
+interface ButtonProps {
+  children: React.ReactNode
+  onClick?: () => void
+  variant?: 'primary' | 'secondary' | 'success' | 'danger'
+  size?: 'small' | 'medium' | 'large'
+  disabled?: boolean
+  type?: 'button' | 'submit' | 'reset'
+}
+
 function Button({ 
   children, 
   onClick, 
@@ -256,7 +320,7 @@ function Button({
   size = 'medium',
   disabled = false,
   type = 'button'
-}) {
+}: ButtonProps) {
   return (
     <button 
       className={`btn btn-${variant} btn-${size}`}
@@ -266,17 +330,17 @@ function Button({
     >
       {children}
     </button>
-  );
+  )
 }
 
 // Utilizzo
-<Button 
-  variant="secondary" 
-  size="large" 
-  onClick={handleClick}
->
-  Clicca qui
-</Button>
+// <Button 
+//   variant="secondary" 
+//   size="large" 
+//   onClick={handleClick}
+// >
+//   Clicca qui
+// </Button>
 ```
 
 ## 🏗️ Struttura e Organizzazione
@@ -305,12 +369,20 @@ src/
 
 ### **2. Struttura di un Componente**
 
-```jsx
-// Button/Button.jsx
-import React from 'react';
-import './Button.css';
+```tsx
+// Button/Button.tsx
+import React from 'react'
+import './Button.css'
 
 // 1. Definizione del componente
+interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+  children: React.ReactNode
+  onClick?: () => void
+  variant?: 'primary' | 'secondary' | 'success' | 'danger'
+  size?: 'small' | 'medium' | 'large'
+  disabled?: boolean
+}
+
 function Button({ 
   children, 
   onClick, 
@@ -318,12 +390,12 @@ function Button({
   size = 'medium',
   disabled = false,
   ...props 
-}) {
+}: ButtonProps) {
   // 2. Logica del componente
-  const handleClick = (event) => {
-    if (disabled) return;
-    onClick?.(event);
-  };
+  const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+    if (disabled) return
+    onClick?.()
+  }
   
   // 3. Render
   return (
@@ -335,23 +407,16 @@ function Button({
     >
       {children}
     </button>
-  );
+  )
 }
 
-// 4. Props di default
-Button.defaultProps = {
-  variant: 'primary',
-  size: 'medium',
-  disabled: false
-};
-
-// 5. Export
-export default Button;
+// 4. Export
+export default Button
 ```
 
-```jsx
-// Button/index.js
-export { default } from './Button';
+```tsx
+// Button/index.ts
+export { default } from './Button'
 ```
 
 ```css
@@ -399,14 +464,21 @@ export { default } from './Button';
 
 ### **Esempio 1: Componente Card Riutilizzabile**
 
-```jsx
+```tsx
+interface CardProps {
+  title?: string
+  children: React.ReactNode
+  footer?: React.ReactNode
+  className?: string
+}
+
 function Card({ 
   title, 
   children, 
   footer, 
   className = '',
   ...props 
-}) {
+}: CardProps & React.HTMLAttributes<HTMLDivElement>) {
   return (
     <div className={`card ${className}`} {...props}>
       {title && (
@@ -423,27 +495,33 @@ function Card({
         </div>
       )}
     </div>
-  );
+  )
 }
 
 // Utilizzo
-<Card 
-  title="Profilo Utente"
-  footer={<button>Modifica</button>}
->
-  <p>Nome: Mario Rossi</p>
-  <p>Email: mario@example.com</p>
-</Card>
+// <Card 
+//   title="Profilo Utente"
+//   footer={<button>Modifica</button>}
+// >
+//   <p>Nome: Mario Rossi</p>
+//   <p>Email: mario@example.com</p>
+// </Card>
 ```
 
 ### **Esempio 2: Componente Lista con Rendering Personalizzato**
 
-```jsx
-function CustomList({ 
+```tsx
+interface CustomListProps<T> {
+  items: T[]
+  renderItem: (item: T) => React.ReactNode
+  emptyMessage?: string
+}
+
+function CustomList<T>({ 
   items, 
   renderItem,
   emptyMessage = "Nessun elemento trovato"
-}) {
+}: CustomListProps<T>) {
   return (
     <div>
       {items.length > 0 ? (
@@ -458,15 +536,21 @@ function CustomList({
         <p>{emptyMessage}</p>
       )}
     </div>
-  );
+  )
 }
 
 // Utilizzo
+interface User {
+  id: number
+  name: string
+  email: string
+}
+
 function UserListExample() {
-  const users = [
+  const users: User[] = [
     { id: 1, name: 'Mario Rossi', email: 'mario@example.com' },
     { id: 2, name: 'Luigi Bianchi', email: 'luigi@example.com' }
-  ];
+  ]
   
   return (
     <CustomList
@@ -478,7 +562,7 @@ function UserListExample() {
       )}
       emptyMessage="Nessun utente trovato"
     />
-  );
+  )
 }
 ```
 
@@ -486,7 +570,17 @@ function UserListExample() {
 
 ### **Esempio 3: Componente Form con Validazione**
 
-```jsx
+```tsx
+interface FormFieldProps extends React.InputHTMLAttributes<HTMLInputElement> {
+  label: string
+  name: string
+  type?: string
+  value: string
+  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void
+  error?: string
+  required?: boolean
+}
+
 function FormField({ 
   label, 
   name, 
@@ -496,7 +590,7 @@ function FormField({
   error,
   required = false,
   ...props 
-}) {
+}: FormFieldProps) {
   return (
     <div className="form-field">
       <label htmlFor={name}>
@@ -514,31 +608,37 @@ function FormField({
       />
       {error && <span className="error-message">{error}</span>}
     </div>
-  );
+  )
 }
 
 // Utilizzo
-<FormField
-  label="Nome"
-  name="name"
-  value={formData.name}
-  onChange={handleChange}
-  error={errors.name}
-  required
-/>
+// <FormField
+//   label="Nome"
+//   name="name"
+//   value={formData.name}
+//   onChange={handleChange}
+//   error={errors.name}
+//   required
+// />
 ```
 
 ## 🎯 Best Practices
 
 ### **1. Naming Conventions**
 
-```jsx
+```tsx
 // ✅ CORRETTO - PascalCase per componenti
 function UserProfile() { }
-const UserProfile = () => { };
+const UserProfile = () => { }
 
 // ✅ CORRETTO - camelCase per props
-function Button({ onClick, isDisabled, variant }) { }
+interface ButtonProps {
+  onClick?: () => void
+  isDisabled?: boolean
+  variant?: 'primary' | 'secondary'
+}
+
+function Button({ onClick, isDisabled, variant }: ButtonProps) { }
 
 // ✅ CORRETTO - Nomi descrittivi
 function UserCard() { }
@@ -548,10 +648,18 @@ function NavigationMenu() { }
 
 ### **2. Props Validation**
 
-```jsx
-import PropTypes from 'prop-types';
+```tsx
+import PropTypes from 'prop-types'
 
-function Button({ children, onClick, variant, size, disabled }) {
+interface ButtonProps {
+  children: React.ReactNode
+  onClick?: () => void
+  variant?: 'primary' | 'secondary' | 'danger'
+  size?: 'small' | 'medium' | 'large'
+  disabled?: boolean
+}
+
+function Button({ children, onClick, variant, size, disabled }: ButtonProps) {
   return (
     <button 
       className={`btn btn-${variant} btn-${size}`}
@@ -560,7 +668,7 @@ function Button({ children, onClick, variant, size, disabled }) {
     >
       {children}
     </button>
-  );
+  )
 }
 
 Button.propTypes = {
@@ -569,51 +677,69 @@ Button.propTypes = {
   variant: PropTypes.oneOf(['primary', 'secondary', 'danger']),
   size: PropTypes.oneOf(['small', 'medium', 'large']),
   disabled: PropTypes.bool
-};
+}
 
 Button.defaultProps = {
   variant: 'primary',
   size: 'medium',
   disabled: false
-};
+}
 ```
 
 ### **3. Best Practices per Componenti**
 
-```jsx
+```tsx
 // ✅ Componenti piccoli e focalizzati
-function UserCard({ user }) {
+interface User {
+  name: string
+  email: string
+}
+
+interface UserCardProps {
+  user: User
+}
+
+function UserCard({ user }: UserCardProps) {
   return (
     <div className="user-card">
       <h3>{user.name}</h3>
       <p>{user.email}</p>
     </div>
-  );
+  )
 }
 
 // ✅ Componenti riutilizzabili con props
-function Badge({ text, color = 'blue' }) {
+interface BadgeProps {
+  text: string
+  color?: string
+}
+
+function Badge({ text, color = 'blue' }: BadgeProps) {
   return (
     <span style={{ 
       backgroundColor: color, 
       padding: '4px 8px', 
       borderRadius: '4px',
       color: 'white'
-    }}>
+    } as React.CSSProperties}>
       {text}
     </span>
-  );
+  )
 }
 
 // ✅ Composizione di componenti
-function UserProfile({ user }) {
+interface UserProfileProps {
+  user: User & { isPremium?: boolean; isAdmin?: boolean }
+}
+
+function UserProfile({ user }: UserProfileProps) {
   return (
     <div>
       <UserCard user={user} />
       {user.isPremium && <Badge text="Premium" color="gold" />}
       {user.isAdmin && <Badge text="Admin" color="red" />}
     </div>
-  );
+  )
 }
 ```
 
@@ -623,55 +749,68 @@ function UserProfile({ user }) {
 
 ### **Errore: Props non utilizzate correttamente**
 
-```jsx
+```tsx
 // ❌ SBAGLIATO - Ignora le props
 function UserCard() {
-  const userName = "Mario"; // Hardcodato!
-  return <h3>{userName}</h3>;
+  const userName: string = "Mario" // Hardcodato!
+  return <h3>{userName}</h3>
 }
 
 // Utilizzo
-<UserCard user={{ name: "Luigi" }} /> // Props ignorate!
+// <UserCard user={{ name: "Luigi" }} /> // Props ignorate!
 
 // ✅ CORRETTO - Usa le props
-function UserCard({ user }) {
-  return <h3>{user.name}</h3>;
+interface UserCardProps {
+  user: { name: string }
+}
+
+function UserCardCorrect({ user }: UserCardProps) {
+  return <h3>{user.name}</h3>
 }
 
 // Utilizzo
-<UserCard user={{ name: "Luigi" }} /> // Props utilizzate correttamente!
+// <UserCardCorrect user={{ name: "Luigi" }} /> // Props utilizzate correttamente!
 ```
 
 ### **Errore: Props mancanti**
 
-```jsx
+```tsx
 // ❌ SBAGLIATO - Nessun valore di default
-function UserCard({ user }) {
+interface User {
+  name: string
+  email: string
+}
+
+interface UserCardProps {
+  user?: User
+}
+
+function UserCard({ user }: UserCardProps) {
   return (
     <div>
-      <h3>{user.name}</h3>
-      <p>{user.email}</p>
+      <h3>{user!.name}</h3> {/* Potrebbe essere undefined */}
+      <p>{user!.email}</p>
     </div>
-  );
+  )
 }
 
 // Utilizzo senza props
-<UserCard /> // Errore: Cannot read property 'name' of undefined
+// <UserCard /> // Errore: Cannot read property 'name' of undefined
 
 // ✅ CORRETTO - Props di default
-function UserCard({ user = { name: 'Sconosciuto', email: 'N/A' } }) {
+function UserCardWithDefault({ user = { name: 'Sconosciuto', email: 'N/A' } }: UserCardProps) {
   return (
     <div>
       <h3>{user.name}</h3>
       <p>{user.email}</p>
     </div>
-  );
+  )
 }
 
 // Oppure con controlli
-function UserCardSafe({ user }) {
+function UserCardSafe({ user }: UserCardProps) {
   if (!user) {
-    return <div>Nessun utente</div>;
+    return <div>Nessun utente</div>
   }
   
   return (
@@ -679,22 +818,27 @@ function UserCardSafe({ user }) {
       <h3>{user.name || 'Nome non disponibile'}</h3>
       <p>{user.email || 'Email non disponibile'}</p>
     </div>
-  );
+  )
 }
 ```
 
 ### **Errore: Componente troppo complesso**
 
-```jsx
+```tsx
 // ❌ SBAGLIATO - Componente monolitico
-function UserDashboard() {
-  // 200+ righe di codice
-  // Troppe responsabilità
-  // Difficile da testare
-}
+// function UserDashboard() {
+//   // 200+ righe di codice
+//   // Troppe responsabilità
+//   // Difficile da testare
+// }
 
 // ✅ CORRETTO - Componenti separati
-function UserDashboard() {
+function UserHeader() { return <div>User Header</div> }
+function UserStats() { return <div>User Stats</div> }
+function UserActions() { return <div>User Actions</div> }
+function UserList() { return <div>User List</div> }
+
+function UserDashboardCorrect() {
   return (
     <div>
       <UserHeader />
@@ -702,7 +846,7 @@ function UserDashboard() {
       <UserActions />
       <UserList />
     </div>
-  );
+  )
 }
 ```
 

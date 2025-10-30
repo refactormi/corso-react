@@ -136,8 +136,8 @@ L'**Hot Module Replacement** è una funzionalità che permette di aggiornare i m
 
 ### **Esempio Pratico**
 
-```jsx
-// App.jsx - Stato iniziale
+```tsx
+// App.tsx - Stato iniziale
 function App() {
   return (
     <div>
@@ -149,8 +149,8 @@ function App() {
 ```
 
 **Modifica il titolo:**
-```jsx
-// App.jsx - Dopo la modifica
+```tsx
+// App.tsx - Dopo la modifica
 function App() {
   return (
     <div>
@@ -188,13 +188,13 @@ function App() {
 src/
 ├── components/          # Componenti riutilizzabili
 │   ├── Button/
-│   │   ├── Button.jsx
+│   │   ├── Button.tsx
 │   │   ├── Button.css
-│   │   └── index.js
+│   │   └── index.ts
 ├── pages/              # Pagine dell'app
-│   ├── Home.jsx
-│   ├── About.jsx
-│   └── Contact.jsx
+│   ├── Home.tsx
+│   ├── About.tsx
+│   └── Contact.tsx
 ├── hooks/              # Custom hooks
 ├── utils/              # Funzioni utility
 ├── services/           # Chiamate API
@@ -218,21 +218,21 @@ src/
 
 ### **Console del Browser**
 
-```javascript
+```typescript
 // Debugging nel codice
-console.log('Valore del contatore:', count);
-console.warn('Attenzione: valore alto');
-console.error('Errore:', error);
+console.log('Valore del contatore:', count)
+console.warn('Attenzione: valore alto')
+console.error('Errore:', error)
 ```
 
 ### **Breakpoints**
 
-```jsx
+```tsx
 // Aggiungi breakpoints nel codice
 function App() {
   const handleClick = () => {
-    debugger; // Breakpoint - l'esecuzione si fermerà qui
-    console.log('Pulsante cliccato!');
+    debugger // Breakpoint - l'esecuzione si fermerà qui
+    console.log('Pulsante cliccato!')
   }
   
   return (

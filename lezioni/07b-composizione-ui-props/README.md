@@ -20,36 +20,49 @@ La **composizione UI** è il processo di combinare componenti più piccoli per c
 
 ### **Flusso Unidirezionale**
 
-```jsx
+```tsx
 // 1. Dati fluiscono dal componente padre ai figli
+interface User {
+  name: string
+  age: number
+}
+
 function App() {
   // Dati definiti nel componente padre
-  const user = { name: 'Mario', age: 25 };
+  const user: User = { name: 'Mario', age: 25 }
   
   return (
     <div>
       <UserProfile user={user} />
       <UserSettings user={user} />
     </div>
-  );
+  )
 }
 
 // 2. I componenti figli ricevono i dati tramite props
-function UserProfile({ user }) {
+interface UserProfileProps {
+  user: User
+}
+
+function UserProfile({ user }: UserProfileProps) {
   return (
     <div>
       <h1>{user.name}</h1>
       <p>Età: {user.age}</p>
     </div>
-  );
+  )
 }
 
-function UserSettings({ user }) {
+interface UserSettingsProps {
+  user: User
+}
+
+function UserSettings({ user }: UserSettingsProps) {
   return (
     <div>
       <h2>Impostazioni per {user.name}</h2>
     </div>
-  );
+  )
 }
 ```
 
@@ -63,9 +76,15 @@ function UserSettings({ user }) {
 
 ### **1. Composizione con Children**
 
-```jsx
+```tsx
 // Componente contenitore che accetta children
-function Card({ title, children, footer }) {
+interface CardProps {
+  title?: string
+  children: React.ReactNode
+  footer?: React.ReactNode
+}
+
+function Card({ title, children, footer }: CardProps) {
   return (
     <div className="card">
       {title && <div className="card-header">{title}</div>}
@@ -74,7 +93,7 @@ function Card({ title, children, footer }) {
       </div>
       {footer && <div className="card-footer">{footer}</div>}
     </div>
-  );
+  )
 }
 
 // Utilizzo con children
@@ -88,15 +107,22 @@ function UserProfile() {
       <h3>Mario Rossi</h3>
       <p>mario@example.com</p>
     </Card>
-  );
+  )
 }
 ```
 
 ### **2. Composizione con Props**
 
-```jsx
+```tsx
 // Componente che accetta componenti come props
-function Layout({ header, sidebar, main, footer }) {
+interface LayoutProps {
+  header: React.ReactNode
+  sidebar: React.ReactNode
+  main: React.ReactNode
+  footer: React.ReactNode
+}
+
+function Layout({ header, sidebar, main, footer }: LayoutProps) {
   return (
     <div className="layout">
       <header className="layout-header">{header}</header>
@@ -106,7 +132,7 @@ function Layout({ header, sidebar, main, footer }) {
       </div>
       <footer className="layout-footer">{footer}</footer>
     </div>
-  );
+  )
 }
 
 // Utilizzo
@@ -118,26 +144,37 @@ function App() {
       main={<MainContent />}
       footer={<Footer />}
     />
-  );
+  )
 }
 ```
 
 ### **3. Composizione con Render Props**
 
-```jsx
+```tsx
 // Componente che accetta una funzione come prop
-function DataDisplay({ data, loading, render }) {
-  return render({ data, loading });
+interface DataDisplayProps<T> {
+  data: T[]
+  loading: boolean
+  render: (props: { data: T[]; loading: boolean }) => React.ReactNode
+}
+
+function DataDisplay<T>({ data, loading, render }: DataDisplayProps<T>) {
+  return render({ data, loading })
 }
 
 // Utilizzo
+interface User {
+  id: number
+  name: string
+}
+
 function UserList() {
   // In una vera app, questi dati arriverebbero da un'API
-  const users = [
+  const users: User[] = [
     { id: 1, name: 'Mario' },
     { id: 2, name: 'Luigi' }
-  ];
-  const loading = false;
+  ]
+  const loading: boolean = false
   
   return (
     <DataDisplay
@@ -155,7 +192,7 @@ function UserList() {
         )
       )}
     />
-  );
+  )
 }
 ```
 
@@ -165,25 +202,43 @@ function UserList() {
 
 ### **Props Semplici**
 
-```jsx
+```tsx
 // Passaggio di valori primitivi
-function Button({ text, onClick, disabled }) {
+interface ButtonProps {
+  text: string
+  onClick?: () => void
+  disabled?: boolean
+}
+
+function Button({ text, onClick, disabled }: ButtonProps) {
   return (
     <button onClick={onClick} disabled={disabled}>
       {text}
     </button>
-  );
+  )
 }
 
 // Utilizzo
-<Button text="Clicca qui" onClick={handleClick} disabled={false} />
+// <Button text="Clicca qui" onClick={handleClick} disabled={false} />
 ```
 
 ### **Props con Oggetti**
 
-```jsx
+```tsx
 // Passaggio di oggetti
-function UserCard({ user, onEdit, onDelete }) {
+interface User {
+  id: number
+  name: string
+  email: string
+}
+
+interface UserCardProps {
+  user: User
+  onEdit: (user: User) => void
+  onDelete: (id: number) => void
+}
+
+function UserCard({ user, onEdit, onDelete }: UserCardProps) {
   return (
     <div className="user-card">
       <h3>{user.name}</h3>
@@ -191,23 +246,33 @@ function UserCard({ user, onEdit, onDelete }) {
       <button onClick={() => onEdit(user)}>Modifica</button>
       <button onClick={() => onDelete(user.id)}>Elimina</button>
     </div>
-  );
+  )
 }
 
 // Utilizzo
-const user = { id: 1, name: 'Mario', email: 'mario@example.com' };
-<UserCard 
-  user={user} 
-  onEdit={handleEdit} 
-  onDelete={handleDelete} 
-/>
+// const user: User = { id: 1, name: 'Mario', email: 'mario@example.com' }
+// <UserCard 
+//   user={user} 
+//   onEdit={handleEdit} 
+//   onDelete={handleDelete} 
+// />
 ```
 
 ### **Props con Array**
 
-```jsx
+```tsx
 // Passaggio di array
-function UserList({ users, onUserSelect }) {
+interface User {
+  id: number
+  name: string
+}
+
+interface UserListProps {
+  users: User[]
+  onUserSelect: (user: User) => void
+}
+
+function UserList({ users, onUserSelect }: UserListProps) {
   return (
     <ul>
       {users.map(user => (
@@ -216,26 +281,32 @@ function UserList({ users, onUserSelect }) {
         </li>
       ))}
     </ul>
-  );
+  )
 }
 
 // Utilizzo
-const users = [
-  { id: 1, name: 'Mario' },
-  { id: 2, name: 'Luigi' }
-];
-<UserList users={users} onUserSelect={handleUserSelect} />
+// const users: User[] = [
+//   { id: 1, name: 'Mario' },
+//   { id: 2, name: 'Luigi' }
+// ]
+// <UserList users={users} onUserSelect={handleUserSelect} />
 ```
 
 ### **Props con Funzioni**
 
-```jsx
+```tsx
 // Passaggio di funzioni
-function Form({ onSubmit, onCancel, children }) {
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    onSubmit(formData);
-  };
+interface FormProps {
+  onSubmit: (formData: any) => void
+  onCancel: () => void
+  children: React.ReactNode
+}
+
+function Form({ onSubmit, onCancel, children }: FormProps) {
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
+    // onSubmit(formData) // formData dovrebbe essere gestito con stato
+  }
   
   return (
     <form onSubmit={handleSubmit}>
@@ -243,26 +314,32 @@ function Form({ onSubmit, onCancel, children }) {
       <button type="submit">Invia</button>
       <button type="button" onClick={onCancel}>Annulla</button>
     </form>
-  );
+  )
 }
 
 // Utilizzo
-<Form 
-  onSubmit={handleSubmit} 
-  onCancel={handleCancel}
->
-  <input type="text" name="name" />
-  <input type="email" name="email" />
-</Form>
+// <Form 
+//   onSubmit={handleSubmit} 
+//   onCancel={handleCancel}
+// >
+//   <input type="text" name="name" />
+//   <input type="email" name="email" />
+// </Form>
 ```
 
 ## 🏗️ Esempi Pratici di Composizione
 
 ### **Esempio 1: Dashboard Modulare**
 
-```jsx
+```tsx
 // Componente base per widget
-function Widget({ title, children, actions }) {
+interface WidgetProps {
+  title: string
+  children: React.ReactNode
+  actions?: React.ReactNode
+}
+
+function Widget({ title, children, actions }: WidgetProps) {
   return (
     <div className="widget">
       <div className="widget-header">
@@ -273,11 +350,20 @@ function Widget({ title, children, actions }) {
         {children}
       </div>
     </div>
-  );
+  )
 }
 
 // Widget specifico per statistiche
-function StatsWidget({ stats }) {
+interface Stat {
+  label: string
+  value: number
+}
+
+interface StatsWidgetProps {
+  stats: Stat[]
+}
+
+function StatsWidget({ stats }: StatsWidgetProps) {
   return (
     <Widget 
       title="Statistiche"
@@ -292,11 +378,16 @@ function StatsWidget({ stats }) {
         ))}
       </div>
     </Widget>
-  );
+  )
 }
 
 // Widget specifico per grafici
-function ChartWidget({ data, type }) {
+interface ChartWidgetProps {
+  data: number[]
+  type: string
+}
+
+function ChartWidget({ data, type }: ChartWidgetProps) {
   return (
     <Widget title={`Grafico ${type}`}>
       <div className="chart-container">
@@ -304,18 +395,18 @@ function ChartWidget({ data, type }) {
         <p>Grafico {type} con {data.length} punti</p>
       </div>
     </Widget>
-  );
+  )
 }
 
 // Dashboard che combina i widget
 function Dashboard() {
-  const stats = [
+  const stats: Stat[] = [
     { label: 'Utenti', value: 1250 },
     { label: 'Vendite', value: 8500 },
     { label: 'Ordini', value: 320 }
-  ];
+  ]
   
-  const chartData = [10, 20, 30, 40, 50];
+  const chartData: number[] = [10, 20, 30, 40, 50]
   
   return (
     <div className="dashboard">
@@ -323,26 +414,39 @@ function Dashboard() {
       <ChartWidget data={chartData} type="Vendite" />
       <ChartWidget data={chartData} type="Utenti" />
     </div>
-  );
+  )
 }
 ```
 
 ### **Esempio 2: Form Modulare**
 
-```jsx
+```tsx
 // Componente base per campi form
-function FormField({ label, error, children }) {
+interface FormFieldProps {
+  label: string
+  error?: string
+  children: React.ReactNode
+}
+
+function FormField({ label, error, children }: FormFieldProps) {
   return (
     <div className="form-field">
       <label className="form-label">{label}</label>
       {children}
       {error && <span className="form-error">{error}</span>}
     </div>
-  );
+  )
 }
 
 // Campo input specifico
-function TextInput({ value, onChange, placeholder, error }) {
+interface TextInputProps {
+  value: string
+  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void
+  placeholder?: string
+  error?: string
+}
+
+function TextInput({ value, onChange, placeholder, error }: TextInputProps) {
   return (
     <FormField label="Nome" error={error}>
       <input
@@ -353,11 +457,23 @@ function TextInput({ value, onChange, placeholder, error }) {
         className={error ? 'error' : ''}
       />
     </FormField>
-  );
+  )
 }
 
 // Campo select specifico
-function SelectInput({ value, onChange, options, error }) {
+interface Option {
+  value: string
+  label: string
+}
+
+interface SelectInputProps {
+  value: string
+  onChange: (e: React.ChangeEvent<HTMLSelectElement>) => void
+  options: Option[]
+  error?: string
+}
+
+function SelectInput({ value, onChange, options, error }: SelectInputProps) {
   return (
     <FormField label="Ruolo" error={error}>
       <select value={value} onChange={onChange}>
@@ -368,15 +484,31 @@ function SelectInput({ value, onChange, options, error }) {
         ))}
       </select>
     </FormField>
-  );
+  )
 }
 
 // Form che combina i campi
-function UserForm({ formData, onSubmit, errors = {} }) {
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    onSubmit(formData);
-  };
+interface FormData {
+  name?: string
+  role?: string
+}
+
+interface FormErrors {
+  name?: string
+  role?: string
+}
+
+interface UserFormProps {
+  formData: FormData
+  onSubmit: (formData: FormData) => void
+  errors?: FormErrors
+}
+
+function UserForm({ formData, onSubmit, errors = {} }: UserFormProps) {
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
+    onSubmit(formData)
+  }
   
   return (
     <form onSubmit={handleSubmit}>
@@ -384,6 +516,7 @@ function UserForm({ formData, onSubmit, errors = {} }) {
         value={formData.name || ''}
         placeholder="Inserisci il nome"
         error={errors.name}
+        onChange={() => {}}
       />
       
       <SelectInput
@@ -393,31 +526,45 @@ function UserForm({ formData, onSubmit, errors = {} }) {
           { value: 'user', label: 'Utente' }
         ]}
         error={errors.role}
+        onChange={() => {}}
       />
       
       <button type="submit">Salva</button>
     </form>
-  );
+  )
 }
 
 // Utilizzo del form
 function UserFormExample() {
-  const formData = { name: 'Mario', role: 'user' };
-  const errors = {};
+  const formData: FormData = { name: 'Mario', role: 'user' }
+  const errors: FormErrors = {}
   
-  const handleSubmit = (data) => {
-    console.log('Form inviato:', data);
-  };
+  const handleSubmit = (data: FormData) => {
+    console.log('Form inviato:', data)
+  }
   
-  return <UserForm formData={formData} onSubmit={handleSubmit} errors={errors} />;
+  return <UserForm formData={formData} onSubmit={handleSubmit} errors={errors} />
 }
 ```
 
 ### **Esempio 3: Lista con Filtri**
 
-```jsx
+```tsx
 // Componente per filtri
-function FilterBar({ filters, onFilterChange }) {
+interface Filter {
+  key: string
+  label: string
+  type: string
+  value: string
+  placeholder?: string
+}
+
+interface FilterBarProps {
+  filters: Filter[]
+  onFilterChange: (key: string, value: string) => void
+}
+
+function FilterBar({ filters, onFilterChange }: FilterBarProps) {
   return (
     <div className="filter-bar">
       {filters.map(filter => (
@@ -426,19 +573,25 @@ function FilterBar({ filters, onFilterChange }) {
           <input
             type={filter.type}
             value={filter.value}
-            onChange={(e) => onFilterChange(filter.key, e.target.value)}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => onFilterChange(filter.key, e.target.value)}
             placeholder={filter.placeholder}
           />
         </div>
       ))}
     </div>
-  );
+  )
 }
 
 // Componente per la lista
-function ItemList({ items, renderItem, emptyMessage }) {
+interface ItemListProps<T> {
+  items: T[]
+  renderItem: (item: T) => React.ReactNode
+  emptyMessage?: string
+}
+
+function ItemList<T extends { id: number | string }>({ items, renderItem, emptyMessage = "Nessun elemento trovato" }: ItemListProps<T>) {
   if (items.length === 0) {
-    return <div className="empty-state">{emptyMessage}</div>;
+    return <div className="empty-state">{emptyMessage}</div>
   }
   
   return (
@@ -449,58 +602,71 @@ function ItemList({ items, renderItem, emptyMessage }) {
         </div>
       ))}
     </div>
-  );
+  )
 }
 
 // Componente che combina filtri e lista
-function FilterableList({ 
+interface FilterableListProps<T extends Record<string, any>> {
+  items: T[]
+  filters: Filter[]
+  renderItem: (item: T) => React.ReactNode
+  emptyMessage?: string
+}
+
+function FilterableList<T extends Record<string, any>>({ 
   items, 
   filters, 
   renderItem,
   emptyMessage = "Nessun elemento trovato"
-}) {
+}: FilterableListProps<T>) {
   // Filtra gli items basandosi sui filtri attivi
   const filteredItems = items.filter(item => {
     return filters.every(filter => {
-      if (!filter.value) return true;
-      return item[filter.key]
-        .toLowerCase()
-        .includes(filter.value.toLowerCase());
-    });
-  });
+      if (!filter.value) return true
+      const itemValue = String(item[filter.key] || '').toLowerCase()
+      return itemValue.includes(filter.value.toLowerCase())
+    })
+  })
   
   return (
     <div>
-      <FilterBar filters={filters} />
+      <FilterBar filters={filters} onFilterChange={() => {}} />
       <ItemList 
         items={filteredItems} 
         renderItem={renderItem}
         emptyMessage={emptyMessage}
       />
     </div>
-  );
+  )
 }
 
 // Utilizzo
+interface User {
+  id: number
+  name: string
+  role: string
+  email: string
+}
+
 function UserManagement() {
-  const users = [
+  const users: User[] = [
     { id: 1, name: 'Mario Rossi', role: 'admin', email: 'mario@example.com' },
     { id: 2, name: 'Luigi Bianchi', role: 'user', email: 'luigi@example.com' },
     { id: 3, name: 'Anna Verdi', role: 'user', email: 'anna@example.com' }
-  ];
+  ]
   
   // Filtri simulati (in una vera app, questi sarebbero dinamici)
-  const filters = [
+  const filters: Filter[] = [
     { key: 'name', label: 'Nome', type: 'text', value: '', placeholder: 'Filtra per nome' },
     { key: 'role', label: 'Ruolo', type: 'text', value: '', placeholder: 'Filtra per ruolo' }
-  ];
+  ]
   
-  const renderUser = (user) => (
+  const renderUser = (user: User) => (
     <div>
       <h4>{user.name}</h4>
       <p>{user.email} - {user.role}</p>
     </div>
-  );
+  )
   
   return (
     <FilterableList
@@ -509,7 +675,7 @@ function UserManagement() {
       renderItem={renderUser}
       emptyMessage="Nessun utente trovato"
     />
-  );
+  )
 }
 ```
 
@@ -519,10 +685,15 @@ function UserManagement() {
 
 ### **1. Props Drilling**
 
-```jsx
+```tsx
 // ❌ PROBLEMA - Props drilling eccessivo
+interface User {
+  name: string
+  email: string
+}
+
 function App() {
-  const user = { name: 'Mario', email: 'mario@example.com' };
+  const user: User = { name: 'Mario', email: 'mario@example.com' }
   
   return (
     <div>
@@ -530,26 +701,38 @@ function App() {
       <Main user={user} />
       <Footer user={user} />
     </div>
-  );
+  )
 }
 
-function Main({ user }) {
+interface MainProps {
+  user: User
+}
+
+function Main({ user }: MainProps) {
   return (
     <div>
       <Content user={user} />
       <Sidebar user={user} />
     </div>
-  );
+  )
 }
 
-function Content({ user }) {
-  return <UserProfile user={user} />;
+interface ContentProps {
+  user: User
 }
 
-function UserProfile({ user }) {
+function Content({ user }: ContentProps) {
+  return <UserProfile user={user} />
+}
+
+interface UserProfileProps {
+  user: User
+}
+
+function UserProfile({ user }: UserProfileProps) {
   // Finalmente possiamo usare user qui!
   // Ma abbiamo passato le props attraverso 3 livelli
-  return <div>{user.name}</div>;
+  return <div>{user.name}</div>
 }
 ```
 
@@ -559,21 +742,34 @@ function UserProfile({ user }) {
 
 ### **2. Composizione vs Ereditarietà**
 
-```jsx
+```tsx
 // ✅ CORRETTO - Composizione
-function Modal({ isOpen, onClose, children }) {
-  if (!isOpen) return null;
+interface ModalProps {
+  isOpen: boolean
+  onClose: () => void
+  children: React.ReactNode
+}
+
+function Modal({ isOpen, onClose, children }: ModalProps) {
+  if (!isOpen) return null
   
   return (
     <div className="modal-overlay" onClick={onClose}>
-      <div className="modal-content" onClick={e => e.stopPropagation()}>
+      <div className="modal-content" onClick={(e: React.MouseEvent) => e.stopPropagation()}>
         {children}
       </div>
     </div>
-  );
+  )
 }
 
-function ConfirmModal({ isOpen, onClose, onConfirm, message }) {
+interface ConfirmModalProps {
+  isOpen: boolean
+  onClose: () => void
+  onConfirm: () => void
+  message: string
+}
+
+function ConfirmModal({ isOpen, onClose, onConfirm, message }: ConfirmModalProps) {
   return (
     <Modal isOpen={isOpen} onClose={onClose}>
       <div className="confirm-modal">
@@ -584,38 +780,44 @@ function ConfirmModal({ isOpen, onClose, onConfirm, message }) {
         </div>
       </div>
     </Modal>
-  );
+  )
 }
 
-// ❌ SBAGLIATO - Ereditarietà complessa
-class BaseModal extends React.Component {
-  render() {
-    return <div className="modal">{this.renderContent()}</div>;
-  }
-}
-
-class ConfirmModal extends BaseModal {
-  renderContent() {
-    return <div>Confirm content</div>;
-  }
-}
+// ❌ SBAGLIATO - Ereditarietà complessa (esempio legacy)
+// class BaseModal extends React.Component {
+//   render() {
+//     return <div className="modal">{this.renderContent()}</div>
+//   }
+// }
+//
+// class ConfirmModal extends BaseModal {
+//   renderContent() {
+//     return <div>Confirm content</div>
+//   }
+// }
 ```
 
 ### **3. Gestione degli Errori con Props**
 
-```jsx
+```tsx
 // Componente per gestire errori
-function ErrorBoundary({ children, hasError, fallback }) {
+interface ErrorBoundaryProps {
+  children: React.ReactNode
+  hasError: boolean
+  fallback?: React.ReactNode
+}
+
+function ErrorBoundary({ children, hasError, fallback }: ErrorBoundaryProps) {
   if (hasError) {
-    return fallback || <div>Qualcosa è andato storto</div>;
+    return fallback || <div>Qualcosa è andato storto</div>
   }
   
-  return children;
+  return <>{children}</>
 }
 
 // Utilizzo
 function App() {
-  const hasError = false; // In una vera app, questo sarebbe dinamico
+  const hasError: boolean = false // In una vera app, questo sarebbe dinamico
   
   return (
     <ErrorBoundary 
@@ -625,7 +827,7 @@ function App() {
       <UserList />
       <UserForm />
     </ErrorBoundary>
-  );
+  )
 }
 ```
 
@@ -635,97 +837,145 @@ function App() {
 
 ### **Errore: Props non passate correttamente**
 
-```jsx
+```tsx
 // ❌ SBAGLIATO - Props mancanti
-function UserCard({ user }) {
+interface User {
+  name: string
+  email: string
+}
+
+interface UserCardProps {
+  user?: User
+}
+
+function UserCard({ user }: UserCardProps) {
+  return (
+    <div>
+      <h3>{user!.name}</h3> {/* Potrebbe essere undefined */}
+      <p>{user!.email}</p>
+    </div>
+  )
+}
+
+// Utilizzo senza props
+// <UserCard /> // Errore: user è undefined
+
+// ✅ CORRETTO - Props di default
+function UserCardWithDefault({ user = { name: 'Nome non disponibile', email: 'Email non disponibile' } }: UserCardProps) {
   return (
     <div>
       <h3>{user.name}</h3>
       <p>{user.email}</p>
     </div>
-  );
-}
-
-// Utilizzo senza props
-<UserCard /> // Errore: user è undefined
-
-// ✅ CORRETTO - Props di default
-function UserCard({ user = {} }) {
-  return (
-    <div>
-      <h3>{user.name || 'Nome non disponibile'}</h3>
-      <p>{user.email || 'Email non disponibile'}</p>
-    </div>
-  );
+  )
 }
 ```
 
 ### **Errore: Mutazione diretta delle props**
 
-```jsx
+```tsx
 // ❌ SBAGLIATO - Mutazione delle props
-function UserList({ users }) {
-  const handleDelete = (id) => {
-    users.splice(users.findIndex(u => u.id === id), 1); // Mutazione!
-  };
+interface User {
+  id: number
+  name: string
+}
+
+interface UserListProps {
+  users: User[]
+}
+
+function UserListBad({ users }: UserListProps) {
+  const handleDelete = (id: number) => {
+    // users.splice(users.findIndex(u => u.id === id), 1) // Mutazione! NON FARE
+  }
   
   return (
     <div>
       {users.map(user => (
-        <UserCard key={user.id} user={user} onDelete={handleDelete} />
+        <UserCard key={user.id} user={user} />
       ))}
     </div>
-  );
+  )
 }
 
 // ✅ CORRETTO - Callback per aggiornare lo stato
-function UserList({ users, onDeleteUser }) {
-  const handleDelete = (id) => {
-    onDeleteUser(id); // Chiama la funzione del componente padre
-  };
+interface UserListCorrectProps {
+  users: User[]
+  onDeleteUser: (id: number) => void
+}
+
+function UserListCorrect({ users, onDeleteUser }: UserListCorrectProps) {
+  const handleDelete = (id: number) => {
+    onDeleteUser(id) // Chiama la funzione del componente padre
+  }
   
   return (
     <div>
       {users.map(user => (
-        <UserCard key={user.id} user={user} onDelete={handleDelete} />
+        <UserCard key={user.id} user={user} />
       ))}
     </div>
-  );
+  )
 }
 ```
 
 ### **Errore: Composizione troppo complessa**
 
-```jsx
+```tsx
 // ❌ SBAGLIATO - Troppi livelli di annidamento
-function App() {
-  return (
-    <Layout>
-      <Header>
-        <Navigation>
-          <Menu>
-            <MenuItem>
-              <Link>
-                <Icon />
-                <Text />
-              </Link>
-            </MenuItem>
-          </Menu>
-        </Navigation>
-      </Header>
-    </Layout>
-  );
-}
+// function App() {
+//   return (
+//     <Layout>
+//       <Header>
+//         <Navigation>
+//           <Menu>
+//             <MenuItem>
+//               <Link>
+//                 <Icon />
+//                 <Text />
+//               </Link>
+//             </MenuItem>
+//           </Menu>
+//         </Navigation>
+//       </Header>
+//     </Layout>
+//   )
+// }
 
 // ✅ CORRETTO - Composizione più semplice
+interface MenuItem {
+  id: string
+  label: string
+  href: string
+}
+
+interface NavigationProps {
+  items: MenuItem[]
+}
+
+function Navigation({ items }: NavigationProps) {
+  return (
+    <nav>
+      {items.map(item => (
+        <a key={item.id} href={item.href}>{item.label}</a>
+      ))}
+    </nav>
+  )
+}
+
 function App() {
+  const menuItems: MenuItem[] = [
+    { id: '1', label: 'Home', href: '/' },
+    { id: '2', label: 'About', href: '/about' }
+  ]
+  
   return (
     <Layout>
       <Header>
         <Navigation items={menuItems} />
       </Header>
     </Layout>
-  );
+  )
 }
 ```
 

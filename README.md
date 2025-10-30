@@ -1,8 +1,13 @@
 # 🚀 Corso React Base - Guida Completa
 
-Un corso completo e pratico per imparare React dalle basi alle tecniche avanzate, con esempi funzionanti e best practices moderne.
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.9.3-blue.svg)](https://www.typescriptlang.org/)
+[![React](https://img.shields.io/badge/React-19.1.1-61dafb.svg)](https://react.dev/)
+[![Vite](https://img.shields.io/badge/Vite-7.1.4-646cff.svg)](https://vitejs.dev/)
+[![Build](https://img.shields.io/badge/Build-Passing-success.svg)]()
 
-> 🎯 **Stato Progetto**: **80% Completato** - Lezioni 1-15 complete con playground interattivo funzionante!
+Un corso completo e pratico per imparare React con **TypeScript** dalle basi alle tecniche avanzate, con esempi funzionanti e best practices moderne.
+
+> 🎯 **Stato Progetto**: **88% Completato** - Tutte le 20 lezioni sviluppate con TypeScript e playground interattivo funzionante!
 
 ## 📋 Panoramica
 
@@ -10,12 +15,13 @@ Questo corso ti accompagnerà in un percorso completo di apprendimento di React,
 
 ### 🎯 Obiettivi del Corso
 
-- **Imparare React dalle basi** con esempi pratici e funzionanti
+- **Imparare React con TypeScript** dalle basi con esempi pratici e funzionanti
 - **Comprendere i concetti fondamentali** come componenti, props, stato e lifecycle
 - **Padroneggiare gli hooks moderni** (useState, useEffect, useCallback, useMemo)
+- **Scrivere codice type-safe** con TypeScript per maggiore affidabilità
 - **Implementare best practices** per performance e manutenibilità del codice
 - **Utilizzare strumenti moderni** come Vite, React Query e React DevTools
-- **Sviluppare applicazioni reali** con casi d'uso pratici
+- **Sviluppare applicazioni reali** con casi d'uso pratici e tipi espliciti
 
 ## 🏗️ Struttura del Corso
 
@@ -43,28 +49,33 @@ Questo corso ti accompagnerà in un percorso completo di apprendimento di React,
 ### ✅ useEffect e Lifecycle (12) - COMPLETATA + PLAYGROUND
 12. **[useEffect e ciclo di vita](lezioni/12-useeffect-ciclo-vita/)** - Side effects, cleanup e gestione completa del lifecycle
 
-### ✅ Performance e Ottimizzazione (13-15) - COMPLETATE + PLAYGROUND
-13. **[useRef e manipolazione DOM](lezioni/13-useref-dom-performance/)** - Riferimenti DOM e performance
-14. **[useMemo e useCallback](lezioni/14-usememo-usecallback/)** - Memoizzazione e ottimizzazione
-15. **[Custom hooks](lezioni/15-custom-hooks/)** - Hook riutilizzabili e pattern avanzati
+### ✅ Performance e Analisi (13-14) - COMPLETATE
+13. **[Analisi performance e rendering](lezioni/13-analisi-performance/)** - Identificare re-render, strumenti di misurazione, ottimizzazione preliminare
+14. **[Context API](lezioni/14-context-api/)** - Condivisione stato globale, evitare props drilling, pattern avanzati
 
-> 🎮 **Tutte le lezioni 08-15 sono disponibili nel [Playground Interattivo](progetto-base/)** con demo funzionanti e test completi!
+### ✅ Performance e Ottimizzazione (15-17) - COMPLETATE + PLAYGROUND
+15. **[useRef e manipolazione DOM](lezioni/15-useref-manipolazione-dom/)** - Riferimenti DOM e performance
+16. **[useMemo e useCallback](lezioni/16-usememo-usecallback/)** - Memoizzazione e ottimizzazione
+17. **[Custom hooks](lezioni/17-custom-hooks/)** - Hook riutilizzabili e pattern avanzati
 
-### ⏳ React Query (16-16b) - IN SVILUPPO
-16. **[Introduzione React Query](lezioni/16-introduzione-react-query/)** - Gestione stato server
-16a. **[React Query cache](lezioni/16a-react-query-cache/)** - Ottimizzazione chiamate API
-16b. **[Debug e monitoraggio](lezioni/16b-debug-monitoraggio/)** - Strumenti di sviluppo
+> 🎮 **Tutte le lezioni 08-19a sono disponibili nel [Playground Interattivo](progetto-base/)** con demo funzionanti e test completi!
 
-### ✅ Suspense e Transizioni (17-17a) - COMPLETATE + PLAYGROUND
-17. **[Suspense e transizioni](lezioni/17-suspense-transizioni/)** - Loading states e UX
-17a. **[Esempi pratici Suspense](lezioni/17a-esempi-suspense/)** - Casi d'uso reali
+### ⏳ React Query (18-18b) - IN SVILUPPO
+18. **[Introduzione React Query](lezioni/18-introduzione-react-query/)** - Gestione stato server
+18a. **[React Query cache](lezioni/18a-react-query-cache/)** - Ottimizzazione chiamate API
+18b. **[Debug e monitoraggio](lezioni/18b-debug-monitoraggio/)** - Strumenti di sviluppo
+
+### ✅ Suspense e Transizioni (19-19a) - COMPLETATE + PLAYGROUND
+19. **[Suspense e transizioni](lezioni/19-suspense-transizioni/)** - Loading states e UX
+19a. **[Esempi pratici Suspense](lezioni/19a-esempi-suspense/)** - Casi d'uso reali
 
 ## 🛠️ Prerequisiti
 
 - **Conoscenza base di JavaScript ES6+** (arrow functions, destructuring, modules)
+- **Familiarità con TypeScript** (tipi base, interfacce) - *opzionale ma consigliato*
 - **Familiarità con HTML/CSS**
 - **Node.js 18+** installato sul sistema
-- **Editor di codice** (VS Code consigliato)
+- **Editor di codice** (VS Code consigliato con estensioni TypeScript)
 
 ## 🚀 Quick Start
 
@@ -86,27 +97,76 @@ npm run dev
 ```
 
 ### 4. Esplora le Demo
-Vai su [http://localhost:5173](http://localhost:5173) per accedere al **Playground Interattivo** con tutte le demo delle lezioni 08-15.
+Vai su [http://localhost:5173](http://localhost:5173) per accedere al **Playground Interattivo** con tutte le demo delle lezioni 08-19a.
 
 ### 5. Testa le Funzionalità
 ```bash
 npm test        # Esegui i test degli hook personalizzati
 npm run build   # Verifica che tutto compili correttamente
+npx tsc --noEmit # Verifica tipi TypeScript (opzionale)
+```
+
+## 🔷 TypeScript nel Corso
+
+Questo corso utilizza **TypeScript** per garantire:
+- ✅ **Type Safety**: Errori catturati in fase di sviluppo
+- ✅ **Migliore IntelliSense**: Autocompletamento e documentazione inline
+- ✅ **Codice più manutenibile**: Interfacce chiare e contratti espliciti
+- ✅ **Refactoring sicuro**: Modifiche con maggiore confidenza
+
+### Convenzioni TypeScript Utilizzate
+
+1. **Interfacce per Props**:
+```typescript
+interface ButtonProps {
+  label: string
+  onClick: () => void
+  disabled?: boolean
+}
+
+function Button({ label, onClick, disabled }: ButtonProps): JSX.Element {
+  return <button onClick={onClick} disabled={disabled}>{label}</button>
+}
+```
+
+2. **State Tipizzato**:
+```typescript
+const [count, setCount] = useState<number>(0)
+const [user, setUser] = useState<User | null>(null)
+```
+
+3. **Event Handlers**:
+```typescript
+const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+  // ...
+}
+
+const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  // ...
+}
+```
+
+4. **Custom Hooks con Generics**:
+```typescript
+function useLocalStorage<T>(key: string, initialValue: T) {
+  // ...
+}
 ```
 
 ## 📁 Struttura del Repository
 
 ```
 corso-react-base/
-├── 📚 lezioni/                     # Tutte le lezioni del corso (1-17)
+├── 📚 lezioni/                     # Tutte le lezioni del corso (20 lezioni totali)
 │   ├── 01-introduzione-react/      # ✅ Lezione 1 - Teoria + esempi
 │   ├── 02-creare-progetto-vite/    # ✅ Lezione 2 - Setup Vite
-│   ├── ...                         # ✅ Lezioni 3-15 complete
-│   ├── 16-suspense-transizioni/    # ⏳ In sviluppo
-│   └── 17-introduzione-react-query/ # ⏳ In sviluppo
+│   ├── ...                         # ✅ Lezioni 3-19a complete
+│   ├── 13-analisi-performance/     # ✅ Lezione 13 - Analisi performance
+│   ├── 14-context-api/             # ✅ Lezione 14 - Context API
+│   └── ...                         # ✅ Altre lezioni
 ├── 🎮 progetto-base/               # Playground interattivo React
-│   ├── src/lezioni/                # Demo integrate (08-15)
-│   │   ├── GlobalSwitcher.jsx      # Switcher principale
+│   ├── src/lezioni/                # Demo integrate (08-19a)
+│   │   ├── GlobalSwitcher.tsx      # Switcher principale
 │   │   ├── 08-componenti-stateless-stateful/
 │   │   ├── 09-tecniche-gestione-stato/
 │   │   └── ...                     # Demo per ogni lezione
@@ -118,7 +178,7 @@ corso-react-base/
 
 ## 🎓 Come Utilizzare il Corso
 
-### 🎮 Playground Interattivo (Lezioni 08-15)
+### 🎮 Playground Interattivo (Lezioni 08-19a)
 Il modo più veloce per esplorare le funzionalità di React:
 
 1. **Avvia il playground**: `cd progetto-base && npm run dev`
@@ -137,7 +197,7 @@ Per ogni lezione:
 ### 🧪 Testing e Sviluppo
 ```bash
 cd progetto-base
-npm test          # Test degli hook personalizzati (Lezione 15)
+npm test          # Test degli hook personalizzati (Lezione 17)
 npm run build     # Verifica build di produzione
 npm run dev       # Sviluppo con hot reload
 ```

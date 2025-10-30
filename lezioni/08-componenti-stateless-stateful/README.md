@@ -53,10 +53,14 @@ I componenti stateless sono funzioni che:
 - Sono più semplici da testare e debuggare
 - Sono ottimizzati automaticamente da React
 
-```jsx
+```tsx
 // Componente stateless
-function Welcome({ name }) {
-  return <h1>Ciao, {name}!</h1>;
+interface WelcomeProps {
+  name: string
+}
+
+function Welcome({ name }: WelcomeProps) {
+  return <h1>Ciao, {name}!</h1>
 }
 ```
 
@@ -67,10 +71,12 @@ I componenti stateful sono funzioni che:
 - Gestiscono interazioni utente e side effects
 - Utilizzano hooks per la gestione dello stato
 
-```jsx
+```tsx
 // Componente stateful
+import { useState } from 'react'
+
 function Counter() {
-  const [count, setCount] = useState(0);
+  const [count, setCount] = useState<number>(0)
   
   return (
     <div>
@@ -79,7 +85,7 @@ function Counter() {
         Incrementa
       </button>
     </div>
-  );
+  )
 }
 ```
 
@@ -93,12 +99,18 @@ Gli **hooks** sono funzioni speciali introdotte in React 16.8 (febbraio 2019) ch
 
 Il nome "hook" (gancio) deriva dal fatto che queste funzioni ti permettono di "agganciarti" alle funzionalità interne di React (stato, ciclo di vita, contesto, ecc.) direttamente dai componenti funzionali.
 
-```jsx
+```tsx
 // Prima degli hooks - Componente Classe
-class Counter extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = { count: 0 };
+import React, { Component } from 'react'
+
+interface CounterState {
+  count: number
+}
+
+class CounterClass extends Component<{}, CounterState> {
+  constructor(props: {}) {
+    super(props)
+    this.state = { count: 0 }
   }
   
   render() {
@@ -109,13 +121,15 @@ class Counter extends React.Component {
           Incrementa
         </button>
       </div>
-    );
+    )
   }
 }
 
 // Con gli hooks - Componente Funzionale
+import { useState } from 'react'
+
 function Counter() {
-  const [count, setCount] = useState(0);
+  const [count, setCount] = useState<number>(0)
   
   return (
     <div>
@@ -124,7 +138,7 @@ function Counter() {
         Incrementa
       </button>
     </div>
-  );
+  )
 }
 ```
 
@@ -133,35 +147,64 @@ function Counter() {
 Prima dell'introduzione degli hooks, React presentava diverse problematiche che rendevano complesso lo sviluppo di applicazioni:
 
 **1. Componenti Classe Complessi e Difficili**
-```jsx
+```tsx
 // Componente classe con logica complessa
-class UserProfile extends React.Component {
-  constructor(props) {
-    super(props);
+import React, { Component } from 'react'
+
+interface User {
+  id: number
+  name: string
+}
+
+interface UserProfileProps {
+  userId: number
+}
+
+interface UserProfileState {
+  user: User | null
+  loading: boolean
+  error: string | null
+}
+
+class UserProfile extends Component<UserProfileProps, UserProfileState> {
+  constructor(props: UserProfileProps) {
+    super(props)
     this.state = {
       user: null,
       loading: true,
       error: null
-    };
+    }
     // Bind dei metodi necessario
-    this.handleUpdate = this.handleUpdate.bind(this);
+    this.handleUpdate = this.handleUpdate.bind(this)
   }
   
   componentDidMount() {
     // Logica di fetch
-    this.fetchUser();
+    this.fetchUser()
   }
   
-  componentDidUpdate(prevProps) {
+  componentDidUpdate(prevProps: UserProfileProps) {
     // Gestione aggiornamenti
     if (prevProps.userId !== this.props.userId) {
-      this.fetchUser();
+      this.fetchUser()
     }
   }
   
   componentWillUnmount() {
     // Cleanup
-    this.cancelFetch();
+    this.cancelFetch()
+  }
+  
+  handleUpdate() {
+    // Logica di aggiornamento
+  }
+  
+  fetchUser() {
+    // Logica di fetch
+  }
+  
+  cancelFetch() {
+    // Cleanup fetch
   }
   
   // Molti altri metodi...
@@ -183,15 +226,15 @@ Prima degli hooks, per condividere logica tra componenti si usavano pattern comp
 - **Render Props**: callback annidati
 - **Mixins**: deprecati e problematici
 
-```jsx
+```tsx
 // Pattern HOC - complesso e annidato
-export default withRouter(
-  withAuth(
-    withTheme(
-      withData(MyComponent)
-    )
-  )
-);
+// export default withRouter(
+//   withAuth(
+//     withTheme(
+//       withData(MyComponent)
+//     )
+//   )
+// )
 ```
 
 **3. Componenti Funzionali Limitati**
@@ -203,10 +246,12 @@ I componenti funzionali erano "stupidi" - potevano solo ricevere props e renderi
 Gli hooks risolvono questi problemi permettendo di:
 
 **1. Usare stato nei componenti funzionali**
-```jsx
+```tsx
+import { useState } from 'react'
+
 function Example() {
-  const [count, setCount] = useState(0); // Stato locale
-  return <button onClick={() => setCount(count + 1)}>{count}</button>;
+  const [count, setCount] = useState<number>(0) // Stato locale
+  return <button onClick={() => setCount(count + 1)}>{count}</button>
 }
 ```
 
@@ -215,10 +260,19 @@ function Example() {
 > 💡 **Nota**: Per gestire side effects (come fetch di dati, subscription, ecc.) React fornisce l'hook `useEffect`, che verrà approfondito nella Lezione 12.
 
 **3. Accedere al contesto React**
-```jsx
+```tsx
+import { useContext } from 'react'
+
+interface Theme {
+  color: string
+}
+
+// const ThemeContext = React.createContext<Theme>({ color: 'black' })
+
 function Example() {
-  const theme = useContext(ThemeContext);
-  return <div style={{ color: theme.color }}>Testo</div>;
+  // const theme = useContext(ThemeContext)
+  const theme: Theme = { color: 'blue' } // Placeholder per esempio
+  return <div style={{ color: theme.color }}>Testo</div>
 }
 ```
 
@@ -248,48 +302,52 @@ React fornisce diversi hooks built-in:
 Per funzionare correttamente, gli hooks devono seguire due regole fondamentali:
 
 **Regola 1: Chiamare gli Hooks solo al livello superiore**
-```jsx
+```tsx
+import { useState } from 'react'
+
 // ✅ Corretto - al livello superiore
 function MyComponent() {
-  const [count, setCount] = useState(0);
-  const [name, setName] = useState('');
+  const [count, setCount] = useState<number>(0)
+  const [name, setName] = useState<string>('')
   
-  return <div>...</div>;
+  return <div>...</div>
 }
 
 // ❌ Sbagliato - dentro condizioni/loop
-function MyComponent() {
-  if (condition) {
-    const [count, setCount] = useState(0); // ❌ Non farlo!
-  }
-  
-  for (let i = 0; i < 10; i++) {
-    const [item, setItem] = useState(i); // ❌ Non farlo!
-  }
-  
-  return <div>...</div>;
-}
+// function MyComponent() {
+//   if (condition) {
+//     const [count, setCount] = useState(0) // ❌ Non farlo!
+//   }
+//   
+//   for (let i = 0; i < 10; i++) {
+//     const [item, setItem] = useState(i) // ❌ Non farlo!
+//   }
+//   
+//   return <div>...</div>
+// }
 ```
 
 **Regola 2: Chiamare gli Hooks solo da componenti React o custom hooks**
-```jsx
+```tsx
+import { useState } from 'react'
+
 // ✅ Corretto - in un componente React
 function MyComponent() {
-  const [count, setCount] = useState(0);
-  return <div>{count}</div>;
+  const [count, setCount] = useState<number>(0)
+  return <div>{count}</div>
 }
 
 // ✅ Corretto - in un custom hook
 function useCustomHook() {
-  const [value, setValue] = useState(0);
-  return [value, setValue];
+  const [value, setValue] = useState<number>(0)
+  return [value, setValue] as const
 }
 
 // ❌ Sbagliato - in una funzione normale
-function normalFunction() {
-  const [count, setCount] = useState(0); // ❌ Non farlo!
-  return count;
-}
+// function normalFunction() {
+//   const [count, setCount] = useState(0) // ❌ Non farlo!
+//   return count
+// }
 ```
 
 **Perché queste regole?**
@@ -341,8 +399,10 @@ Ora che abbiamo compreso cosa sono gli hooks e perché sono stati introdotti, po
 
 `useState` è l'hook fondamentale per gestire lo stato locale in un componente funzionale. Come abbiamo visto nella sezione precedente, prima degli hooks avremmo dovuto usare una classe per gestire lo stato. Con `useState` possiamo farlo direttamente in un componente funzionale:
 
-```jsx
-const [state, setState] = useState(initialValue);
+```tsx
+import { useState } from 'react'
+
+const [state, setState] = useState<Type>(initialValue)
 ```
 
 #### Parametri:
@@ -352,21 +412,28 @@ const [state, setState] = useState(initialValue);
 
 #### Esempi di Utilizzo:
 
-```jsx
+```tsx
+import { useState } from 'react'
+
 // Stato primitivo
-const [name, setName] = useState('');
+const [name, setName] = useState<string>('')
 
 // Stato oggetto
-const [user, setUser] = useState({
+interface User {
+  name: string
+  email: string
+}
+
+const [user, setUser] = useState<User>({
   name: '',
   email: ''
-});
+})
 
 // Stato array
-const [items, setItems] = useState([]);
+const [items, setItems] = useState<string[]>([])
 
 // Stato booleano
-const [isVisible, setIsVisible] = useState(false);
+const [isVisible, setIsVisible] = useState<boolean>(false)
 ```
 
 ### 5. Aggiornamento dello Stato
@@ -379,96 +446,115 @@ const [isVisible, setIsVisible] = useState(false);
 
 #### Esempi di Aggiornamento:
 
-```jsx
+```tsx
+import { useState } from 'react'
+
 // ✅ Corretto - aggiornamento diretto
-setCount(count + 1);
+// setCount(count + 1)
 
 // ✅ Corretto - aggiornamento con funzione
-setCount(prevCount => prevCount + 1);
+// setCount((prevCount: number) => prevCount + 1)
 
 // ❌ Sbagliato - modifica diretta
-count = count + 1;
+// count = count + 1
 
 // ✅ Corretto - aggiornamento oggetto
-setUser(prevUser => ({
-  ...prevUser,
-  name: 'Nuovo Nome'
-}));
+interface User {
+  name: string
+  email: string
+}
+
+// setUser((prevUser: User) => ({
+//   ...prevUser,
+//   name: 'Nuovo Nome'
+// }))
 
 // ✅ Corretto - aggiornamento array
-setItems(prevItems => [...prevItems, newItem]);
+// setItems((prevItems: string[]) => [...prevItems, newItem])
 ```
 
 ### 6. Pattern di Gestione Stato
 
 #### Pattern 1: Stato Semplice
-```jsx
+```tsx
+import { useState } from 'react'
+
 function Toggle() {
-  const [isOn, setIsOn] = useState(false);
+  const [isOn, setIsOn] = useState<boolean>(false)
   
-  const toggle = () => setIsOn(!isOn);
+  const toggle = () => setIsOn(!isOn)
   
   return (
     <button onClick={toggle}>
       {isOn ? 'ON' : 'OFF'}
     </button>
-  );
+  )
 }
 ```
 
 #### Pattern 2: Stato Complesso
-```jsx
+```tsx
+import { useState } from 'react'
+
+interface FormData {
+  name: string
+  email: string
+  age: number
+}
+
 function Form() {
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<FormData>({
     name: '',
     email: '',
     age: 0
-  });
+  })
   
-  const updateField = (field, value) => {
+  const updateField = (field: keyof FormData, value: string | number) => {
     setFormData(prev => ({
       ...prev,
       [field]: value
-    }));
-  };
+    }))
+  }
   
   return (
     <form>
       <input 
         value={formData.name}
-        onChange={(e) => updateField('name', e.target.value)}
+        onChange={(e: React.ChangeEvent<HTMLInputElement>) => updateField('name', e.target.value)}
         placeholder="Nome"
       />
       {/* Altri campi... */}
     </form>
-  );
+  )
 }
 ```
 
 #### Pattern 3: Stato con Validazione
-```jsx
+```tsx
+import { useState } from 'react'
+
 function ValidatedInput() {
-  const [value, setValue] = useState('');
-  const [error, setError] = useState('');
+  const [value, setValue] = useState<string>('')
+  const [error, setError] = useState<string>('')
   
-  const handleChange = (e) => {
-    const newValue = e.target.value;
-    setValue(newValue);
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newValue = e.target.value
+    setValue(newValue)
     
     // Validazione
     if (newValue.length < 3) {
-      setError('Minimo 3 caratteri');
+      setError('Minimo 3 caratteri')
     } else {
-      setError('');
+      setError('')
     }
-  };
+  }
   
   return (
     <div>
       <input value={value} onChange={handleChange} />
       {error && <span style={{color: 'red'}}>{error}</span>}
     </div>
-  );
+  )
 }
 ```
 
@@ -491,45 +577,55 @@ function ValidatedInput() {
 ### 8. Errori Comuni e Soluzioni
 
 #### Errore 1: Modifica Diretta dello Stato
-```jsx
+```tsx
+import { useState } from 'react'
+
 // ❌ Sbagliato
-const [user, setUser] = useState({name: 'Mario'});
-user.name = 'Luigi'; // Non funziona!
+const [user, setUser] = useState<{name: string}>({name: 'Mario'})
+// user.name = 'Luigi' // Non funziona!
 
 // ✅ Corretto
-setUser(prev => ({...prev, name: 'Luigi'}));
+// setUser(prev => ({...prev, name: 'Luigi'}))
 ```
 
 #### Errore 2: Aggiornamenti Asincroni
-```jsx
+```tsx
+import { useState } from 'react'
+
 // ❌ Sbagliato - count potrebbe non essere aggiornato
-setCount(count + 1);
-setCount(count + 1); // count è ancora il valore precedente
+// const [count, setCount] = useState<number>(0)
+// setCount(count + 1)
+// setCount(count + 1) // count è ancora il valore precedente
 
 // ✅ Corretto
-setCount(prev => prev + 1);
-setCount(prev => prev + 1);
+// const [count, setCount] = useState<number>(0)
+// setCount(prev => prev + 1)
+// setCount(prev => prev + 1)
 ```
 
 #### Errore 3: Stato per Dati Derivati
-```jsx
+```tsx
+import { useState } from 'react'
+
 // ❌ Sbagliato - duplicazione di stato
-const [firstName, setFirstName] = useState('');
-const [lastName, setLastName] = useState('');
-const [fullName, setFullName] = useState(''); // Non necessario!
+// const [firstName, setFirstName] = useState<string>('')
+// const [lastName, setLastName] = useState<string>('')
+// const [fullName, setFullName] = useState<string>('') // Non necessario!
 
 // ✅ Corretto - calcolo derivato
-const [firstName, setFirstName] = useState('');
-const [lastName, setLastName] = useState('');
-const fullName = `${firstName} ${lastName}`; // Calcolato
+const [firstName, setFirstName] = useState<string>('')
+const [lastName, setLastName] = useState<string>('')
+const fullName: string = `${firstName} ${lastName}` // Calcolato
 ```
 
 ## Esempi Pratici
 
 ### Esempio 1: Contatore Semplice
-```jsx
+```tsx
+import { useState } from 'react'
+
 function SimpleCounter() {
-  const [count, setCount] = useState(0);
+  const [count, setCount] = useState<number>(0)
   
   return (
     <div>
@@ -544,15 +640,23 @@ function SimpleCounter() {
         Reset
       </button>
     </div>
-  );
+  )
 }
 ```
 
 ### Esempio 2: Lista Todo
-```jsx
+```tsx
+import { useState } from 'react'
+
+interface Todo {
+  id: number
+  text: string
+  completed: boolean
+}
+
 function TodoList() {
-  const [todos, setTodos] = useState([]);
-  const [inputValue, setInputValue] = useState('');
+  const [todos, setTodos] = useState<Todo[]>([])
+  const [inputValue, setInputValue] = useState<string>('')
   
   const addTodo = () => {
     if (inputValue.trim()) {
@@ -560,22 +664,22 @@ function TodoList() {
         id: Date.now(),
         text: inputValue,
         completed: false
-      }]);
-      setInputValue('');
+      }])
+      setInputValue('')
     }
-  };
+  }
   
-  const toggleTodo = (id) => {
+  const toggleTodo = (id: number) => {
     setTodos(prev => prev.map(todo =>
       todo.id === id ? {...todo, completed: !todo.completed} : todo
-    ));
-  };
+    ))
+  }
   
   return (
     <div>
       <input 
         value={inputValue}
-        onChange={(e) => setInputValue(e.target.value)}
+        onChange={(e: React.ChangeEvent<HTMLInputElement>) => setInputValue(e.target.value)}
         placeholder="Nuovo todo..."
       />
       <button onClick={addTodo}>Aggiungi</button>
@@ -584,7 +688,7 @@ function TodoList() {
         {todos.map(todo => (
           <li key={todo.id}>
             <span 
-              style={{textDecoration: todo.completed ? 'line-through' : 'none'}}
+              style={{textDecoration: todo.completed ? 'line-through' : 'none'} as React.CSSProperties}
               onClick={() => toggleTodo(todo.id)}
             >
               {todo.text}
@@ -593,59 +697,73 @@ function TodoList() {
         ))}
       </ul>
     </div>
-  );
+  )
 }
 ```
 
 ### Esempio 3: Form con Validazione
-```jsx
+```tsx
+import { useState } from 'react'
+
+interface FormData {
+  name: string
+  email: string
+  message: string
+}
+
+interface FormErrors {
+  name?: string
+  email?: string
+  message?: string
+}
+
 function ContactForm() {
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<FormData>({
     name: '',
     email: '',
     message: ''
-  });
-  const [errors, setErrors] = useState({});
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  })
+  const [errors, setErrors] = useState<FormErrors>({})
+  const [isSubmitting, setIsSubmitting] = useState<boolean>(false)
   
-  const validateForm = () => {
-    const newErrors = {};
+  const validateForm = (): boolean => {
+    const newErrors: FormErrors = {}
     
     if (!formData.name.trim()) {
-      newErrors.name = 'Nome richiesto';
+      newErrors.name = 'Nome richiesto'
     }
     
     if (!formData.email.includes('@')) {
-      newErrors.email = 'Email non valida';
+      newErrors.email = 'Email non valida'
     }
     
     if (formData.message.length < 10) {
-      newErrors.message = 'Messaggio troppo corto';
+      newErrors.message = 'Messaggio troppo corto'
     }
     
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
+    setErrors(newErrors)
+    return Object.keys(newErrors).length === 0
+  }
   
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
     
     if (validateForm()) {
-      setIsSubmitting(true);
+      setIsSubmitting(true)
       // Simula invio
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      setIsSubmitting(false);
-      alert('Form inviato!');
+      await new Promise<void>(resolve => setTimeout(resolve, 1000))
+      setIsSubmitting(false)
+      alert('Form inviato!')
     }
-  };
+  }
   
-  const updateField = (field, value) => {
-    setFormData(prev => ({...prev, [field]: value}));
+  const updateField = (field: keyof FormData, value: string) => {
+    setFormData(prev => ({...prev, [field]: value}))
     // Rimuovi errore quando l'utente inizia a digitare
     if (errors[field]) {
-      setErrors(prev => ({...prev, [field]: ''}));
+      setErrors(prev => ({...prev, [field]: ''}))
     }
-  };
+  }
   
   return (
     <form onSubmit={handleSubmit}>
@@ -653,7 +771,7 @@ function ContactForm() {
         <input
           type="text"
           value={formData.name}
-          onChange={(e) => updateField('name', e.target.value)}
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) => updateField('name', e.target.value)}
           placeholder="Nome"
         />
         {errors.name && <span style={{color: 'red'}}>{errors.name}</span>}
@@ -663,7 +781,7 @@ function ContactForm() {
         <input
           type="email"
           value={formData.email}
-          onChange={(e) => updateField('email', e.target.value)}
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) => updateField('email', e.target.value)}
           placeholder="Email"
         />
         {errors.email && <span style={{color: 'red'}}>{errors.email}</span>}
@@ -672,17 +790,17 @@ function ContactForm() {
       <div>
         <textarea
           value={formData.message}
-          onChange={(e) => updateField('message', e.target.value)}
+          onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => updateField('message', e.target.value)}
           placeholder="Messaggio"
         />
         {errors.message && <span style={{color: 'red'}}>{errors.message}</span>}
       </div>
       
       <button type="submit" disabled={isSubmitting}>
-        {isSubmitting ? 'Invio...' : 'Invia'}
+        {isSubmitting ? 'Invio in corso...' : 'Invia'}
       </button>
     </form>
-  );
+  )
 }
 ```
 

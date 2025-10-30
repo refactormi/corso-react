@@ -34,9 +34,15 @@ Il **Virtual DOM** è una rappresentazione in memoria del DOM reale. È un conce
 - **Costoso** - Manipolazione diretta è inefficiente
 
 ### **Virtual DOM**
-```javascript
+```typescript
 // Virtual DOM (oggetto JavaScript)
-const virtualDOM = {
+interface VirtualDOM {
+  type: string
+  props: Record<string, any>
+  children: (string | VirtualDOM)[]
+}
+
+const virtualDOM: VirtualDOM = {
   type: 'div',
   props: { id: 'root' },
   children: [
@@ -64,19 +70,19 @@ const virtualDOM = {
 
 ### **1. Rendering Iniziale**
 
-```jsx
+```tsx
 // Componente React semplice
 function Greeting() {
-  const userName = "Mario";
-  const hour = new Date().getHours();
-  const greeting = hour < 12 ? "Buongiorno" : "Buonasera";
+  const userName: string = "Mario"
+  const hour: number = new Date().getHours()
+  const greeting: string = hour < 12 ? "Buongiorno" : "Buonasera"
   
   return (
     <div>
       <h1>{greeting}, {userName}!</h1>
       <p>Benvenuto nell'applicazione</p>
     </div>
-  );
+  )
 }
 ```
 
@@ -98,20 +104,26 @@ Quando i dati nel componente cambiano (ad esempio, da un'interazione utente futu
 
 ### **3. Algoritmo di Diffing**
 
-```jsx
+```tsx
 // Virtual DOM precedente
-const oldVDOM = {
+interface VDOM {
+  type: string
+  props: Record<string, any>
+  children: string[]
+}
+
+const oldVDOM: VDOM = {
   type: 'h1',
   props: {},
   children: ['Contatore: 0']
-};
+}
 
 // Nuovo Virtual DOM
-const newVDOM = {
+const newVDOM: VDOM = {
   type: 'h1',
   props: {},
   children: ['Contatore: 1']
-};
+}
 
 // React identifica: solo il testo è cambiato
 // Applica: solo l'aggiornamento del testo
@@ -121,19 +133,21 @@ const newVDOM = {
 
 ### **1. Performance**
 
-```jsx
+```tsx
 // Senza Virtual DOM (manipolazione diretta)
-function updateCounterDirect() {
-  const h1 = document.querySelector('h1');
-  h1.textContent = `Contatore: ${newCount}`;
+function updateCounterDirect(newCount: number): void {
+  const h1 = document.querySelector('h1')
+  if (h1) {
+    h1.textContent = `Contatore: ${newCount}`
+  }
   // Ogni modifica causa reflow/repaint
 }
 
 // Con Virtual DOM (React)
-function updateCounterReact() {
-  setCount(newCount);
-  // React ottimizza automaticamente
-}
+// function updateCounterReact(newCount: number): void {
+//   setCount(newCount)
+//   // React ottimizza automaticamente
+// }
 ```
 
 **Vantaggi:**
@@ -143,43 +157,50 @@ function updateCounterReact() {
 
 ### **2. Prevedibilità**
 
-```jsx
+```tsx
 // Il Virtual DOM rende il rendering prevedibile
-function PredictableComponent() {
-  const [data, setData] = useState([]);
-  
-  // React sa esattamente cosa deve aggiornare
-  return (
-    <ul>
-      {data.map(item => (
-        <li key={item.id}>{item.name}</li>
-      ))}
-    </ul>
-  );
+// function PredictableComponent() {
+//   const [data, setData] = useState<Item[]>([])
+//   
+//   // React sa esattamente cosa deve aggiornare
+//   return (
+//     <ul>
+//       {data.map(item => (
+//         <li key={item.id}>{item.name}</li>
+//       ))}
+//     </ul>
+//   )
+// }
+
+interface Item {
+  id: number
+  name: string
 }
 ```
 
 ### **3. Semplificazione**
 
-```jsx
+```tsx
 // Senza Virtual DOM - Gestione manuale
-function manualDOMUpdate() {
+function manualDOMUpdate(newContent: string): void {
   // Trova l'elemento
-  const element = document.getElementById('myElement');
+  const element = document.getElementById('myElement')
   
-  // Aggiorna il contenuto
-  element.innerHTML = newContent;
-  
-  // Gestisci eventi
-  element.addEventListener('click', handleClick);
-  
-  // Pulisci eventi precedenti
-  element.removeEventListener('click', oldHandler);
+  if (element) {
+    // Aggiorna il contenuto
+    element.innerHTML = newContent
+    
+    // Gestisci eventi
+    // element.addEventListener('click', handleClick)
+    
+    // Pulisci eventi precedenti
+    // element.removeEventListener('click', oldHandler)
+  }
 }
 
 // Con Virtual DOM - React gestisce tutto
-function reactDOMUpdate() {
-  return <div onClick={handleClick}>{newContent}</div>;
+function reactDOMUpdate({ newContent, handleClick }: { newContent: string; handleClick: () => void }) {
+  return <div onClick={handleClick}>{newContent}</div>
 }
 ```
 
@@ -187,14 +208,14 @@ function reactDOMUpdate() {
 
 ### **Esempio 1: Rendering di Lista**
 
-```jsx
+```tsx
 function ListExample() {
-  const items = ['Mela', 'Banana', 'Arancia', 'Pera'];
+  const items: string[] = ['Mela', 'Banana', 'Arancia', 'Pera']
   const fruits = items.map((item, index) => ({
     id: index + 1,
     name: item,
     available: index % 2 === 0
-  }));
+  }))
   
   return (
     <div>
@@ -203,14 +224,14 @@ function ListExample() {
         {fruits.map((fruit) => (
           <li key={fruit.id} style={{
             color: fruit.available ? 'green' : 'gray'
-          }}>
+          } as React.CSSProperties}>
             {fruit.name} - {fruit.available ? 'Disponibile' : 'Esaurito'}
           </li>
         ))}
       </ul>
       <p>Totale articoli: {fruits.length}</p>
     </div>
-  );
+  )
 }
 ```
 
@@ -221,19 +242,26 @@ function ListExample() {
 
 ### **Esempio 2: Rendering Condizionale**
 
-```jsx
+```tsx
+interface User {
+  name: string
+  email: string
+  age: number
+  isPremium: boolean
+}
+
 function ConditionalExample() {
-  const user = {
+  const user: User = {
     name: "Mario Rossi",
     email: "mario@example.com",
     age: 30,
     isPremium: true
-  };
-  const showDetails = true;
-  const isLoading = false;
+  }
+  const showDetails: boolean = true
+  const isLoading: boolean = false
   
   if (isLoading) {
-    return <p>Caricamento...</p>;
+    return <p>Caricamento...</p>
   }
   
   return (
@@ -252,7 +280,7 @@ function ConditionalExample() {
         </div>
       )}
     </div>
-  );
+  )
 }
 ```
 
@@ -263,23 +291,35 @@ function ConditionalExample() {
 
 ### **Esempio 3: Form con Validazione**
 
-```jsx
+```tsx
+interface FormData {
+  name: string
+  email: string
+  age: string
+}
+
+interface FormErrors {
+  name: string
+  email: string
+  age: string
+}
+
 function FormExample() {
   // Dati del form (in una vera app, questi cambieranno dinamicamente)
-  const formData = {
+  const formData: FormData = {
     name: 'Mario Rossi',
     email: 'mario@example.com',
     age: '25'
-  };
+  }
   
   // Validazione simulata
-  const errors = {
+  const errors: FormErrors = {
     name: formData.name.length < 3 ? 'Nome troppo corto' : '',
     email: !formData.email.includes('@') ? 'Email non valida' : '',
-    age: formData.age < 18 ? 'Devi essere maggiorenne' : ''
-  };
+    age: parseInt(formData.age) < 18 ? 'Devi essere maggiorenne' : ''
+  }
   
-  const hasErrors = Object.values(errors).some(error => error !== '');
+  const hasErrors: boolean = Object.values(errors).some(error => error !== '')
   
   return (
     <form>
@@ -323,7 +363,7 @@ function FormExample() {
         {hasErrors ? 'Correggi gli errori' : 'Invia'}
       </button>
     </form>
-  );
+  )
 }
 ```
 
@@ -374,18 +414,18 @@ Questo è uno dei motivi per cui React con il Virtual DOM è così performante!
 
 ### **Console Logging**
 
-```jsx
+```tsx
 function DebuggingExample() {
-  const userName = "Mario";
-  const userAge = 30;
+  const userName: string = "Mario"
+  const userAge: number = 30
   
   // Log per tracciare i render
-  console.log('Component renderizzato');
-  console.log('User:', userName, 'Age:', userAge);
+  console.log('Component renderizzato')
+  console.log('User:', userName, 'Age:', userAge)
   
   const handleClick = () => {
-    console.log('Pulsante cliccato da:', userName);
-  };
+    console.log('Pulsante cliccato da:', userName)
+  }
   
   return (
     <div>
@@ -395,26 +435,26 @@ function DebuggingExample() {
         Mostra info
       </button>
     </div>
-  );
+  )
 }
 ```
 
 ### **Profiling**
 
-```jsx
+```tsx
 // Abilita il profiling in sviluppo
-import { Profiler } from 'react';
+import { Profiler } from 'react'
 
-function onRenderCallback(id, phase, actualDuration) {
-  console.log('Profiler:', { id, phase, actualDuration });
+function onRenderCallback(id: string, phase: 'mount' | 'update', actualDuration: number): void {
+  console.log('Profiler:', { id, phase, actualDuration })
 }
 
-function ProfiledComponent() {
+function ProfiledComponent({ children }: { children: React.ReactNode }) {
   return (
     <Profiler id="MyComponent" onRender={onRenderCallback}>
-      <MyComponent />
+      {children}
     </Profiler>
-  );
+  )
 }
 ```
 
@@ -422,37 +462,59 @@ function ProfiledComponent() {
 
 ### **1. Keys per Liste**
 
-```jsx
+```tsx
 // ❌ SBAGLIATO - Manca la key
-{items.map(item => <li>{item}</li>)}
+// {items.map(item => <li>{item}</li>)}
 
 // ✅ CORRETTO - Con key unica
-{items.map(item => <li key={item.id}>{item}</li>)}
+interface Item {
+  id: number
+  text: string
+}
 
-// ✅ CORRETTO - Con key stabile
-{items.map((item, index) => <li key={index}>{item}</li>)}
+function ListWithKeys({ items }: { items: Item[] }) {
+  return (
+    <>
+      {items.map(item => <li key={item.id}>{item.text}</li>)}
+    </>
+  )
+}
+
+// ✅ CORRETTO - Con key stabile (usare solo se necessario)
+function ListWithIndex({ items }: { items: string[] }) {
+  return (
+    <>
+      {items.map((item, index) => <li key={index}>{item}</li>)}
+    </>
+  )
+}
 ```
 
 ### **2. Componenti Ottimizzati**
 
-```jsx
-// Componente efficiente con calcoli
+```tsx
+interface Product {
+  id: number
+  name: string
+  value: number
+}
+
 function OptimizedComponent() {
-  const items = [
+  const items: Product[] = [
     { id: 1, name: 'Prodotto A', value: 100 },
     { id: 2, name: 'Prodotto B', value: 200 },
     { id: 3, name: 'Prodotto C', value: 300 }
-  ];
+  ]
   
   // Calcolo del totale
-  const totalValue = items.reduce((sum, item) => sum + item.value, 0);
+  const totalValue: number = items.reduce((sum, item) => sum + item.value, 0)
   
   // Calcolo della media
-  const averageValue = totalValue / items.length;
+  const averageValue: number = totalValue / items.length
   
   const handleClick = () => {
-    console.log('Totale:', totalValue);
-  };
+    console.log('Totale:', totalValue)
+  }
   
   return (
     <div>
@@ -468,7 +530,7 @@ function OptimizedComponent() {
       <p>Media: €{averageValue.toFixed(2)}</p>
       <button onClick={handleClick}>Mostra Totale</button>
     </div>
-  );
+  )
 }
 ```
 
@@ -477,18 +539,18 @@ Nelle prossime lezioni imparerai tecniche avanzate come `useMemo` e `useCallback
 
 ### **3. Lazy Loading**
 
-```jsx
-import { lazy, Suspense } from 'react';
+```tsx
+import { lazy, Suspense } from 'react'
 
 // Caricamento lazy
-const LazyComponent = lazy(() => import('./LazyComponent'));
+const LazyComponent = lazy(() => import('./LazyComponent'))
 
 function App() {
   return (
     <Suspense fallback={<div>Caricamento...</div>}>
       <LazyComponent />
     </Suspense>
-  );
+  )
 }
 ```
 
@@ -496,38 +558,49 @@ function App() {
 
 ### **1. Struttura dei Componenti**
 
-```jsx
+```tsx
 // ✅ Componenti piccoli e focalizzati
-function UserCard({ user }) {
+interface User {
+  name: string
+  email: string
+}
+
+function UserCard({ user }: { user: User }) {
   return (
     <div className="user-card">
       <h3>{user.name}</h3>
       <p>{user.email}</p>
     </div>
-  );
+  )
 }
 
 // ✅ Separazione delle responsabilità
-function UserList({ users }) {
+function UserList({ users }: { users: User[] }) {
   return (
     <div>
       {users.map(user => (
-        <UserCard key={user.id} user={user} />
+        <UserCard key={user.email} user={user} />
       ))}
     </div>
-  );
+  )
 }
 ```
 
 ### **2. Organizzazione dei Dati**
 
-```jsx
+```tsx
 // ✅ Dati locali al componente
+interface Product {
+  id: number
+  name: string
+  price: number
+}
+
 function LocalDataExample() {
-  const products = [
+  const products: Product[] = [
     { id: 1, name: 'Laptop', price: 999 },
     { id: 2, name: 'Mouse', price: 29 }
-  ];
+  ]
   
   return (
     <div>
@@ -537,56 +610,56 @@ function LocalDataExample() {
         </div>
       ))}
     </div>
-  );
+  )
 }
 
 // ✅ Calcoli derivati
 function DerivedDataExample() {
-  const items = [10, 20, 30, 40, 50];
-  const total = items.reduce((sum, item) => sum + item, 0);
-  const average = total / items.length;
+  const items: number[] = [10, 20, 30, 40, 50]
+  const total: number = items.reduce((sum, item) => sum + item, 0)
+  const average: number = total / items.length
   
   return (
     <div>
       <p>Totale: {total}</p>
       <p>Media: {average}</p>
     </div>
-  );
+  )
 }
 ```
 
 ### **3. Performance**
 
-```jsx
+```tsx
 // ✅ Evita creazione di oggetti inline
-const styles = { color: 'red', fontSize: '16px' };
+const styles: React.CSSProperties = { color: 'red', fontSize: '16px' }
 
 function StyledComponent() {
-  return <div style={styles}>Testo stilizzato</div>;
+  return <div style={styles}>Testo stilizzato</div>
 }
 
 // ✅ Key univoche per liste
-function ListWithKeys() {
-  const items = [
-    { id: 'a1', text: 'Item 1' },
-    { id: 'a2', text: 'Item 2' }
-  ];
-  
+interface ListItem {
+  id: string
+  text: string
+}
+
+function ListWithKeys({ items }: { items: ListItem[] }) {
   return (
     <ul>
       {items.map(item => (
         <li key={item.id}>{item.text}</li>
       ))}
     </ul>
-  );
+  )
 }
 
 // ✅ Calcoli efficienti
 function EfficientCalculation() {
-  const numbers = [1, 2, 3, 4, 5];
-  const sum = numbers.reduce((acc, n) => acc + n, 0);
+  const numbers: number[] = [1, 2, 3, 4, 5]
+  const sum: number = numbers.reduce((acc, n) => acc + n, 0)
   
-  return <div>Somma: {sum}</div>;
+  return <div>Somma: {sum}</div>
 }
 ```
 
@@ -594,12 +667,12 @@ function EfficientCalculation() {
 
 ### **Problema: Re-render inutili**
 
-```jsx
+```tsx
 // ❌ Problema - Oggetto ricreato ad ogni render
 function ProblematicComponent() {
   // Questo oggetto viene ricreato ogni volta che il componente renderizza
-  const config = { theme: 'dark', size: 'large' };
-  const data = [1, 2, 3, 4, 5];
+  const config = { theme: 'dark', size: 'large' }
+  const data: number[] = [1, 2, 3, 4, 5]
   
   return (
     <div>
@@ -607,12 +680,17 @@ function ProblematicComponent() {
       <p>Size: {config.size}</p>
       <p>Data: {data.join(', ')}</p>
     </div>
-  );
+  )
 }
 
 // ✅ Soluzione - Definisci fuori dal componente
-const CONFIG = { theme: 'dark', size: 'large' };
-const DATA = [1, 2, 3, 4, 5];
+interface Config {
+  theme: string
+  size: string
+}
+
+const CONFIG: Config = { theme: 'dark', size: 'large' }
+const DATA: number[] = [1, 2, 3, 4, 5]
 
 function FixedComponent() {
   return (
@@ -621,7 +699,7 @@ function FixedComponent() {
       <p>Size: {CONFIG.size}</p>
       <p>Data: {DATA.join(', ')}</p>
     </div>
-  );
+  )
 }
 ```
 
@@ -629,25 +707,30 @@ function FixedComponent() {
 
 ### **Problema: Liste senza key**
 
-```jsx
+```tsx
 // ❌ Problema - Performance scadenti e warning
 function BadList() {
-  const items = ['A', 'B', 'C'];
+  const items: string[] = ['A', 'B', 'C']
   
   return (
     <ul>
-      {items.map(item => <li>{item}</li>)}
+      {items.map(item => <li key={item}>{item}</li>)}
     </ul>
-  );
+  )
 }
 
 // ✅ Soluzione - Key uniche
+interface Item {
+  id: number
+  text: string
+}
+
 function GoodList() {
-  const items = [
+  const items: Item[] = [
     { id: 1, text: 'A' },
     { id: 2, text: 'B' },
     { id: 3, text: 'C' }
-  ];
+  ]
   
   return (
     <ul>
@@ -655,16 +738,16 @@ function GoodList() {
         <li key={item.id}>{item.text}</li>
       ))}
     </ul>
-  );
+  )
 }
 ```
 
 ### **Problema: Funzioni inline complesse**
 
-```jsx
+```tsx
 // ❌ Problema - Logica complessa inline
 function ProblematicComponent() {
-  const items = [1, 2, 3, 4, 5];
+  const items: number[] = [1, 2, 3, 4, 5]
   
   return (
     <div>
@@ -672,27 +755,27 @@ function ProblematicComponent() {
         <button 
           key={item}
           onClick={() => {
-            console.log('Cliccato:', item);
-            console.log('Doppio:', item * 2);
-            console.log('Triplo:', item * 3);
+            console.log('Cliccato:', item)
+            console.log('Doppio:', item * 2)
+            console.log('Triplo:', item * 3)
           }}
         >
           {item}
         </button>
       ))}
     </div>
-  );
+  )
 }
 
 // ✅ Soluzione - Funzione esterna
 function FixedComponent() {
-  const items = [1, 2, 3, 4, 5];
+  const items: number[] = [1, 2, 3, 4, 5]
   
-  const handleClick = (value) => {
-    console.log('Cliccato:', value);
-    console.log('Doppio:', value * 2);
-    console.log('Triplo:', value * 3);
-  };
+  const handleClick = (value: number) => {
+    console.log('Cliccato:', value)
+    console.log('Doppio:', value * 2)
+    console.log('Triplo:', value * 3)
+  }
   
   return (
     <div>
@@ -705,7 +788,7 @@ function FixedComponent() {
         </button>
       ))}
     </div>
-  );
+  )
 }
 ```
 

@@ -20,8 +20,13 @@ Il **conditional rendering** è la tecnica di mostrare o nascondere elementi del
 
 ### **1. Operatore Ternario (Ternary Operator)**
 
-```jsx
-function UserGreeting({ isLoggedIn, username }) {
+```tsx
+interface UserGreetingProps {
+  isLoggedIn: boolean
+  username: string
+}
+
+function UserGreeting({ isLoggedIn, username }: UserGreetingProps) {
   return (
     <div>
       {isLoggedIn ? (
@@ -30,7 +35,7 @@ function UserGreeting({ isLoggedIn, username }) {
         <h1>Effettua il login per continuare</h1>
       )}
     </div>
-  );
+  )
 }
 ```
 
@@ -45,8 +50,17 @@ function UserGreeting({ isLoggedIn, username }) {
 
 ### **2. Operatore AND (&&)**
 
-```jsx
-function NotificationList({ notifications }) {
+```tsx
+interface Notification {
+  id: number
+  message: string
+}
+
+interface NotificationListProps {
+  notifications: Notification[]
+}
+
+function NotificationList({ notifications }: NotificationListProps) {
   return (
     <div>
       <h2>Notifiche</h2>
@@ -61,7 +75,7 @@ function NotificationList({ notifications }) {
         <p>Nessuna notifica disponibile</p>
       )}
     </div>
-  );
+  )
 }
 ```
 
@@ -76,18 +90,29 @@ function NotificationList({ notifications }) {
 
 ### **3. Statement if/else**
 
-```jsx
-function UserProfile({ user, isLoading, error }) {
+```tsx
+interface User {
+  name: string
+  email: string
+}
+
+interface UserProfileProps {
+  user?: User
+  isLoading: boolean
+  error?: string
+}
+
+function UserProfile({ user, isLoading, error }: UserProfileProps) {
   if (isLoading) {
-    return <div>Caricamento...</div>;
+    return <div>Caricamento...</div>
   }
   
   if (error) {
-    return <div>Errore: {error}</div>;
+    return <div>Errore: {error}</div>
   }
   
   if (!user) {
-    return <div>Utente non trovato</div>;
+    return <div>Utente non trovato</div>
   }
   
   return (
@@ -95,7 +120,7 @@ function UserProfile({ user, isLoading, error }) {
       <h1>{user.name}</h1>
       <p>{user.email}</p>
     </div>
-  );
+  )
 }
 ```
 
@@ -110,16 +135,28 @@ function UserProfile({ user, isLoading, error }) {
 
 ### **4. Variabili Condizionali**
 
-```jsx
-function ProductCard({ product, showPrice, showDescription }) {
-  let priceElement = null;
+```tsx
+interface Product {
+  name: string
+  price?: number
+  description?: string
+}
+
+interface ProductCardProps {
+  product: Product
+  showPrice: boolean
+  showDescription: boolean
+}
+
+function ProductCard({ product, showPrice, showDescription }: ProductCardProps) {
+  let priceElement: React.ReactNode = null
   if (showPrice && product.price) {
-    priceElement = <div className="price">€{product.price}</div>;
+    priceElement = <div className="price">€{product.price}</div>
   }
   
-  let descriptionElement = null;
+  let descriptionElement: React.ReactNode = null
   if (showDescription && product.description) {
-    descriptionElement = <p className="description">{product.description}</p>;
+    descriptionElement = <p className="description">{product.description}</p>
   }
   
   return (
@@ -128,7 +165,7 @@ function ProductCard({ product, showPrice, showDescription }) {
       {priceElement}
       {descriptionElement}
     </div>
-  );
+  )
 }
 ```
 
@@ -145,8 +182,19 @@ function ProductCard({ product, showPrice, showDescription }) {
 
 ### **Esempio 1: Gestione Stati di Caricamento**
 
-```jsx
-function DataLoader({ data, loading, error }) {
+```tsx
+interface DataItem {
+  id: number
+  name: string
+}
+
+interface DataLoaderProps {
+  data?: DataItem[]
+  loading: boolean
+  error?: string | null
+}
+
+function DataLoader({ data, loading, error }: DataLoaderProps) {
   // Early return per stati di caricamento ed errore
   if (loading) {
     return (
@@ -154,7 +202,7 @@ function DataLoader({ data, loading, error }) {
         <div className="spinner"></div>
         <p>Caricamento dati...</p>
       </div>
-    );
+    )
   }
   
   if (error) {
@@ -166,7 +214,7 @@ function DataLoader({ data, loading, error }) {
           Riprova
         </button>
       </div>
-    );
+    )
   }
   
   if (!data || data.length === 0) {
@@ -174,7 +222,7 @@ function DataLoader({ data, loading, error }) {
       <div className="empty">
         <p>Nessun dato disponibile</p>
       </div>
-    );
+    )
   }
   
   return (
@@ -185,20 +233,20 @@ function DataLoader({ data, loading, error }) {
         </div>
       ))}
     </div>
-  );
+  )
 }
 
 // Utilizzo
 function App() {
   // In una vera app, questi valori sarebbero dinamici
-  const data = [
+  const data: DataItem[] = [
     { id: 1, name: 'Item 1' },
     { id: 2, name: 'Item 2' }
-  ];
-  const loading = false;
-  const error = null;
+  ]
+  const loading: boolean = false
+  const error: string | null = null
   
-  return <DataLoader data={data} loading={loading} error={error} />;
+  return <DataLoader data={data} loading={loading} error={error} />
 }
 ```
 
@@ -206,12 +254,31 @@ function App() {
 
 ### **Esempio 2: Form con Validazione**
 
-```jsx
-function ContactForm({ formData, errors, isSubmitting, isSubmitted }) {
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    console.log('Form inviato:', formData);
-  };
+```tsx
+interface FormData {
+  name: string
+  email: string
+  message: string
+}
+
+interface FormErrors {
+  name?: string
+  email?: string
+  message?: string
+}
+
+interface ContactFormProps {
+  formData: FormData
+  errors: FormErrors
+  isSubmitting: boolean
+  isSubmitted: boolean
+}
+
+function ContactForm({ formData, errors, isSubmitting, isSubmitted }: ContactFormProps) {
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
+    console.log('Form inviato:', formData)
+  }
   
   // Mostra messaggio di successo
   if (isSubmitted) {
@@ -220,7 +287,7 @@ function ContactForm({ formData, errors, isSubmitting, isSubmitted }) {
         <h3>Messaggio inviato con successo!</h3>
         <p>Ti risponderemo presto.</p>
       </div>
-    );
+    )
   }
   
   return (
@@ -232,6 +299,7 @@ function ContactForm({ formData, errors, isSubmitting, isSubmitted }) {
           type="text"
           value={formData.name}
           className={errors.name ? 'error' : ''}
+          readOnly
         />
         {errors.name && <span className="error-message">{errors.name}</span>}
       </div>
@@ -243,6 +311,7 @@ function ContactForm({ formData, errors, isSubmitting, isSubmitted }) {
           type="email"
           value={formData.email}
           className={errors.email ? 'error' : ''}
+          readOnly
         />
         {errors.email && <span className="error-message">{errors.email}</span>}
       </div>
@@ -253,7 +322,8 @@ function ContactForm({ formData, errors, isSubmitting, isSubmitted }) {
           id="message"
           value={formData.message}
           className={errors.message ? 'error' : ''}
-          rows="5"
+          rows={5}
+          readOnly
         />
         {errors.message && <span className="error-message">{errors.message}</span>}
       </div>
@@ -266,15 +336,15 @@ function ContactForm({ formData, errors, isSubmitting, isSubmitted }) {
         {isSubmitting ? 'Invio in corso...' : 'Invia Messaggio'}
       </button>
     </form>
-  );
+  )
 }
 
 // Utilizzo
 function App() {
-  const formData = { name: 'Mario', email: 'mario@example.com', message: 'Ciao!' };
-  const errors = {};
-  const isSubmitting = false;
-  const isSubmitted = false;
+  const formData: FormData = { name: 'Mario', email: 'mario@example.com', message: 'Ciao!' }
+  const errors: FormErrors = {}
+  const isSubmitting: boolean = false
+  const isSubmitted: boolean = false
   
   return (
     <ContactForm 
@@ -283,7 +353,7 @@ function App() {
       isSubmitting={isSubmitting}
       isSubmitted={isSubmitted}
     />
-  );
+  )
 }
 ```
 
@@ -291,37 +361,53 @@ function App() {
 
 ### **Esempio 3: Lista con Filtri e Ricerca**
 
-```jsx
+```tsx
+interface Product {
+  id: number
+  name: string
+  price: number
+  category: string
+  image: string
+}
+
+interface ProductListProps {
+  products: Product[]
+  searchTerm: string
+  selectedCategory: string
+  sortBy: 'name' | 'price'
+  viewMode: 'grid' | 'list'
+}
+
 function ProductList({ 
   products, 
   searchTerm, 
   selectedCategory, 
   sortBy,
   viewMode 
-}) {
+}: ProductListProps) {
   // Filtra e ordina i prodotti basandosi sulle props
   const filteredProducts = products
     .filter(product => {
       const matchesSearch = !searchTerm || product.name
         .toLowerCase()
-        .includes(searchTerm.toLowerCase());
+        .includes(searchTerm.toLowerCase())
       const matchesCategory = selectedCategory === 'all' || 
-        product.category === selectedCategory;
-      return matchesSearch && matchesCategory;
+        product.category === selectedCategory
+      return matchesSearch && matchesCategory
     })
     .sort((a, b) => {
       switch (sortBy) {
         case 'price':
-          return a.price - b.price;
+          return a.price - b.price
         case 'name':
-          return a.name.localeCompare(b.name);
+          return a.name.localeCompare(b.name)
         default:
-          return 0;
+          return 0
       }
-    });
+    })
   
   // Ottieni categorie uniche
-  const categories = ['all', ...new Set(products.map(p => p.category))];
+  const categories = ['all', ...new Set(products.map(p => p.category))]
   
   return (
     <div className="product-list">
@@ -385,16 +471,16 @@ function ProductList({
         </div>
       )}
     </div>
-  );
+  )
 }
 
 // Utilizzo
 function App() {
-  const products = [
+  const products: Product[] = [
     { id: 1, name: 'Laptop', price: 999, category: 'Elettronica', image: '/laptop.jpg' },
     { id: 2, name: 'Mouse', price: 29, category: 'Elettronica', image: '/mouse.jpg' },
     { id: 3, name: 'Tastiera', price: 79, category: 'Elettronica', image: '/keyboard.jpg' }
-  ];
+  ]
   
   return (
     <ProductList 
@@ -404,7 +490,7 @@ function App() {
       sortBy="name"
       viewMode="grid"
     />
-  );
+  )
 }
 ```
 
@@ -412,8 +498,26 @@ function App() {
 
 ### **Esempio 4: Dashboard con Widget Condizionali**
 
-```jsx
-function Dashboard({ user, activeTab, widgets }) {
+```tsx
+interface User {
+  name: string
+  avatar: string
+}
+
+interface Widgets {
+  sales: boolean
+  users: boolean
+  analytics: boolean
+  notifications: boolean
+}
+
+interface DashboardProps {
+  user?: User | null
+  activeTab: 'overview' | 'analytics' | 'settings'
+  widgets: Widgets
+}
+
+function Dashboard({ user, activeTab, widgets }: DashboardProps) {
   return (
     <div className="dashboard">
       <header className="dashboard-header">
@@ -431,7 +535,7 @@ function Dashboard({ user, activeTab, widgets }) {
       </header>
       
       <nav className="dashboard-nav">
-        {['overview', 'analytics', 'settings'].map(tab => (
+        {(['overview', 'analytics', 'settings'] as const).map(tab => (
           <button
             key={tab}
             className={activeTab === tab ? 'active' : ''}
@@ -493,21 +597,21 @@ function Dashboard({ user, activeTab, widgets }) {
         )}
       </main>
     </div>
-  );
+  )
 }
 
 // Utilizzo
 function App() {
-  const user = { name: 'Mario Rossi', avatar: '/avatar.jpg' };
-  const activeTab = 'overview';
-  const widgets = {
+  const user: User = { name: 'Mario Rossi', avatar: '/avatar.jpg' }
+  const activeTab: 'overview' | 'analytics' | 'settings' = 'overview'
+  const widgets: Widgets = {
     sales: true,
     users: true,
     analytics: false,
     notifications: true
-  };
+  }
   
-  return <Dashboard user={user} activeTab={activeTab} widgets={widgets} />;
+  return <Dashboard user={user} activeTab={activeTab} widgets={widgets} />
 }
 ```
 
@@ -517,11 +621,22 @@ function App() {
 
 ### **1. Conditional Rendering Efficiente**
 
-```jsx
+```tsx
 // ✅ CORRETTO - Conditional rendering con props
-function DataDisplay({ data, showDetails }) {
+interface DataItem {
+  id: number
+  name: string
+  value: number
+}
+
+interface DataDisplayProps {
+  data: DataItem[]
+  showDetails: boolean
+}
+
+function DataDisplay({ data, showDetails }: DataDisplayProps) {
   // Calcola solo se necessario
-  const totalValue = data.reduce((sum, item) => sum + item.value, 0);
+  const totalValue = data.reduce((sum, item) => sum + item.value, 0)
   
   return (
     <div>
@@ -539,17 +654,17 @@ function DataDisplay({ data, showDetails }) {
         </div>
       )}
     </div>
-  );
+  )
 }
 
 // Utilizzo
 function App() {
-  const data = [
+  const data: DataItem[] = [
     { id: 1, name: 'Prodotto A', value: 100 },
     { id: 2, name: 'Prodotto B', value: 200 }
-  ];
+  ]
   
-  return <DataDisplay data={data} showDetails={true} />;
+  return <DataDisplay data={data} showDetails={true} />
 }
 ```
 
@@ -557,25 +672,32 @@ function App() {
 
 ### **2. Gestione degli Errori con Props**
 
-```jsx
+```tsx
 // Componente con gestione errori basato su props
-function ErrorBoundary({ children, hasError, errorMessage, fallback }) {
+interface ErrorBoundaryProps {
+  children: React.ReactNode
+  hasError: boolean
+  errorMessage?: string
+  fallback?: React.ReactNode
+}
+
+function ErrorBoundary({ children, hasError, errorMessage, fallback }: ErrorBoundaryProps) {
   if (hasError) {
     return fallback || (
       <div className="error-boundary">
         <h2>Qualcosa è andato storto</h2>
         {errorMessage && <p>{errorMessage}</p>}
       </div>
-    );
+    )
   }
   
-  return children;
+  return <>{children}</>
 }
 
 // Utilizzo
 function App() {
-  const hasError = false;
-  const errorMessage = '';
+  const hasError: boolean = false
+  const errorMessage: string = ''
   
   return (
     <ErrorBoundary 
@@ -586,7 +708,7 @@ function App() {
       <UserList />
       <UserForm />
     </ErrorBoundary>
-  );
+  )
 }
 ```
 
@@ -594,10 +716,15 @@ function App() {
 
 ### **3. Conditional Rendering con Suspense**
 
-```jsx
-import { Suspense } from 'react';
+```tsx
+import { Suspense } from 'react'
 
-function ConditionalLoading({ showContent, content }) {
+interface ConditionalLoadingProps {
+  showContent: boolean
+  content: string
+}
+
+function ConditionalLoading({ showContent, content }: ConditionalLoadingProps) {
   return (
     <div>
       {showContent ? (
@@ -610,15 +737,15 @@ function ConditionalLoading({ showContent, content }) {
         </div>
       )}
     </div>
-  );
+  )
 }
 
 // Utilizzo
 function App() {
-  const showContent = true;
-  const content = "Questo è il contenuto caricato!";
+  const showContent: boolean = true
+  const content: string = "Questo è il contenuto caricato!"
   
-  return <ConditionalLoading showContent={showContent} content={content} />;
+  return <ConditionalLoading showContent={showContent} content={content} />
 }
 ```
 
@@ -628,45 +755,63 @@ function App() {
 
 ### **Errore: Valori Falsy con &&**
 
-```jsx
+```tsx
 // ❌ SBAGLIATO - 0 viene renderizzato
-function Counter({ count }) {
+interface CounterProps {
+  count: number
+}
+
+function CounterBad({ count }: CounterProps) {
   return (
     <div>
       <p>Contatore: {count}</p>
       {count && <p>Il contatore è maggiore di 0</p>}
     </div>
-  );
+  )
 }
 
 // Con count = 0, viene renderizzato "0" invece di nascondere il messaggio
 
 // ✅ CORRETTO - Conversione esplicita a boolean
-function Counter({ count }) {
+function CounterGood({ count }: CounterProps) {
   return (
     <div>
       <p>Contatore: {count}</p>
       {count > 0 && <p>Il contatore è maggiore di 0</p>}
     </div>
-  );
+  )
 }
 
 // ✅ CORRETTO - Operatore ternario
-function Counter({ count }) {
+function CounterTernary({ count }: CounterProps) {
   return (
     <div>
       <p>Contatore: {count}</p>
       {count ? <p>Il contatore è maggiore di 0</p> : null}
     </div>
-  );
+  )
 }
 ```
 
 ### **Errore: Condizioni Complesse**
 
-```jsx
+```tsx
 // ❌ SBAGLIATO - Condizione complessa inline
-function UserCard({ user, showDetails, showActions, isAdmin }) {
+interface User {
+  name: string
+  email: string
+  role: string
+  isActive: boolean
+}
+
+interface UserCardProps {
+  user: User
+  showDetails: boolean
+  showActions: boolean
+  isAdmin: boolean
+}
+
+function UserCardBad({ user, showDetails, showActions, isAdmin }: UserCardProps) {
   return (
     <div>
       <h3>{user.name}</h3>
@@ -677,14 +822,14 @@ function UserCard({ user, showDetails, showActions, isAdmin }) {
         </div>
       )}
     </div>
-  );
+  )
 }
 
 // ✅ CORRETTO - Variabile per la condizione
-function UserCard({ user, showDetails, showActions, isAdmin }) {
+function UserCardGood({ user, showDetails, showActions, isAdmin }: UserCardProps) {
   const shouldShowDetails = user.isActive && 
     showDetails && 
-    (isAdmin || user.role === 'moderator');
+    (isAdmin || user.role === 'moderator')
   
   return (
     <div>
@@ -696,15 +841,32 @@ function UserCard({ user, showDetails, showActions, isAdmin }) {
         </div>
       )}
     </div>
-  );
+  )
 }
 ```
 
 ### **Errore: Props non ottimizzate**
 
-```jsx
+```tsx
+interface User {
+  id: number
+  name: string
+  email: string
+}
+
+interface Config {
+  theme: string
+  size: string
+}
+
+interface UserCardProps {
+  user: User
+  showDetails: boolean
+  config: Config
+}
+
 // ❌ PROBLEMA - Oggetto ricreato ad ogni render
-function UserList({ users, showDetails }) {
+function UserListBad({ users, showDetails }: { users: User[]; showDetails: boolean }) {
   return (
     <div>
       {users.map(user => (
@@ -716,13 +878,13 @@ function UserList({ users, showDetails }) {
         />
       ))}
     </div>
-  );
+  )
 }
 
 // ✅ SOLUZIONE - Definisci fuori dal componente
-const CONFIG = { theme: 'dark', size: 'large' };
+const CONFIG: Config = { theme: 'dark', size: 'large' }
 
-function UserList({ users, showDetails }) {
+function UserListGood({ users, showDetails }: { users: User[]; showDetails: boolean }) {
   return (
     <div>
       {users.map(user => (
@@ -734,16 +896,16 @@ function UserList({ users, showDetails }) {
         />
       ))}
     </div>
-  );
+  )
 }
 
-function UserCard({ user, showDetails, config }) {
+function UserCard({ user, showDetails, config }: UserCardProps) {
   return (
     <div className={`user-card ${config.theme} ${config.size}`}>
       <h3>{user.name}</h3>
       {showDetails && <p>{user.email}</p>}
     </div>
-  );
+  )
 }
 ```
 

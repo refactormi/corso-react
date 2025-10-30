@@ -20,10 +20,10 @@ React è una **libreria JavaScript** sviluppata da Facebook (ora Meta) per la cr
 ### 1. **Componenti Riutilizzabili**
 React è basato sul concetto di **componenti** - pezzi di codice riutilizzabili che incapsulano la logica e l'interfaccia utente.
 
-```jsx
+```tsx
 // Esempio di componente React
 function Welcome() {
-  return <h1>Ciao, mondo!</h1>;
+  return <h1>Ciao, mondo!</h1>
 }
 ```
 
@@ -36,8 +36,8 @@ I dati in React fluiscono in una sola direzione: dai componenti padre ai compone
 ### 4. **JSX (JavaScript XML)**
 React utilizza JSX, una sintassi che permette di scrivere HTML all'interno di JavaScript.
 
-```jsx
-const element = <h1>Ciao, mondo!</h1>;
+```tsx
+const element = <h1>Ciao, mondo!</h1>
 ```
 
 ### 5. **Hooks**

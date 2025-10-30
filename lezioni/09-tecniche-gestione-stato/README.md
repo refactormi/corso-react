@@ -17,9 +17,35 @@ Al termine di questa lezione sarai in grado di:
 #### Pattern 1: Stato Raggruppato vs Separato
 
 **Stato Raggruppato (Consigliato per dati correlati):**
-```jsx
+```tsx
+import { useState } from 'react'
+
 // ✅ Buono: stato raggruppato per dati correlati
-const [user, setUser] = useState({
+interface Profile {
+  name: string
+  email: string
+  avatar: string
+}
+
+interface Preferences {
+  theme: string
+  language: string
+  notifications: boolean
+}
+
+interface Session {
+  isLoggedIn: boolean
+  lastLogin: Date | null
+  token: string | null
+}
+
+interface User {
+  profile: Profile
+  preferences: Preferences
+  session: Session
+}
+
+const [user, setUser] = useState<User>({
   profile: {
     name: '',
     email: '',
@@ -35,43 +61,53 @@ const [user, setUser] = useState({
     lastLogin: null,
     token: null
   }
-});
+})
 
 // Aggiornamento specifico
-const updateProfile = (updates) => {
+const updateProfile = (updates: Partial<Profile>) => {
   setUser(prev => ({
     ...prev,
     profile: { ...prev.profile, ...updates }
-  }));
-};
+  }))
+}
 ```
 
 **Stato Separato (Consigliato per dati indipendenti):**
-```jsx
+```tsx
+import { useState } from 'react'
+
 // ✅ Buono: stato separato per dati indipendenti
-const [isLoading, setIsLoading] = useState(false);
-const [error, setError] = useState(null);
-const [data, setData] = useState([]);
-const [filters, setFilters] = useState({});
+const [isLoading, setIsLoading] = useState<boolean>(false)
+const [error, setError] = useState<string | null>(null)
+const [data, setData] = useState<any[]>([])
+const [filters, setFilters] = useState<Record<string, any>>({})
 ```
 
 #### Pattern 2: Stato Derivato e Calcolato
 
-```jsx
+```tsx
+import { useState } from 'react'
+
+interface CartItem {
+  id: number
+  price: number
+  quantity: number
+}
+
 function ShoppingCart() {
-  const [items, setItems] = useState([]);
-  const [discount, setDiscount] = useState(0);
+  const [items, setItems] = useState<CartItem[]>([])
+  const [discount, setDiscount] = useState<number>(0)
   
   // ✅ Stati derivati calcolati
-  const subtotal = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
-  const discountAmount = subtotal * (discount / 100);
-  const total = subtotal - discountAmount;
-  const itemCount = items.reduce((sum, item) => sum + item.quantity, 0);
+  const subtotal: number = items.reduce((sum, item) => sum + item.price * item.quantity, 0)
+  const discountAmount: number = subtotal * (discount / 100)
+  const total: number = subtotal - discountAmount
+  const itemCount: number = items.reduce((sum, item) => sum + item.quantity, 0)
   
   // ✅ Stati derivati condizionali
-  const isEmpty = items.length === 0;
-  const hasDiscount = discount > 0;
-  const canCheckout = !isEmpty && total > 0;
+  const isEmpty: boolean = items.length === 0
+  const hasDiscount: boolean = discount > 0
+  const canCheckout: boolean = !isEmpty && total > 0
   
   return (
     <div>
@@ -91,7 +127,7 @@ function ShoppingCart() {
         </>
       )}
     </div>
-  );
+  )
 }
 ```
 
@@ -99,8 +135,8 @@ function ShoppingCart() {
 
 #### Pattern 3: Reducer Pattern con useReducer
 
-```jsx
-import { useReducer } from 'react';
+```tsx
+import { useReducer } from 'react'
 
 // Definizione delle azioni
 const ACTIONS = {
@@ -109,13 +145,52 @@ const ACTIONS = {
   UPDATE_QUANTITY: 'UPDATE_QUANTITY',
   CLEAR_CART: 'CLEAR_CART',
   APPLY_DISCOUNT: 'APPLY_DISCOUNT'
-};
+} as const
+
+type ActionType = typeof ACTIONS[keyof typeof ACTIONS]
+
+interface CartItem {
+  id: number
+  price: number
+  quantity: number
+}
+
+interface CartState {
+  items: CartItem[]
+  discount: number
+}
+
+interface AddItemAction {
+  type: typeof ACTIONS.ADD_ITEM
+  payload: CartItem
+}
+
+interface RemoveItemAction {
+  type: typeof ACTIONS.REMOVE_ITEM
+  payload: number
+}
+
+interface UpdateQuantityAction {
+  type: typeof ACTIONS.UPDATE_QUANTITY
+  payload: { id: number; quantity: number }
+}
+
+interface ClearCartAction {
+  type: typeof ACTIONS.CLEAR_CART
+}
+
+interface ApplyDiscountAction {
+  type: typeof ACTIONS.APPLY_DISCOUNT
+  payload: number
+}
+
+type CartAction = AddItemAction | RemoveItemAction | UpdateQuantityAction | ClearCartAction | ApplyDiscountAction
 
 // Reducer function
-function cartReducer(state, action) {
+function cartReducer(state: CartState, action: CartAction): CartState {
   switch (action.type) {
     case ACTIONS.ADD_ITEM:
-      const existingItem = state.items.find(item => item.id === action.payload.id);
+      const existingItem = state.items.find(item => item.id === action.payload.id)
       if (existingItem) {
         return {
           ...state,
@@ -124,18 +199,18 @@ function cartReducer(state, action) {
               ? { ...item, quantity: item.quantity + 1 }
               : item
           )
-        };
+        }
       }
       return {
         ...state,
         items: [...state.items, { ...action.payload, quantity: 1 }]
-      };
+      }
       
     case ACTIONS.REMOVE_ITEM:
       return {
         ...state,
         items: state.items.filter(item => item.id !== action.payload)
-      };
+      }
       
     case ACTIONS.UPDATE_QUANTITY:
       return {
@@ -145,23 +220,23 @@ function cartReducer(state, action) {
             ? { ...item, quantity: Math.max(0, action.payload.quantity) }
             : item
         )
-      };
+      }
       
     case ACTIONS.CLEAR_CART:
       return {
         ...state,
         items: [],
         discount: 0
-      };
+      }
       
     case ACTIONS.APPLY_DISCOUNT:
       return {
         ...state,
         discount: action.payload
-      };
+      }
       
     default:
-      return state;
+      return state
   }
 }
 
@@ -169,105 +244,138 @@ function AdvancedCart() {
   const [state, dispatch] = useReducer(cartReducer, {
     items: [],
     discount: 0
-  });
+  })
   
-  const addItem = (item) => {
-    dispatch({ type: ACTIONS.ADD_ITEM, payload: item });
-  };
+  const addItem = (item: CartItem) => {
+    dispatch({ type: ACTIONS.ADD_ITEM, payload: item })
+  }
   
-  const removeItem = (id) => {
-    dispatch({ type: ACTIONS.REMOVE_ITEM, payload: id });
-  };
+  const removeItem = (id: number) => {
+    dispatch({ type: ACTIONS.REMOVE_ITEM, payload: id })
+  }
   
-  const updateQuantity = (id, quantity) => {
-    dispatch({ type: ACTIONS.UPDATE_QUANTITY, payload: { id, quantity } });
-  };
+  const updateQuantity = (id: number, quantity: number) => {
+    dispatch({ type: ACTIONS.UPDATE_QUANTITY, payload: { id, quantity } })
+  }
   
   const clearCart = () => {
-    dispatch({ type: ACTIONS.CLEAR_CART });
-  };
+    dispatch({ type: ACTIONS.CLEAR_CART })
+  }
   
-  const applyDiscount = (discount) => {
-    dispatch({ type: ACTIONS.APPLY_DISCOUNT, payload: discount });
-  };
+  const applyDiscount = (discount: number) => {
+    dispatch({ type: ACTIONS.APPLY_DISCOUNT, payload: discount })
+  }
   
   // Stati derivati
-  const subtotal = state.items.reduce((sum, item) => sum + item.price * item.quantity, 0);
-  const total = subtotal * (1 - state.discount / 100);
+  const subtotal: number = state.items.reduce((sum, item) => sum + item.price * item.quantity, 0)
+  const total: number = subtotal * (1 - state.discount / 100)
   
   return (
     <div>
       {/* Implementazione del componente */}
     </div>
-  );
+  )
 }
 ```
 
 #### Pattern 4: Stato con Validazione Avanzata
 
-```jsx
-function useFormValidation(initialValues, validationRules) {
-  const [values, setValues] = useState(initialValues);
-  const [errors, setErrors] = useState({});
-  const [touched, setTouched] = useState({});
+```tsx
+import { useState } from 'react'
+
+interface ValidationRule {
+  required?: string
+  minLength?: string | number
+  pattern?: RegExp
+  custom?: (value: any) => string | boolean
+}
+
+interface ValidationRules {
+  [key: string]: ValidationRule
+}
+
+interface FormValues {
+  [key: string]: any
+}
+
+interface FormErrors {
+  [key: string]: string
+}
+
+interface FormTouched {
+  [key: string]: boolean
+}
+
+function useFormValidation<T extends FormValues>(
+  initialValues: T,
+  validationRules: ValidationRules
+) {
+  const [values, setValues] = useState<T>(initialValues)
+  const [errors, setErrors] = useState<FormErrors>({})
+  const [touched, setTouchedState] = useState<FormTouched>({})
   
-  const validateField = (name, value) => {
-    const rule = validationRules[name];
-    if (!rule) return '';
+  const validateField = (name: string, value: any): string => {
+    const rule = validationRules[name]
+    if (!rule) return ''
     
-    if (rule.required && (!value || value.trim() === '')) {
-      return rule.required;
+    if (rule.required && (!value || (typeof value === 'string' && value.trim() === ''))) {
+      return rule.required
     }
     
-    if (rule.minLength && value.length < rule.minLength) {
-      return rule.minLength;
+    if (rule.minLength) {
+      const minLength = typeof rule.minLength === 'string' ? parseInt(rule.minLength) : rule.minLength
+      if (typeof value === 'string' && value.length < minLength) {
+        return typeof rule.minLength === 'string' ? rule.minLength : `Minimo ${minLength} caratteri`
+      }
     }
     
-    if (rule.pattern && !rule.pattern.test(value)) {
-      return rule.pattern;
+    if (rule.pattern && typeof value === 'string' && !rule.pattern.test(value)) {
+      return 'Formato non valido'
     }
     
-    if (rule.custom && !rule.custom(value)) {
-      return rule.custom;
+    if (rule.custom) {
+      const customResult = rule.custom(value)
+      if (typeof customResult === 'string') return customResult
+      if (customResult === false) return 'Valore non valido'
     }
     
-    return '';
-  };
+    return ''
+  }
   
-  const validateAll = () => {
-    const newErrors = {};
+  const validateAll = (): boolean => {
+    const newErrors: FormErrors = {}
     Object.keys(validationRules).forEach(name => {
-      const error = validateField(name, values[name]);
-      if (error) newErrors[name] = error;
-    });
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
+      const error = validateField(name, values[name])
+      if (error) newErrors[name] = error
+    })
+    setErrors(newErrors)
+    return Object.keys(newErrors).length === 0
+  }
   
-  const setValue = (name, value) => {
-    setValues(prev => ({ ...prev, [name]: value }));
+  const setValue = (name: keyof T, value: any) => {
+    setValues(prev => ({ ...prev, [name]: value }))
     
     // Validazione in tempo reale
-    if (touched[name]) {
-      const error = validateField(name, value);
-      setErrors(prev => ({ ...prev, [name]: error }));
+    if (touched[name as string]) {
+      const error = validateField(name as string, value)
+      setErrors(prev => ({ ...prev, [name as string]: error }))
     }
-  };
+  }
   
-  const setTouched = (name) => {
-    setTouched(prev => ({ ...prev, [name]: true }));
-    const error = validateField(name, values[name]);
-    setErrors(prev => ({ ...prev, [name]: error }));
-  };
+  const setTouched = (name: string) => {
+    setTouchedState(prev => ({ ...prev, [name]: true }))
+    const error = validateField(name, values[name])
+    setErrors(prev => ({ ...prev, [name]: error }))
+  }
   
   const reset = () => {
-    setValues(initialValues);
-    setErrors({});
-    setTouched({});
-  };
+    setValues(initialValues)
+    setErrors({})
+    setTouchedState({})
+  }
   
   const isValid = Object.keys(errors).length === 0 && 
-                  Object.keys(validationRules).every(name => values[name]);
+                  Object.keys(validationRules).every(name => values[name])
   
   return {
     values,
@@ -278,11 +386,17 @@ function useFormValidation(initialValues, validationRules) {
     validateAll,
     reset,
     isValid
-  };
+  }
 }
 
 // Utilizzo
-const validationRules = {
+interface FormData {
+  name: string
+  email: string
+  age: string
+}
+
+const validationRules: ValidationRules = {
   name: {
     required: 'Il nome è richiesto',
     minLength: 'Il nome deve essere di almeno 2 caratteri'
@@ -293,9 +407,9 @@ const validationRules = {
   },
   age: {
     required: 'L\'età è richiesta',
-    custom: (value) => value >= 18 ? '' : 'Devi essere maggiorenne'
+    custom: (value) => parseInt(value) >= 18 ? true : 'Devi essere maggiorenne'
   }
-};
+}
 
 function AdvancedForm() {
   const {
@@ -307,23 +421,23 @@ function AdvancedForm() {
     validateAll,
     reset,
     isValid
-  } = useFormValidation(
+  } = useFormValidation<FormData>(
     { name: '', email: '', age: '' },
     validationRules
-  );
+  )
   
-  const handleSubmit = (e) => {
-    e.preventDefault();
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
     if (validateAll()) {
-      console.log('Form valido:', values);
+      console.log('Form valido:', values)
     }
-  };
+  }
   
   return (
     <form onSubmit={handleSubmit}>
       {/* Implementazione del form */}
     </form>
-  );
+  )
 }
 ```
 
@@ -331,32 +445,48 @@ function AdvancedForm() {
 
 #### Pattern 5: Memoizzazione con useMemo e useCallback
 
-```jsx
-import { useState, useMemo, useCallback } from 'react';
+```tsx
+import { useState, useMemo, useCallback } from 'react'
 
-function ExpensiveComponent({ items, filter, onItemClick }) {
+interface Item {
+  id: number
+  name: string
+  value: number
+}
+
+interface ExpensiveComponentProps {
+  items: Item[]
+  filter: string
+  onItemClick: (item: Item) => void
+}
+
+function ExpensiveComponent({ items, filter, onItemClick }: ExpensiveComponentProps) {
   // ✅ Memoizzazione di calcoli costosi
   const filteredItems = useMemo(() => {
-    console.log('Filtro applicato');
+    console.log('Filtro applicato')
     return items.filter(item => 
       item.name.toLowerCase().includes(filter.toLowerCase())
-    );
-  }, [items, filter]);
+    )
+  }, [items, filter])
   
   // ✅ Memoizzazione di funzioni
-  const handleItemClick = useCallback((item) => {
-    onItemClick(item);
-  }, [onItemClick]);
+  const handleItemClick = useCallback((item: Item) => {
+    onItemClick(item)
+  }, [onItemClick])
   
   // ✅ Memoizzazione di oggetti complessi
   const itemStats = useMemo(() => {
+    if (filteredItems.length === 0) {
+      return { total: 0, average: 0, max: 0, min: 0 }
+    }
+    
     return {
       total: filteredItems.length,
       average: filteredItems.reduce((sum, item) => sum + item.value, 0) / filteredItems.length,
       max: Math.max(...filteredItems.map(item => item.value)),
       min: Math.min(...filteredItems.map(item => item.value))
-    };
-  }, [filteredItems]);
+    }
+  }, [filteredItems])
   
   return (
     <div>
@@ -365,62 +495,86 @@ function ExpensiveComponent({ items, filter, onItemClick }) {
       <p>Max: {itemStats.max}, Min: {itemStats.min}</p>
       
       {filteredItems.map(item => (
-        <Item 
-          key={item.id} 
-          item={item} 
-          onClick={handleItemClick}
-        />
+        <div key={item.id} onClick={() => handleItemClick(item)}>
+          {item.name}
+        </div>
       ))}
     </div>
-  );
+  )
 }
 ```
 
 #### Pattern 6: Stato Ottimizzato per Liste
 
-```jsx
+```tsx
+import { useState, useMemo, useCallback } from 'react'
+
+interface ListItem {
+  id: number
+  name: string
+  date: string
+  value: number
+}
+
+interface ListItemProps {
+  item: ListItem
+  isSelected: boolean
+  onToggle: (id: number) => void
+}
+
+function ListItem({ item, isSelected, onToggle }: ListItemProps) {
+  return (
+    <div
+      onClick={() => onToggle(item.id)}
+      style={{ backgroundColor: isSelected ? 'lightblue' : 'white' }}
+    >
+      {item.name}
+    </div>
+  )
+}
+
 function OptimizedList() {
-  const [items, setItems] = useState([]);
-  const [selectedIds, setSelectedIds] = useState(new Set());
-  const [sortBy, setSortBy] = useState('name');
-  const [sortOrder, setSortOrder] = useState('asc');
+  const [items, setItems] = useState<ListItem[]>([])
+  const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set())
+  const [sortBy, setSortBy] = useState<'name' | 'date' | 'value'>('name')
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc')
   
   // ✅ Ottimizzazione: Set per lookup O(1)
-  const isSelected = useCallback((id) => {
-    return selectedIds.has(id);
-  }, [selectedIds]);
+  const isSelected = useCallback((id: number): boolean => {
+    return selectedIds.has(id)
+  }, [selectedIds])
   
   // ✅ Ottimizzazione: memoizzazione del sorting
   const sortedItems = useMemo(() => {
     return [...items].sort((a, b) => {
-      const aVal = a[sortBy];
-      const bVal = b[sortBy];
-      const comparison = aVal < bVal ? -1 : aVal > bVal ? 1 : 0;
-      return sortOrder === 'asc' ? comparison : -comparison;
-    });
-  }, [items, sortBy, sortOrder]);
+      const aVal = a[sortBy]
+      const bVal = b[sortBy]
+      const comparison = aVal < bVal ? -1 : aVal > bVal ? 1 : 0
+      return sortOrder === 'asc' ? comparison : -comparison
+    })
+  }, [items, sortBy, sortOrder])
   
   // ✅ Ottimizzazione: toggle con Set
-  const toggleSelection = useCallback((id) => {
+  const toggleSelection = useCallback((id: number) => {
     setSelectedIds(prev => {
-      const newSet = new Set(prev);
+      const newSet = new Set(prev)
       if (newSet.has(id)) {
-        newSet.delete(id);
+        newSet.delete(id)
       } else {
-        newSet.add(id);
+        newSet.add(id)
       }
-      return newSet;
-    });
-  }, []);
+      return newSet
+    })
+  }, [])
   
   // ✅ Ottimizzazione: selezione multipla
   const selectAll = useCallback(() => {
-    setSelectedIds(new Set(items.map(item => item.id)));
-  }, [items]);
+    setSelectedIds(new Set(items.map(item => item.id)))
+  }, [items])
   
   const selectNone = useCallback(() => {
-    setSelectedIds(new Set());
-  }, []);
+    setSelectedIds(new Set())
+  }, [])
   
   return (
     <div>
@@ -431,7 +585,7 @@ function OptimizedList() {
       </div>
       
       <div>
-        <select value={sortBy} onChange={(e) => setSortBy(e.target.value)}>
+        <select value={sortBy} onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setSortBy(e.target.value as 'name' | 'date' | 'value')}>
           <option value="name">Nome</option>
           <option value="date">Data</option>
           <option value="value">Valore</option>
@@ -450,7 +604,7 @@ function OptimizedList() {
         />
       ))}
     </div>
-  );
+  )
 }
 ```
 
@@ -458,61 +612,75 @@ function OptimizedList() {
 
 #### Pattern 7: Stato per Operazioni Asincrone
 
-```jsx
-function useAsyncState(initialState = null) {
-  const [state, setState] = useState({
+```tsx
+import { useState, useCallback } from 'react'
+
+interface AsyncState<T> {
+  data: T | null
+  loading: boolean
+  error: string | null
+}
+
+function useAsyncState<T>(initialState: T | null = null) {
+  const [state, setState] = useState<AsyncState<T>>({
     data: initialState,
     loading: false,
     error: null
-  });
+  })
   
-  const execute = useCallback(async (asyncFunction) => {
-    setState(prev => ({ ...prev, loading: true, error: null }));
+  const execute = useCallback(async (asyncFunction: () => Promise<T>) => {
+    setState(prev => ({ ...prev, loading: true, error: null }))
     
     try {
-      const result = await asyncFunction();
+      const result = await asyncFunction()
       setState({
         data: result,
         loading: false,
         error: null
-      });
-      return result;
+      })
+      return result
     } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Errore sconosciuto'
       setState({
         data: null,
         loading: false,
-        error: error.message
-      });
-      throw error;
+        error: errorMessage
+      })
+      throw error
     }
-  }, []);
+  }, [])
   
   const reset = useCallback(() => {
     setState({
       data: initialState,
       loading: false,
       error: null
-    });
-  }, [initialState]);
+    })
+  }, [initialState])
   
   return {
     ...state,
     execute,
     reset
-  };
+  }
 }
 
 // Utilizzo
+interface DataItem {
+  id: number
+  name: string
+}
+
 function DataFetcher() {
-  const { data, loading, error, execute, reset } = useAsyncState([]);
+  const { data, loading, error, execute, reset } = useAsyncState<DataItem[]>([])
   
   const fetchData = useCallback(() => {
     execute(async () => {
-      const response = await fetch('/api/data');
-      if (!response.ok) throw new Error('Errore nel caricamento');
-      return response.json();
-    });
-  }, [execute]);
+      const response = await fetch('/api/data')
+      if (!response.ok) throw new Error('Errore nel caricamento')
+      return response.json() as Promise<DataItem[]>
+    })
+  }, [execute])
   
   return (
     <div>
@@ -529,7 +697,7 @@ function DataFetcher() {
         </ul>
       )}
     </div>
-  );
+  )
 }
 ```
 
@@ -541,53 +709,77 @@ function DataFetcher() {
 
 #### Pattern 9: Utility per Immutabilità
 
-```jsx
+```tsx
+import { useState } from 'react'
+
 // Utility functions per aggiornamenti immutabili
 const updateState = {
   // Aggiorna un campo in un oggetto
-  object: (obj, path, value) => {
-    const keys = path.split('.');
-    const result = { ...obj };
-    let current = result;
+  object: <T extends Record<string, any>>(obj: T, path: string, value: any): T => {
+    const keys = path.split('.')
+    const result = { ...obj }
+    let current: any = result
     
     for (let i = 0; i < keys.length - 1; i++) {
-      current[keys[i]] = { ...current[keys[i]] };
-      current = current[keys[i]];
+      current[keys[i]] = { ...current[keys[i]] }
+      current = current[keys[i]]
     }
     
-    current[keys[keys.length - 1]] = value;
-    return result;
+    current[keys[keys.length - 1]] = value
+    return result
   },
   
   // Aggiungi elemento a un array
   array: {
-    add: (arr, item) => [...arr, item],
-    insert: (arr, index, item) => [
+    add: <T>(arr: T[], item: T): T[] => [...arr, item],
+    insert: <T>(arr: T[], index: number, item: T): T[] => [
       ...arr.slice(0, index),
       item,
       ...arr.slice(index)
     ],
-    remove: (arr, index) => [
+    remove: <T>(arr: T[], index: number): T[] => [
       ...arr.slice(0, index),
       ...arr.slice(index + 1)
     ],
-    update: (arr, index, item) => [
+    update: <T>(arr: T[], index: number, item: T): T[] => [
       ...arr.slice(0, index),
       item,
       ...arr.slice(index + 1)
     ],
-    move: (arr, fromIndex, toIndex) => {
-      const result = [...arr];
-      const [item] = result.splice(fromIndex, 1);
-      result.splice(toIndex, 0, item);
-      return result;
+    move: <T>(arr: T[], fromIndex: number, toIndex: number): T[] => {
+      const result = [...arr]
+      const [item] = result.splice(fromIndex, 1)
+      result.splice(toIndex, 0, item)
+      return result
     }
   }
-};
+}
 
 // Utilizzo
+interface Item {
+  id: number
+  name: string
+}
+
+interface ComplexState {
+  user: {
+    profile: {
+      name: string
+      settings: {
+        theme: string
+        notifications: boolean
+      }
+    }
+  }
+  items: Item[]
+  filters: {
+    category: string
+    price: { min: number; max: number }
+  }
+}
+
 function ComplexStateExample() {
-  const [state, setState] = useState({
+  const [state, setState] = useState<ComplexState>({
     user: {
       profile: {
         name: '',
@@ -602,39 +794,39 @@ function ComplexStateExample() {
       category: 'all',
       price: { min: 0, max: 1000 }
     }
-  });
+  })
   
-  const updateUserName = (name) => {
-    setState(prev => updateState.object(prev, 'user.profile.name', name));
-  };
+  const updateUserName = (name: string) => {
+    setState(prev => updateState.object(prev, 'user.profile.name', name))
+  }
   
-  const updateTheme = (theme) => {
-    setState(prev => updateState.object(prev, 'user.profile.settings.theme', theme));
-  };
+  const updateTheme = (theme: string) => {
+    setState(prev => updateState.object(prev, 'user.profile.settings.theme', theme))
+  }
   
-  const addItem = (item) => {
+  const addItem = (item: Item) => {
     setState(prev => ({
       ...prev,
       items: updateState.array.add(prev.items, item)
-    }));
-  };
+    }))
+  }
   
-  const removeItem = (index) => {
+  const removeItem = (index: number) => {
     setState(prev => ({
       ...prev,
       items: updateState.array.remove(prev.items, index)
-    }));
-  };
+    }))
+  }
   
-  const updatePriceFilter = (min, max) => {
-    setState(prev => updateState.object(prev, 'filters.price', { min, max }));
-  };
+  const updatePriceFilter = (min: number, max: number) => {
+    setState(prev => updateState.object(prev, 'filters.price', { min, max }))
+  }
   
   return (
     <div>
       {/* Implementazione del componente */}
     </div>
-  );
+  )
 }
 ```
 
@@ -669,7 +861,111 @@ function ComplexStateExample() {
 ## Esempi Pratici
 
 ### Esempio 1: Gestione Stato Avanzata per E-commerce
-```jsx
+```tsx
+import { useReducer, useMemo } from 'react'
+
+interface Product {
+  id: number
+  name: string
+  price: number
+  category: string
+}
+
+interface CartItem {
+  id: number
+  name: string
+  price: number
+  quantity: number
+}
+
+interface User {
+  id: number
+  name: string
+}
+
+interface StoreFilters {
+  category: string
+  priceRange: [number, number]
+  sortBy: 'name' | 'price'
+}
+
+interface StoreUI {
+  loading: boolean
+  error: string | null
+  sidebarOpen: boolean
+}
+
+interface StoreState {
+  products: Product[]
+  cart: CartItem[]
+  user: User | null
+  filters: StoreFilters
+  ui: StoreUI
+}
+
+type StoreAction =
+  | { type: 'TOGGLE_SIDEBAR' }
+  | { type: 'UPDATE_FILTERS'; payload: StoreFilters }
+  | { type: 'ADD_TO_CART'; payload: Product }
+  | { type: 'CLEAR_ERROR' }
+
+function storeReducer(state: StoreState, action: StoreAction): StoreState {
+  switch (action.type) {
+    case 'TOGGLE_SIDEBAR':
+      return {
+        ...state,
+        ui: { ...state.ui, sidebarOpen: !state.ui.sidebarOpen }
+      }
+    case 'UPDATE_FILTERS':
+      return { ...state, filters: action.payload }
+    case 'ADD_TO_CART':
+      return { ...state, cart: [...state.cart, { ...action.payload, quantity: 1 }] }
+    case 'CLEAR_ERROR':
+      return { ...state, ui: { ...state.ui, error: null } }
+    default:
+      return state
+  }
+}
+
+interface HeaderProps {
+  cartItemCount: number
+  cartTotal: number
+  onToggleSidebar: () => void
+}
+
+function Header({ cartItemCount, cartTotal, onToggleSidebar }: HeaderProps) {
+  return <div>Header (Placeholder)</div>
+}
+
+interface SidebarProps {
+  isOpen: boolean
+  filters: StoreFilters
+  onFilterChange: (filters: StoreFilters) => void
+}
+
+function Sidebar({ isOpen, filters, onFilterChange }: SidebarProps) {
+  return <div>Sidebar (Placeholder)</div>
+}
+
+interface ProductGridProps {
+  products: Product[]
+  onAddToCart: (product: Product) => void
+  loading: boolean
+}
+
+function ProductGrid({ products, onAddToCart, loading }: ProductGridProps) {
+  return <div>ProductGrid (Placeholder)</div>
+}
+
+interface ErrorMessageProps {
+  message: string
+  onDismiss: () => void
+}
+
+function ErrorMessage({ message, onDismiss }: ErrorMessageProps) {
+  return <div>ErrorMessage (Placeholder)</div>
+}
+
 function EcommerceStore() {
   const [state, dispatch] = useReducer(storeReducer, {
     products: [],
@@ -685,39 +981,39 @@ function EcommerceStore() {
       error: null,
       sidebarOpen: false
     }
-  });
+  })
   
   // Stati derivati
   const filteredProducts = useMemo(() => {
     return state.products
       .filter(product => {
         if (state.filters.category !== 'all' && product.category !== state.filters.category) {
-          return false;
+          return false
         }
         if (product.price < state.filters.priceRange[0] || product.price > state.filters.priceRange[1]) {
-          return false;
+          return false
         }
-        return true;
+        return true
       })
       .sort((a, b) => {
         switch (state.filters.sortBy) {
           case 'price':
-            return a.price - b.price;
+            return a.price - b.price
           case 'name':
-            return a.name.localeCompare(b.name);
+            return a.name.localeCompare(b.name)
           default:
-            return 0;
+            return 0
         }
-      });
-  }, [state.products, state.filters]);
+      })
+  }, [state.products, state.filters])
   
   const cartTotal = useMemo(() => {
-    return state.cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
-  }, [state.cart]);
+    return state.cart.reduce((sum, item) => sum + item.price * item.quantity, 0)
+  }, [state.cart])
   
   const cartItemCount = useMemo(() => {
-    return state.cart.reduce((sum, item) => sum + item.quantity, 0);
-  }, [state.cart]);
+    return state.cart.reduce((sum, item) => sum + item.quantity, 0)
+  }, [state.cart])
   
   return (
     <div>
@@ -746,12 +1042,45 @@ function EcommerceStore() {
         />
       )}
     </div>
-  );
+  )
 }
 ```
 
 ### Esempio 2: Form Avanzato con Validazione
-```jsx
+```tsx
+interface PersonalInfo {
+  firstName: string
+  lastName: string
+  email: string
+  phone: string
+}
+
+interface Address {
+  street: string
+  city: string
+  zipCode: string
+  country: string
+}
+
+interface Preferences {
+  newsletter: boolean
+  notifications: boolean
+  theme: string
+}
+
+interface UserFormData {
+  personalInfo: PersonalInfo
+  address: Address
+  preferences: Preferences
+}
+
+// Questo è un esempio che usa useFormValidation definito precedentemente
+// Per completezza, assumiamo che submitUserData sia già definito
+async function submitUserData(data: UserFormData): Promise<void> {
+  // Implementazione placeholder
+  console.log('Submitting:', data)
+}
+
 function AdvancedUserForm() {
   const {
     values,
@@ -762,7 +1091,7 @@ function AdvancedUserForm() {
     validateAll,
     reset,
     isValid
-  } = useFormValidation(
+  } = useFormValidation<UserFormData>(
     {
       personalInfo: {
         firstName: '',
@@ -785,11 +1114,11 @@ function AdvancedUserForm() {
     {
       'personalInfo.firstName': {
         required: 'Il nome è richiesto',
-        minLength: 'Minimo 2 caratteri'
+        minLength: 2
       },
       'personalInfo.lastName': {
         required: 'Il cognome è richiesto',
-        minLength: 'Minimo 2 caratteri'
+        minLength: 2
       },
       'personalInfo.email': {
         required: 'L\'email è richiesta',
@@ -800,20 +1129,20 @@ function AdvancedUserForm() {
         pattern: /^\d{5}$/
       }
     }
-  );
+  )
   
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
     if (validateAll()) {
       try {
-        await submitUserData(values);
-        reset();
-        alert('Dati salvati con successo!');
+        await submitUserData(values)
+        reset()
+        alert('Dati salvati con successo!')
       } catch (error) {
-        console.error('Errore nel salvataggio:', error);
+        console.error('Errore nel salvataggio:', error)
       }
     }
-  };
+  }
   
   return (
     <form onSubmit={handleSubmit}>
@@ -823,7 +1152,7 @@ function AdvancedUserForm() {
           <input
             type="text"
             value={values.personalInfo.firstName}
-            onChange={(e) => setValue('personalInfo.firstName', e.target.value)}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setValue('personalInfo.firstName' as keyof UserFormData, e.target.value)}
             onBlur={() => setTouched('personalInfo.firstName')}
             placeholder="Nome"
           />
@@ -848,7 +1177,7 @@ function AdvancedUserForm() {
         Salva Dati
       </button>
     </form>
-  );
+  )
 }
 ```
 
