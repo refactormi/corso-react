@@ -1,18 +1,6 @@
-/**
- * ⚠️ ATTENZIONE: Questo esempio usa hooks
- * 
- * Questo esempio usa useState, useEffect, memo e useMemo che saranno spiegati
- * nelle lezioni successive (8, 12, 14).
- * 
- * Per la Lezione 07c, usa 'conditional-rendering-props.jsx' che mostra gli stessi
- * pattern di rendering condizionale usando solo props.
- * 
- * Questo file sarà spostato nella Lezione 14 come esempio avanzato.
- */
-
-/*
-// Demo Conditional Rendering - Esempi pratici di rendering condizionale
-// Questo file dimostra diversi pattern di conditional rendering
+// Conditional Rendering Ottimizzato - Demo Avanzata con Ottimizzazioni
+// Questo esempio mostra pattern di rendering condizionale con memo e useMemo
+// Ora che hai completato la Lezione 14, puoi capire le ottimizzazioni avanzate!
 
 import { useState, useEffect, memo, useMemo } from 'react';
 
@@ -840,4 +828,3 @@ function ConditionalRenderingDemo() {
 }
 
 export default ConditionalRenderingDemo;
-*/

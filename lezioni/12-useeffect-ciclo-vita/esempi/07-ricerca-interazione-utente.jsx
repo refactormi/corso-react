@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 
 /**
- * Esempio 2: Ricerca Avanzata con Debouncing e Autocomplete
+ * Esempio 7: Ricerca Avanzata con Debouncing e Autocomplete (Interazione Utente)
  * 
  * Questo esempio dimostra:
  * - Input con debouncing per ottimizzare le chiamate API

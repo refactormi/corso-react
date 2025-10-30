@@ -1,7 +1,7 @@
 import React, { useState, useCallback, useEffect } from 'react';
 
 /**
- * Esempio 3: Sistema di Feedback e Notifiche
+ * Esempio 8: Sistema di Feedback e Notifiche (Interazione Utente)
  * 
  * Questo esempio dimostra:
  * - Sistema di notifiche con diversi tipi

@@ -40,7 +40,7 @@ const Welcome = ({ name }) => {
 **Caratteristiche:**
 - **Sintassi moderna** - Preferiti in React moderno
 - **Più leggeri** - Meno overhead rispetto alle classi
-- **Hooks** - Possono utilizzare useState, useEffect, etc.
+- **Hooks** - Possono utilizzare useState e altri hooks
 - **Più semplici** - Meno codice boilerplate
 
 ### **2. Componenti a Classe (Class Components)**

@@ -535,96 +535,7 @@ function DataFetcher() {
 
 #### Pattern 8: Stato con Cache e Debouncing
 
-```jsx
-import { useState, useEffect, useRef, useCallback } from 'react';
-
-function useDebounce(value, delay) {
-  const [debouncedValue, setDebouncedValue] = useState(value);
-  
-  useEffect(() => {
-    const handler = setTimeout(() => {
-      setDebouncedValue(value);
-    }, delay);
-    
-    return () => {
-      clearTimeout(handler);
-    };
-  }, [value, delay]);
-  
-  return debouncedValue;
-}
-
-function useSearchWithCache() {
-  const [query, setQuery] = useState('');
-  const [results, setResults] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [cache, setCache] = useState(new Map());
-  
-  const debouncedQuery = useDebounce(query, 300);
-  
-  const search = useCallback(async (searchQuery) => {
-    if (!searchQuery.trim()) {
-      setResults([]);
-      return;
-    }
-    
-    // Controlla la cache
-    if (cache.has(searchQuery)) {
-      setResults(cache.get(searchQuery));
-      return;
-    }
-    
-    setLoading(true);
-    try {
-      const response = await fetch(`/api/search?q=${encodeURIComponent(searchQuery)}`);
-      const data = await response.json();
-      
-      // Salva nella cache
-      setCache(prev => new Map(prev).set(searchQuery, data));
-      setResults(data);
-    } catch (error) {
-      console.error('Errore nella ricerca:', error);
-      setResults([]);
-    } finally {
-      setLoading(false);
-    }
-  }, [cache]);
-  
-  useEffect(() => {
-    search(debouncedQuery);
-  }, [debouncedQuery, search]);
-  
-  return {
-    query,
-    setQuery,
-    results,
-    loading
-  };
-}
-
-function SearchComponent() {
-  const { query, setQuery, results, loading } = useSearchWithCache();
-  
-  return (
-    <div>
-      <input
-        type="text"
-        value={query}
-        onChange={(e) => setQuery(e.target.value)}
-        placeholder="Cerca..."
-      />
-      
-      {loading && <div>Ricerca in corso...</div>}
-      
-      <ul>
-        {results.map(result => (
-          <li key={result.id}>{result.title}</li>
-        ))}
-      </ul>
-    </div>
-  );
-}
-```
+> 💡 **Nota**: Pattern avanzati come debouncing e caching richiedono l'uso di `useEffect` per gestire side effects come timer e sottoscrizioni. Questi pattern verranno approfonditi nella Lezione 12 dopo aver imparato `useEffect`. Per ora, concentrati sui pattern di gestione stato con `useState`.
 
 ### 5. Pattern di Stato Immutabile
 
@@ -751,7 +662,7 @@ function ComplexStateExample() {
 5. **Non ignorare stati di loading/error**
 6. **Non fare calcoli costosi** nel render
 7. **Non passare oggetti inline** come props
-8. **Non usare useEffect** per calcoli derivati
+8. **Non usare useEffect** per calcoli derivati (verrà spiegato nella Lezione 12)
 9. **Non gestire stato globale** con useState locale
 10. **Non ignorare ottimizzazioni** per liste grandi
 

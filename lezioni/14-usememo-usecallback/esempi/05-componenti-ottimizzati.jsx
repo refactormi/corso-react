@@ -1,18 +1,6 @@
-/**
- * ⚠️ ATTENZIONE: Questo esempio usa hooks
- * 
- * Questo esempio usa useState, useEffect, memo e useCallback che saranno spiegati
- * nelle lezioni successive (8, 12, 14).
- * 
- * Per la Lezione 07a, usa 'componenti-props-only.jsx' che mostra gli stessi concetti
- * usando solo props e composizione.
- * 
- * Questo file sarà spostato nella Lezione 14 come esempio avanzato.
- */
-
-/*
-// Demo Componenti React - Esempi pratici di logica dei componenti
-// Questo file dimostra diversi tipi di componenti e le loro caratteristiche
+// Componenti Ottimizzati - Demo Avanzata con memo e useCallback
+// Questo esempio mostra come ottimizzare componenti usando memo, useCallback e best practices
+// Ora che hai completato la Lezione 14, puoi capire tutte le tecniche di ottimizzazione!
 
 import { useState, useEffect, memo, useCallback } from 'react';
 
@@ -516,4 +504,3 @@ function ComponentiDemo() {
 }
 
 export default ComponentiDemo;
-*/

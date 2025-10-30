@@ -1,16 +1,6 @@
-/**
- * ⚠️ ATTENZIONE: Questo esempio usa useState
- * 
- * Questo esempio interattivo usa useState che sarà spiegato nella Lezione 8.
- * Per la Lezione 04, usa 'jsx-playground-static.jsx' che mostra gli stessi concetti
- * JSX ma senza stato interattivo.
- * 
- * Questo file sarà spostato nella Lezione 08 come esempio avanzato.
- */
-
-/*
-// JSX Playground - Esempi pratici di JSX
-// Questo file contiene esempi di tutti i concetti JSX appresi
+// JSX Playground Interattivo - Esempi pratici di JSX con useState
+// Questo file mostra gli stessi concetti JSX della Lezione 04, ma resi interattivi con useState
+// Ora che hai imparato useState nella Lezione 08, puoi capire come rendere i componenti dinamici!
 
 import { useState } from 'react';
 
@@ -332,4 +322,3 @@ function JSXPlayground() {
 }
 
 export default JSXPlayground;
-*/

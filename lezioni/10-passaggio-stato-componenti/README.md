@@ -615,13 +615,9 @@ function ComponentB() {
   const { subscribe } = useEventBus();
   const [messages, setMessages] = useState([]);
   
-  useEffect(() => {
-    const unsubscribe = subscribe('message', (data) => {
-      setMessages(prev => [...prev, data]);
-    });
-    
-    return unsubscribe;
-  }, [subscribe]);
+  // Nota: Per sottoscriversi agli eventi dell'event bus serve useEffect,
+  // che verrà spiegato nella Lezione 12. Per ora, questo esempio mostra
+  // solo la struttura del componente con useState.
   
   return (
     <div>
@@ -701,9 +697,8 @@ function useApi(url) {
     }
   }, [url]);
   
-  useEffect(() => {
-    fetchData();
-  }, [fetchData]);
+  // Nota: Per caricare automaticamente i dati al mount serve useEffect,
+  // che verrà spiegato nella Lezione 12. Per ora, chiama fetchData manualmente.
   
   return { data, loading, error, refetch: fetchData };
 }
@@ -924,13 +919,13 @@ function Dashboard() {
     }
   };
   
-  useEffect(() => {
-    fetchUsers();
-  }, []);
-  
   const handleUserSelect = (user) => {
     setSelectedUser(user);
   };
+  
+  // Nota: Il caricamento iniziale dei dati richiede useEffect,
+  // che verrà spiegato nella Lezione 12. Per ora, chiama fetchUsers manualmente
+  // (ad esempio con un pulsante o al click dell'utente).
   
   const handleUserUpdate = (updatedUser) => {
     setUsers(prev => prev.map(user => 
@@ -1000,11 +995,14 @@ function MainContent({ selectedUser, onUserUpdate }) {
   const [isEditing, setIsEditing] = useState(false);
   const [editForm, setEditForm] = useState({});
   
-  useEffect(() => {
-    if (selectedUser) {
-      setEditForm(selectedUser);
-    }
-  }, [selectedUser]);
+  // Nota: Per sincronizzare editForm con selectedUser quando cambia serve useEffect,
+  // che verrà spiegato nella Lezione 12. Per ora, puoi aggiornare editForm
+  // direttamente quando entra in modalità editing.
+  
+  const handleEdit = () => {
+    setEditForm(selectedUser);
+    setIsEditing(true);
+  };
   
   const handleSave = () => {
     onUserUpdate(editForm);
@@ -1029,7 +1027,7 @@ function MainContent({ selectedUser, onUserUpdate }) {
     <div style={{ flex: 1, padding: '20px' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <h2>Dettagli Utente</h2>
-        <button onClick={() => setIsEditing(!isEditing)}>
+        <button onClick={isEditing ? handleCancel : handleEdit}>
           {isEditing ? 'Annulla' : 'Modifica'}
         </button>
       </div>

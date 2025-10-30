@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 
 /**
- * Esempio 3: Ricerca con Cache e Debouncing
+ * Esempio 4: Ricerca con Cache e Debouncing (Gestione Stato Avanzata)
  * 
  * Questo esempio dimostra:
  * - Gestione stati asincroni

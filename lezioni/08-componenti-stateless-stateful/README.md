@@ -211,18 +211,8 @@ function Example() {
 ```
 
 **2. Gestire side effects (effetti collaterali)**
-```jsx
-function Example() {
-  const [data, setData] = useState(null);
-  
-  useEffect(() => {
-    // Fetch dati, subscription, ecc.
-    fetchData().then(setData);
-  }, []); // Dipendenze
-  
-  return <div>{data}</div>;
-}
-```
+
+> 💡 **Nota**: Per gestire side effects (come fetch di dati, subscription, ecc.) React fornisce l'hook `useEffect`, che verrà approfondito nella Lezione 12.
 
 **3. Accedere al contesto React**
 ```jsx
@@ -233,33 +223,8 @@ function Example() {
 ```
 
 **4. Riutilizzare logica tra componenti**
-```jsx
-// Custom Hook - logica riutilizzabile
-function useUserData(userId) {
-  const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
-  
-  useEffect(() => {
-    fetchUser(userId).then(data => {
-      setUser(data);
-      setLoading(false);
-    });
-  }, [userId]);
-  
-  return { user, loading };
-}
 
-// Utilizzo in più componenti
-function ProfilePage() {
-  const { user, loading } = useUserData(props.userId);
-  // ...
-}
-
-function UserCard() {
-  const { user, loading } = useUserData(props.userId);
-  // ...
-}
-```
+> 💡 **Nota**: Gli hooks personalizzati (custom hooks) permettono di riutilizzare logica tra componenti. Imparerai a creare custom hooks nella Lezione 15. Per ora, sappi che React permette di estrarre logica ripetuta in funzioni riutilizzabili che iniziano con "use".
 
 #### I Principali Hooks di React
 
@@ -268,13 +233,13 @@ React fornisce diversi hooks built-in:
 | Hook | Scopo |
 |------|-------|
 | `useState` | Gestire stato locale |
-| `useEffect` | Gestire side effects |
 | `useContext` | Accedere al contesto |
 | `useReducer` | Gestire stato complesso |
 | `useCallback` | Memorizzare funzioni |
 | `useMemo` | Memorizzare valori calcolati |
 | `useRef` | Riferimenti a elementi DOM |
-| `useLayoutEffect` | Effect sincroni pre-render |
+
+> 💡 **Nota**: L'hook `useEffect` per gestire side effects verrà approfondito nella Lezione 12.
 
 **In questa lezione ci concentreremo su `useState`**, il primo e più importante hook da imparare.
 

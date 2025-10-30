@@ -1,3 +1,15 @@
+/**
+ * ⚠️ ATTENZIONE: Questo esempio usa useState e useEffect
+ * 
+ * Questo esempio avanzato usa concetti che saranno spiegati nelle lezioni successive:
+ * - useState (Lezione 8): per gestire lo stato interno del componente
+ * - useEffect (Lezione 12): per gestire effetti collaterali
+ * 
+ * Per ora, usa 'demo-hmr-simple.jsx' che mostra l'HMR senza questi concetti avanzati.
+ * Potrai tornare a questo esempio dopo aver completato la Lezione 12.
+ */
+
+/*
 // Demo Hot Module Replacement (HMR)
 // Questo file dimostra come l'HMR mantiene lo stato durante le modifiche
 
@@ -107,3 +119,4 @@ function HMRDemo() {
 }
 
 export default HMRDemo;
+*/

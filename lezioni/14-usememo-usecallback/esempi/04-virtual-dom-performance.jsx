@@ -1,21 +1,7 @@
-/**
- * ⚠️ ATTENZIONE: Questo esempio usa hooks avanzati
- * 
- * Questo esempio usa concetti che saranno spiegati nelle lezioni successive:
- * - useState (Lezione 8)
- * - useEffect (Lezione 12)
- * - useRef (Lezione 13)
- * - memo, useMemo, useCallback (Lezione 14)
- * 
- * Per la Lezione 06, usa 'virtual-dom-concept.jsx' che spiega i concetti
- * del Virtual DOM senza interattività.
- * 
- * Questo file sarà spostato nella Lezione 14 come esempio avanzato.
- */
-
-/*
-// Virtual DOM Demo - Esempi pratici del Virtual DOM
-// Questo file dimostra come funziona il Virtual DOM in React
+// Virtual DOM Performance Demo - Esempio Avanzato con Ottimizzazioni
+// Questo esempio mostra come il Virtual DOM lavora insieme a memo, useMemo e useCallback
+// per ottimizzare le performance. Ora che hai completato la Lezione 14, puoi capire
+// come tutti questi concetti lavorano insieme!
 
 import { useState, useEffect, useRef, memo, useMemo, useCallback } from 'react';
 
@@ -482,4 +468,3 @@ function VirtualDOMDemo() {
 }
 
 export default VirtualDOMDemo;
-*/

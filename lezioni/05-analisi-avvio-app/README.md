@@ -214,7 +214,6 @@ ReactDOM.render(<App />, document.getElementById('root'))
 2. Confronta con il DOM reale
 3. Applica le differenze
 4. Monta i componenti
-5. Esegue useEffect (se presente)
 ```
 
 ### **2. Updating (Rerender)**
@@ -233,9 +232,8 @@ ReactDOM.render(<App />, document.getElementById('root'))
 ```jsx
 // Sequenza di smontaggio
 1. Componente rimosso dal DOM
-2. Esegue cleanup (useEffect cleanup)
-3. Libera le risorse
-4. Rimuove event listeners
+2. Libera le risorse
+3. Rimuove event listeners
 ```
 
 ## 🎯 React.StrictMode
@@ -258,18 +256,8 @@ ReactDOM.createRoot(document.getElementById('root')).render(
 
 ### **Comportamenti di StrictMode**
 
-```jsx
-function App() {
-  useEffect(() => {
-    console.log('Effect eseguito') // Verrà eseguito 2 volte in sviluppo
-  }, [])
-  
-  return <div>App</div>
-}
-```
-
 **In sviluppo:**
-- Funzioni e effetti vengono eseguiti due volte
+- Funzioni vengono eseguite due volte per rilevare problemi
 - Aiuta a rilevare effetti collaterali
 
 **In produzione:**
@@ -348,7 +336,6 @@ console.log('8. App component definito')
 7ms    - React crea Virtual DOM
 8ms    - React applica modifiche al DOM
 9ms    - App visibile nel browser
-10ms   - useEffect eseguito (se presente)
 ```
 
 ### **Performance di Avvio**

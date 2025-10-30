@@ -1,18 +1,6 @@
-/**
- * ⚠️ ATTENZIONE: Questo esempio usa hooks e Context API
- * 
- * Questo esempio usa useState e useContext che saranno spiegati
- * nelle lezioni successive (8 e 13).
- * 
- * Per la Lezione 07b, usa 'composizione-props-only.jsx' che mostra gli stessi
- * pattern di composizione usando solo props.
- * 
- * Questo file sarà spostato nella Lezione 13 come esempio avanzato.
- */
-
-/*
-// Demo Composizione UI e Props - Esempi pratici di composizione
-// Questo file dimostra come i componenti interagiscono tra loro
+// Composizione con Context API - Demo Avanzata
+// Questo esempio mostra come usare Context API per evitare props drilling
+// Ora che hai completato la Lezione 13, puoi capire come Context semplifica la composizione!
 
 import { useState, useContext, createContext } from 'react';
 
@@ -585,4 +573,3 @@ function ComposizioneDemo() {
 }
 
 export default ComposizioneDemo;
-*/

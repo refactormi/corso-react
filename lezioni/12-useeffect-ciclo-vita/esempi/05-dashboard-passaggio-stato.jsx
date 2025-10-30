@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 
 /**
- * Esempio 1: Dashboard con Stato Condiviso
+ * Esempio 5: Dashboard con Stato Condiviso (Passaggio Stato tra Componenti)
  * 
  * Questo esempio dimostra:
  * - Lifting state up per condividere stato tra componenti

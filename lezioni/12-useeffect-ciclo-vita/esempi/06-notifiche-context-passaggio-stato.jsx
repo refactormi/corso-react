@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
 
 /**
- * Esempio 2: Sistema di Notifiche con Context API
+ * Esempio 6: Sistema di Notifiche con Context API (Passaggio Stato con Context)
  * 
  * Questo esempio dimostra:
  * - Context API per stato globale

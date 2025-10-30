@@ -463,38 +463,27 @@ function FormWithLoading() {
 
 #### Input con Debouncing
 
-```jsx
-function useDebounce(value, delay) {
-  const [debouncedValue, setDebouncedValue] = useState(value);
-  
-  useEffect(() => {
-    const handler = setTimeout(() => {
-      setDebouncedValue(value);
-    }, delay);
-    
-    return () => {
-      clearTimeout(handler);
-    };
-  }, [value, delay]);
-  
-  return debouncedValue;
-}
+> 💡 **Nota**: Il debouncing richiede l'uso di `useEffect` per gestire timer e cleanup. Questo pattern verrà approfondito nella Lezione 12 dopo aver imparato `useEffect`. Per ora, puoi implementare la ricerca senza debouncing, chiamando `onSearch` direttamente nell'`onChange`.
 
+```jsx
 function SearchInput({ onSearch }) {
   const [query, setQuery] = useState('');
-  const debouncedQuery = useDebounce(query, 300);
   
-  useEffect(() => {
-    if (debouncedQuery) {
-      onSearch(debouncedQuery);
+  const handleChange = (e) => {
+    const newQuery = e.target.value;
+    setQuery(newQuery);
+    // Chiamata diretta senza debouncing
+    // Nota: Per implementare debouncing serve useEffect (Lezione 12)
+    if (newQuery.trim()) {
+      onSearch(newQuery);
     }
-  }, [debouncedQuery, onSearch]);
+  };
   
   return (
     <input
       type="text"
       value={query}
-      onChange={(e) => setQuery(e.target.value)}
+      onChange={handleChange}
       placeholder="Cerca..."
     />
   );
@@ -507,19 +496,21 @@ function SearchInput({ onSearch }) {
 function AutocompleteInput({ suggestions, onSelect, placeholder }) {
   const [value, setValue] = useState('');
   const [showSuggestions, setShowSuggestions] = useState(false);
-  const [filteredSuggestions, setFilteredSuggestions] = useState([]);
   
-  useEffect(() => {
-    if (value) {
-      const filtered = suggestions.filter(suggestion =>
+  // Calcola i suggerimenti filtrati direttamente nel render
+  // Nota: Per ottimizzare con memoizzazione serve useMemo o useEffect,
+  // che verranno spiegati nelle Lezioni 12 e 14
+  const filteredSuggestions = value 
+    ? suggestions.filter(suggestion =>
         suggestion.toLowerCase().includes(value.toLowerCase())
-      );
-      setFilteredSuggestions(filtered);
-      setShowSuggestions(true);
-    } else {
-      setShowSuggestions(false);
-    }
-  }, [value, suggestions]);
+      )
+    : [];
+  
+  const handleChange = (e) => {
+    const newValue = e.target.value;
+    setValue(newValue);
+    setShowSuggestions(true);
+  };
   
   const handleSelect = (suggestion) => {
     setValue(suggestion);
@@ -532,7 +523,7 @@ function AutocompleteInput({ suggestions, onSelect, placeholder }) {
       <input
         type="text"
         value={value}
-        onChange={(e) => setValue(e.target.value)}
+        onChange={handleChange}
         onFocus={() => setShowSuggestions(true)}
         placeholder={placeholder}
       />
