@@ -7,7 +7,7 @@
 
 Un corso completo e pratico per imparare React con **TypeScript** dalle basi alle tecniche avanzate, con esempi funzionanti e best practices moderne.
 
-> 🎯 **Stato Progetto**: **88% Completato** - Tutte le 20 lezioni sviluppate con TypeScript e playground interattivo funzionante!
+> 🎯 **Stato Progetto**: **90% Completato** - Tutte le 21 lezioni sviluppate con TypeScript e playground interattivo funzionante!
 
 ## 📋 Panoramica
 
@@ -49,9 +49,10 @@ Questo corso ti accompagnerà in un percorso completo di apprendimento di React,
 ### ✅ useEffect e Lifecycle (12) - COMPLETATA + PLAYGROUND
 12. **[useEffect e ciclo di vita](lezioni/12-useeffect-ciclo-vita/)** - Side effects, cleanup e gestione completa del lifecycle
 
-### ✅ Performance e Analisi (13-14) - COMPLETATE
+### ✅ Performance e Analisi (13-14a) - COMPLETATE
 13. **[Analisi performance e rendering](lezioni/13-analisi-performance/)** - Identificare re-render, strumenti di misurazione, ottimizzazione preliminare
 14. **[Context API](lezioni/14-context-api/)** - Condivisione stato globale, evitare props drilling, pattern avanzati
+14a. **[Context API vs Zustand](lezioni/14a-context-vs-zustand/)** - Confronto state management, vantaggi Zustand, quando usare
 
 ### ✅ Performance e Ottimizzazione (15-17) - COMPLETATE + PLAYGROUND
 15. **[useRef e manipolazione DOM](lezioni/15-useref-manipolazione-dom/)** - Riferimenti DOM e performance
@@ -157,12 +158,13 @@ function useLocalStorage<T>(key: string, initialValue: T) {
 
 ```
 corso-react-base/
-├── 📚 lezioni/                     # Tutte le lezioni del corso (20 lezioni totali)
+├── 📚 lezioni/                     # Tutte le lezioni del corso (21 lezioni totali)
 │   ├── 01-introduzione-react/      # ✅ Lezione 1 - Teoria + esempi
 │   ├── 02-creare-progetto-vite/    # ✅ Lezione 2 - Setup Vite
 │   ├── ...                         # ✅ Lezioni 3-19a complete
 │   ├── 13-analisi-performance/     # ✅ Lezione 13 - Analisi performance
 │   ├── 14-context-api/             # ✅ Lezione 14 - Context API
+│   ├── 14a-context-vs-zustand/     # ✅ Lezione 14a - Context API vs Zustand
 │   └── ...                         # ✅ Altre lezioni
 ├── 🎮 progetto-base/               # Playground interattivo React
 │   ├── src/lezioni/                # Demo integrate (08-19a)

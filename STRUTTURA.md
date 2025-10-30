@@ -4,7 +4,7 @@
 
 ```
 corso-react/
-├── lezioni/                          # Tutte le lezioni del corso (20 lezioni totali)
+├── lezioni/                          # Tutte le lezioni del corso (21 lezioni totali)
 │   ├── 01-introduzione-react/        # Lezione 1: Introduzione a React
 │   ├── 02-creare-progetto-vite/      # Lezione 2: Creare progetto React con Vite
 │   ├── 03-avviare-progetto/          # Lezione 3: Avviare il progetto
@@ -21,6 +21,7 @@ corso-react/
 │   ├── 12-useeffect-ciclo-vita/      # Lezione 12: useEffect e ciclo di vita
 │   ├── 13-analisi-performance/      # Lezione 13: Analisi performance e rendering
 │   ├── 14-context-api/              # Lezione 14: Context API
+│   ├── 14a-context-vs-zustand/      # Lezione 14a: Context API vs Zustand
 │   ├── 15-useref-manipolazione-dom/ # Lezione 15: useRef e manipolazione DOM
 │   ├── 16-usememo-usecallback/      # Lezione 16: useMemo e useCallback
 │   ├── 17-custom-hooks/             # Lezione 17: Custom hooks
@@ -83,8 +84,8 @@ useState, pattern avanzati, comunicazione tra componenti
 ### Interazione e Lifecycle (11-12)
 Gestione eventi, validazione, useEffect e side effects
 
-### Performance e Analisi (13-14)
-Analisi performance, Context API
+### Performance e Analisi (13-14a)
+Analisi performance, Context API, Context API vs Zustand
 
 ### Ottimizzazione (15-17)
 useRef, memoizzazione, custom hooks
@@ -102,6 +103,7 @@ Loading states, transizioni, pattern avanzati
 - **Vite 7.1.4** - Build tool veloce e moderno
 - **Vitest** - Framework di testing
 - **React Query** - Gestione stato server (Lezioni 18-18b)
+- **Zustand** - State management moderno (Lezione 14a)
 
 ## Note Importanti
 
