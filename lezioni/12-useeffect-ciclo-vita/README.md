@@ -300,20 +300,50 @@ function Settings(): JSX.Element {
 ```
 
 #### Pattern 4: Debouncing
+
+Il **debouncing** è una tecnica che ritarda l'esecuzione di una funzione fino a quando non passa un certo periodo di tempo senza che l'utente esegua ulteriori azioni. È utile per evitare chiamate API eccessive durante la digitazione.
+
+**Esempio pratico**: Immagina di cercare su Google. Se facesse una ricerca ad ogni lettera digitata, farebbe troppe richieste. Invece, aspetta che tu finisca di digitare (circa 300ms di pausa) prima di cercare.
+
 ```tsx
+/**
+ * Hook personalizzato per il debouncing di un valore
+ * 
+ * @param value - Il valore da "debounciare" (es. testo di ricerca)
+ * @param delay - Millisecondi di attesa prima di aggiornare il valore (es. 300ms)
+ * @returns Il valore debounced, aggiornato solo dopo il delay
+ * 
+ * Come funziona:
+ * 1. L'utente digita "ciao" lettera per lettera
+ * 2. Ad ogni lettera, il timer viene resettato
+ * 3. Solo quando l'utente smette di digitare per 300ms, il valore viene aggiornato
+ * 4. Questo evita di fare una chiamata API per ogni singola lettera
+ */
 function useDebounce<T>(value: T, delay: number): T {
+  // Stato interno che contiene il valore "ritardato"
   const [debouncedValue, setDebouncedValue] = useState<T>(value)
   
   useEffect(() => {
+    // Impostiamo un timer che aggiornerà il valore dopo 'delay' millisecondi
+    // Esempio: se delay = 300, aspetterà 300ms prima di eseguire questa funzione
     const handler = setTimeout(() => {
       setDebouncedValue(value)
     }, delay)
     
+    // CLEANUP FUNCTION (molto importante!)
+    // Questa funzione viene eseguita:
+    // 1. Prima che l'effect venga rieseguito (quando value cambia)
+    // 2. Quando il componente viene smontato
+    // 
+    // Cancella il timer precedente, così se l'utente continua a digitare,
+    // il timer viene resettato e non aggiorna il valore fino a quando
+    // non smette di digitare per 'delay' millisecondi
     return () => {
       clearTimeout(handler)
     }
-  }, [value, delay])
+  }, [value, delay]) // L'effect si riesegue quando value o delay cambiano
   
+  // Ritorna il valore "debounced" (ritardato)
   return debouncedValue
 }
 
@@ -322,26 +352,53 @@ interface SearchResult {
   title: string
 }
 
+/**
+ * Componente di esempio che usa il debouncing per una barra di ricerca
+ * 
+ * Scenario senza debouncing:
+ * - Utente digita "react"
+ * - Vengono fatte 5 chiamate API: "r", "re", "rea", "reac", "react"
+ * - Spreco di risorse e possibili problemi di performance
+ * 
+ * Scenario con debouncing:
+ * - Utente digita "react"
+ * - Viene fatta 1 sola chiamata API: "react" (dopo 300ms dall'ultima lettera)
+ * - Ottimizzazione delle risorse e migliore esperienza utente
+ */
 function SearchInput(): JSX.Element {
+  // Stato per il testo digitato dall'utente (si aggiorna ad ogni lettera)
   const [query, setQuery] = useState<string>('')
+  
+  // Stato per i risultati della ricerca
   const [results, setResults] = useState<SearchResult[]>([])
+  
+  // Usiamo il nostro hook per ottenere una versione "debounced" della query
+  // debouncedQuery si aggiorna solo 300ms dopo che l'utente smette di digitare
   const debouncedQuery = useDebounce(query, 300)
   
+  // Questo effect si esegue solo quando debouncedQuery cambia
+  // NON quando query cambia ad ogni lettera!
   useEffect(() => {
+    // Se c'è del testo da cercare
     if (debouncedQuery) {
+      // Fai la chiamata API solo ora (dopo 300ms di pausa nella digitazione)
       searchApi(debouncedQuery).then(setResults)
     } else {
+      // Se la query è vuota, svuota i risultati
       setResults([])
     }
-  }, [debouncedQuery])
+  }, [debouncedQuery]) // Dipende da debouncedQuery, non da query!
   
   return (
     <div>
+      {/* L'input si aggiorna immediatamente mentre l'utente digita */}
       <input
         value={query}
         onChange={(e) => setQuery(e.target.value)}
         placeholder="Cerca..."
       />
+      
+      {/* I risultati vengono mostrati solo dopo il debounce */}
       <ul>
         {results.map(result => (
           <li key={result.id}>{result.title}</li>
@@ -350,6 +407,39 @@ function SearchInput(): JSX.Element {
     </div>
   )
 }
+
+/**
+ * RIEPILOGO DEL FLUSSO:
+ * 
+ * 1. Utente digita "r" → query = "r" (immediato)
+ *    - Timer parte (300ms)
+ * 
+ * 2. Utente digita "e" (dopo 100ms) → query = "re" (immediato)
+ *    - Timer precedente viene cancellato
+ *    - Nuovo timer parte (300ms)
+ * 
+ * 3. Utente digita "a" (dopo 100ms) → query = "rea" (immediato)
+ *    - Timer precedente viene cancellato
+ *    - Nuovo timer parte (300ms)
+ * 
+ * 4. Utente digita "c" (dopo 100ms) → query = "reac" (immediato)
+ *    - Timer precedente viene cancellato
+ *    - Nuovo timer parte (300ms)
+ * 
+ * 5. Utente digita "t" (dopo 100ms) → query = "react" (immediato)
+ *    - Timer precedente viene cancellato
+ *    - Nuovo timer parte (300ms)
+ * 
+ * 6. Passano 300ms senza nuove digitazioni
+ *    - debouncedQuery = "react" (finalmente aggiornato!)
+ *    - Viene eseguita UNA SOLA chiamata API con "react"
+ * 
+ * VANTAGGI:
+ * ✅ Riduce il numero di chiamate API da 5 a 1
+ * ✅ Migliora le performance
+ * ✅ Riduce il carico sul server
+ * ✅ Migliora l'esperienza utente (meno richieste = più veloce)
+ */
 ```
 
 ### 5. Gestione delle Dipendenze
@@ -397,7 +487,7 @@ function Counter(): JSX.Element {
 }
 ```
 
-#### Dipendenze Eccessive
+#### Dipendenze Eccessive (Loop Infinito!)
 ```tsx
 function ExpensiveComponent(): JSX.Element {
   const [data, setData] = useState<any>(null)
@@ -406,11 +496,27 @@ function ExpensiveComponent(): JSX.Element {
   useEffect(() => {
     // Operazione costosa
     const processedData = expensiveProcessing(data)
-    setData(processedData)
-  }, [data, filter]) // ❌ Errore: data include se stesso
+    setData(processedData)  // ← Modifica 'data'
+  }, [data, filter]) // ❌ Errore: dipende da 'data' che viene modificato dentro!
   
   return <div>{data}</div>
 }
+
+/**
+ * PROBLEMA - LOOP INFINITO:
+ * 
+ * 1. useEffect si esegue perché 'data' è cambiato
+ * 2. Dentro l'effect, chiamiamo setData(processedData)
+ * 3. setData modifica 'data'
+ * 4. 'data' è cambiato → useEffect si riesegue (torna al punto 1)
+ * 5. Loop infinito! 🔄♾️
+ * 
+ * È come dire: "Ogni volta che 'data' cambia, cambia 'data'"
+ * 
+ * SOLUZIONE 1: Rimuovi 'data' dalle dipendenze se non serve
+ * SOLUZIONE 2: Usa una variabile diversa per il risultato
+ * SOLUZIONE 3: Usa useMemo invece di useEffect per calcoli
+ */
 ```
 
 ### 6. Cleanup e Memory Leaks
@@ -453,6 +559,13 @@ function GoodComponent(): JSX.Element {
 ```
 
 #### Cleanup con AbortController
+
+**Problema**: Se l'utente cambia pagina mentre una chiamata API è in corso, il componente viene smontato ma la chiamata continua. Quando la risposta arriva, prova ad aggiornare lo stato di un componente che non esiste più → **errore!**
+
+**Soluzione**: `AbortController` permette di **cancellare** una chiamata fetch in corso.
+
+> **Nota**: `AbortController` è un'API nativa del browser (come `fetch` o `setTimeout`), quindi non serve importarla. È disponibile globalmente in tutti i browser moderni e in Node.js 15+.
+
 ```tsx
 interface UseApiWithAbortReturn<T> {
   data: T | null
@@ -466,6 +579,7 @@ function useApiWithAbort<T = any>(url: string): UseApiWithAbortReturn<T> {
   const [error, setError] = useState<string | null>(null)
   
   useEffect(() => {
+    // 1. Creiamo un "controller" che può cancellare la richiesta
     const abortController = new AbortController()
     
     const fetchData = async () => {
@@ -473,13 +587,17 @@ function useApiWithAbort<T = any>(url: string): UseApiWithAbortReturn<T> {
         setLoading(true)
         setError(null)
         
+        // 2. Passiamo il "signal" alla fetch
+        //    Questo collega la richiesta al controller
         const response = await fetch(url, {
-          signal: abortController.signal
+          signal: abortController.signal  // ← Collegamento importante!
         })
         
         const result = await response.json()
         setData(result)
       } catch (err) {
+        // 3. Se la richiesta è stata cancellata, ignoriamo l'errore
+        //    (è normale, l'abbiamo cancellata noi!)
         if ((err as Error).name !== 'AbortError') {
           setError((err as Error).message)
         }
@@ -490,13 +608,30 @@ function useApiWithAbort<T = any>(url: string): UseApiWithAbortReturn<T> {
     
     fetchData()
     
+    // 4. CLEANUP: quando il componente si smonta o l'url cambia,
+    //    cancelliamo la richiesta in corso
     return () => {
-      abortController.abort()
+      abortController.abort()  // ← Cancella la fetch!
     }
   }, [url])
   
   return { data, loading, error }
 }
+
+/**
+ * SCENARIO PRATICO:
+ * 
+ * 1. Utente apre pagina "/api/users" → fetch parte
+ * 2. Dopo 1 secondo, utente cambia pagina → componente si smonta
+ * 3. La cleanup function viene eseguita → abort() cancella la fetch
+ * 4. La risposta arriva dopo 2 secondi → viene ignorata (già cancellata)
+ * 5. Nessun errore! ✅
+ * 
+ * SENZA AbortController:
+ * - La fetch continua anche dopo lo smontaggio
+ * - Quando arriva la risposta, prova a fare setData()
+ * - Errore: "Can't perform a React state update on an unmounted component" ❌
+ */
 ```
 
 ### 7. Hook Personalizzati con useEffect
@@ -557,17 +692,22 @@ function Timer(): JSX.Element {
 ```
 
 #### Hook per Geolocation
+
+Hook che traccia la posizione GPS dell'utente in tempo reale usando l'API `navigator.geolocation` del browser.
+
+> **Nota**: `navigator.geolocation` è un'API nativa del browser. Richiede il permesso dell'utente per funzionare.
+
 ```tsx
 interface Location {
-  latitude: number
-  longitude: number
-  accuracy: number
+  latitude: number   // Latitudine (es. 45.4642 per Torino)
+  longitude: number  // Longitudine (es. 9.1900 per Milano)
+  accuracy: number   // Precisione in metri (es. 10 = ±10 metri)
 }
 
 interface UseGeolocationReturn {
-  location: Location | null
-  error: string | null
-  loading: boolean
+  location: Location | null  // Posizione corrente (null se non ancora disponibile)
+  error: string | null       // Messaggio di errore se qualcosa va storto
+  loading: boolean           // true durante il caricamento iniziale
 }
 
 function useGeolocation(): UseGeolocationReturn {
@@ -576,14 +716,18 @@ function useGeolocation(): UseGeolocationReturn {
   const [loading, setLoading] = useState<boolean>(false)
   
   useEffect(() => {
+    // 1. Verifica se il browser supporta la geolocalizzazione
     if (!navigator.geolocation) {
       setError('Geolocation non supportata')
-      return
+      return  // Esci subito, non c'è niente da fare
     }
     
     setLoading(true)
     
+    // 2. watchPosition monitora la posizione in tempo reale
+    //    (a differenza di getCurrentPosition che la legge una sola volta)
     const watchId = navigator.geolocation.watchPosition(
+      // SUCCESS CALLBACK: chiamata quando la posizione è disponibile
       (position) => {
         setLocation({
           latitude: position.coords.latitude,
@@ -593,28 +737,42 @@ function useGeolocation(): UseGeolocationReturn {
         setError(null)
         setLoading(false)
       },
+      // ERROR CALLBACK: chiamata se c'è un errore
       (error) => {
         setError(error.message)
         setLoading(false)
       },
+      // OPZIONI:
       {
-        enableHighAccuracy: true,
-        timeout: 10000,
-        maximumAge: 300000
+        enableHighAccuracy: true,  // Usa GPS invece di WiFi/IP (più preciso ma più lento)
+        timeout: 10000,            // Timeout dopo 10 secondi
+        maximumAge: 300000         // Accetta posizioni "vecchie" fino a 5 minuti (300000ms)
       }
     )
     
+    // 3. CLEANUP: ferma il monitoraggio quando il componente si smonta
+    //    Importante per non sprecare batteria!
     return () => {
       navigator.geolocation.clearWatch(watchId)
     }
-  }, [])
+  }, [])  // Array vuoto = esegui solo al mount
   
   return { location, error, loading }
 }
 
+/**
+ * Componente che mostra la posizione dell'utente
+ * 
+ * FLUSSO:
+ * 1. Il browser chiede il permesso all'utente
+ * 2. Se accetta → mostra la posizione
+ * 3. Se rifiuta → mostra l'errore
+ * 4. La posizione si aggiorna automaticamente se l'utente si muove
+ */
 function LocationTracker(): JSX.Element {
   const { location, error, loading } = useGeolocation()
   
+  // Gestione degli stati
   if (loading) return <div>Caricamento posizione...</div>
   if (error) return <div>Errore: {error}</div>
   if (!location) return <div>Posizione non disponibile</div>
@@ -628,6 +786,20 @@ function LocationTracker(): JSX.Element {
     </div>
   )
 }
+
+/**
+ * DIFFERENZA TRA getCurrentPosition e watchPosition:
+ * 
+ * getCurrentPosition():
+ * - Legge la posizione UNA SOLA VOLTA
+ * - Utile per: "Dove sono adesso?"
+ * 
+ * watchPosition():
+ * - Monitora la posizione CONTINUAMENTE
+ * - Utile per: "Traccia il mio percorso mentre cammino"
+ * - ⚠️ Consuma più batteria!
+ * - ⚠️ Ricordati sempre il cleanup con clearWatch()
+ */
 ```
 
 ### 8. Ottimizzazione delle Performance
@@ -942,68 +1114,154 @@ function Dashboard(): JSX.Element {
 ```
 
 ### Esempio 2: Gestione Focus e Keyboard
+
+Questo esempio mostra come creare un sistema di **keyboard shortcuts** (scorciatoie da tastiera) riutilizzabile, simile a quello che trovi in editor come VS Code, Google Docs o Notion.
+
+**Caso d'uso**: Immagina di costruire un editor di testo dove l'utente può:
+- Premere `Ctrl+S` per salvare
+- Premere `Ctrl+Z` per annullare
+- Premere `Ctrl+B` per rendere il testo in grassetto
+- E così via...
+
+Invece di gestire gli eventi tastiera in ogni componente, creiamo un **custom hook** che centralizza questa logica.
+
 ```tsx
+// Tipo per le funzioni callback delle scorciatoie
+// Esempio: () => console.log('Salvato!')
 type ShortcutCallback = () => void
 
+// Interfaccia per memorizzare le scorciatoie
+// Struttura: { 'ctrl+s': funzioneCallback, 'ctrl+z': altraFunzione }
 interface Shortcuts {
   [key: string]: ShortcutCallback
 }
 
+// Interfaccia di ritorno del nostro hook personalizzato
 interface UseKeyboardShortcutsReturn {
   registerShortcut: (key: string, callback: ShortcutCallback) => void
 }
 
+/**
+ * HOOK PERSONALIZZATO: useKeyboardShortcuts
+ * 
+ * Gestisce le scorciatoie da tastiera in modo centralizzato.
+ * 
+ * FUNZIONAMENTO:
+ * 1. Mantiene un oggetto con tutte le scorciatoie registrate
+ * 2. Ascolta gli eventi 'keydown' sul documento
+ * 3. Quando viene premuto un tasto, controlla se corrisponde a una scorciatoia
+ * 4. Se sì, esegue la funzione callback associata
+ * 
+ * VANTAGGI:
+ * ✅ Centralizza la gestione delle scorciatoie
+ * ✅ Riutilizzabile in qualsiasi componente
+ * ✅ Supporta modificatori (Ctrl, Alt, Shift, Cmd)
+ * ✅ Previene il comportamento di default del browser
+ */
 function useKeyboardShortcuts(): UseKeyboardShortcutsReturn {
+  // State per memorizzare tutte le scorciatoie registrate
+  // Esempio: { 'ctrl+s': () => save(), 'ctrl+z': () => undo() }
   const [shortcuts, setShortcuts] = useState<Shortcuts>({})
   
   useEffect(() => {
+    /**
+     * HANDLER DEGLI EVENTI TASTIERA
+     * 
+     * Viene chiamato ogni volta che l'utente preme un tasto
+     */
     const handleKeyDown = (event: KeyboardEvent) => {
+      // 1. Ottieni il tasto premuto (es. 's', 'z', 'enter')
       const key = event.key.toLowerCase()
+      
+      // 2. Controlla quali modificatori sono premuti
+      //    (Ctrl, Alt, Shift, Cmd/Meta)
       const modifiers = {
-        ctrl: event.ctrlKey,
-        alt: event.altKey,
-        shift: event.shiftKey,
-        meta: event.metaKey
+        ctrl: event.ctrlKey,    // true se Ctrl è premuto
+        alt: event.altKey,      // true se Alt è premuto
+        shift: event.shiftKey,  // true se Shift è premuto
+        meta: event.metaKey     // true se Cmd (Mac) o Win (Windows) è premuto
       }
       
+      // 3. Costruisci la stringa della scorciatoia
+      //    Esempio: se premi Ctrl+S → 'ctrl+s'
+      //    Esempio: se premi Ctrl+Shift+Z → 'ctrl+shift+z'
       const shortcut = `${modifiers.ctrl ? 'ctrl+' : ''}${modifiers.alt ? 'alt+' : ''}${modifiers.shift ? 'shift+' : ''}${modifiers.meta ? 'cmd+' : ''}${key}`
       
+      // 4. Controlla se questa scorciatoia è stata registrata
       if (shortcuts[shortcut]) {
+        // Previeni il comportamento di default del browser
+        // (es. Ctrl+S normalmente apre la finestra di salvataggio del browser)
         event.preventDefault()
+        
+        // Esegui la funzione callback associata
         shortcuts[shortcut]()
       }
     }
     
+    // SETUP: Aggiungi l'event listener al documento
+    // Questo ascolta TUTTI gli eventi tastiera nella pagina
     document.addEventListener('keydown', handleKeyDown)
     
+    // CLEANUP: Rimuovi l'event listener quando il componente si smonta
+    // o quando le scorciatoie cambiano
+    // ⚠️ IMPORTANTE: senza questo, l'event listener rimarrebbe attivo
+    // anche dopo che il componente è stato distrutto → memory leak!
     return () => {
       document.removeEventListener('keydown', handleKeyDown)
     }
-  }, [shortcuts])
+  }, [shortcuts]) // Ri-esegui quando le scorciatoie cambiano
   
+  /**
+   * FUNZIONE PER REGISTRARE UNA NUOVA SCORCIATOIA
+   * 
+   * @param key - La scorciatoia (es. 'ctrl+s', 'ctrl+shift+z')
+   * @param callback - La funzione da eseguire quando viene premuta
+   * 
+   * Esempio d'uso:
+   * registerShortcut('ctrl+s', () => console.log('Salvato!'))
+   */
   const registerShortcut = (key: string, callback: ShortcutCallback) => {
     setShortcuts(prev => ({
-      ...prev,
-      [key]: callback
+      ...prev,        // Mantieni le scorciatoie esistenti
+      [key]: callback // Aggiungi la nuova scorciatoia
     }))
   }
   
+  // Ritorna la funzione per registrare scorciatoie
   return { registerShortcut }
 }
 
+/**
+ * COMPONENTE ESEMPIO: TextEditor
+ * 
+ * Un semplice editor di testo che usa le scorciatoie da tastiera.
+ * 
+ * SCORCIATOIE DISPONIBILI:
+ * - Ctrl+S: Salva il documento
+ * - Ctrl+Z: Annulla l'ultima modifica
+ */
 function TextEditor(): JSX.Element {
+  // State per il testo dell'editor
   const [text, setText] = useState<string>('')
+  
+  // Usa il nostro hook personalizzato
   const { registerShortcut } = useKeyboardShortcuts()
   
+  // REGISTRAZIONE DELLE SCORCIATOIE
+  // Questo useEffect viene eseguito solo al mount del componente
   useEffect(() => {
+    // Registra Ctrl+S per salvare
     registerShortcut('ctrl+s', () => {
       console.log('Salvataggio...')
-      // Logica di salvataggio
+      // Qui potresti chiamare un'API per salvare il testo:
+      // await fetch('/api/save', { method: 'POST', body: JSON.stringify({ text }) })
     })
     
+    // Registra Ctrl+Z per annullare
     registerShortcut('ctrl+z', () => {
       console.log('Undo...')
-      // Logica di undo
+      // Qui potresti implementare la logica di undo:
+      // setText(previousText)
     })
   }, [registerShortcut])
   
@@ -1015,6 +1273,38 @@ function TextEditor(): JSX.Element {
     />
   )
 }
+
+/**
+ * FLUSSO COMPLETO:
+ * 
+ * 1. L'utente apre il TextEditor
+ * 2. Il componente registra le scorciatoie Ctrl+S e Ctrl+Z
+ * 3. L'hook useKeyboardShortcuts aggiunge un event listener al documento
+ * 4. L'utente digita del testo nella textarea
+ * 5. L'utente preme Ctrl+S
+ * 6. L'event listener cattura l'evento
+ * 7. Costruisce la stringa 'ctrl+s'
+ * 8. Trova la funzione callback associata
+ * 9. Previene il comportamento di default del browser
+ * 10. Esegue la funzione callback (console.log('Salvataggio...'))
+ * 
+ * QUANDO IL COMPONENTE SI SMONTA:
+ * 11. Il cleanup di useEffect rimuove l'event listener
+ * 12. Nessun memory leak! ✅
+ * 
+ * VANTAGGI DI QUESTO PATTERN:
+ * ✅ Riutilizzabile: puoi usare useKeyboardShortcuts in qualsiasi componente
+ * ✅ Centralizzato: tutta la logica delle scorciatoie è in un solo posto
+ * ✅ Flessibile: supporta qualsiasi combinazione di tasti
+ * ✅ Sicuro: fa cleanup correttamente per evitare memory leaks
+ * ✅ Testabile: puoi testare l'hook separatamente dal componente
+ * 
+ * POSSIBILI MIGLIORAMENTI:
+ * 💡 Aggiungere supporto per scorciatoie multiple (es. Ctrl+K Ctrl+S come in VS Code)
+ * 💡 Permettere di disabilitare/abilitare scorciatoie dinamicamente
+ * 💡 Aggiungere un sistema di priorità per scorciatoie in conflitto
+ * 💡 Mostrare un tooltip con le scorciatoie disponibili
+ */
 ```
 
 ## Esercizi
