@@ -7,7 +7,7 @@
 
 Un corso completo e pratico per imparare React con **TypeScript** dalle basi alle tecniche avanzate, con esempi funzionanti e best practices moderne.
 
-> 🎯 **Stato Progetto**: **90% Completato** - Tutte le 21 lezioni sviluppate con TypeScript e playground interattivo funzionante!
+> 🎯 **Stato Progetto**: **95% Completato** - Tutte le 22 lezioni sviluppate con TypeScript e playground interattivo funzionante!
 
 ## 📋 Panoramica
 
@@ -69,6 +69,9 @@ Questo corso ti accompagnerà in un percorso completo di apprendimento di React,
 ### ✅ Suspense e Transizioni (19-19a) - COMPLETATE + PLAYGROUND
 19. **[Suspense e transizioni](lezioni/19-suspense-transizioni/)** - Loading states e UX
 19a. **[Esempi pratici Suspense](lezioni/19a-esempi-suspense/)** - Casi d'uso reali
+
+### ✅ Routing (21) - COMPLETATA
+21. **[React Router v7](lezioni/21-react-router/)** - Routing dichiarativo, rotte con parametri, rotte annidate, passaggio dati, loader e action
 
 ## 🛠️ Prerequisiti
 
@@ -158,13 +161,14 @@ function useLocalStorage<T>(key: string, initialValue: T) {
 
 ```
 corso-react-base/
-├── 📚 lezioni/                     # Tutte le lezioni del corso (21 lezioni totali)
+├── 📚 lezioni/                     # Tutte le lezioni del corso (22 lezioni totali)
 │   ├── 01-introduzione-react/      # ✅ Lezione 1 - Teoria + esempi
 │   ├── 02-creare-progetto-vite/    # ✅ Lezione 2 - Setup Vite
 │   ├── ...                         # ✅ Lezioni 3-19a complete
 │   ├── 13-analisi-performance/     # ✅ Lezione 13 - Analisi performance
 │   ├── 14-context-api/             # ✅ Lezione 14 - Context API
 │   ├── 14a-context-vs-zustand/     # ✅ Lezione 14a - Context API vs Zustand
+│   ├── 21-react-router/            # ✅ Lezione 21 - React Router v7
 │   └── ...                         # ✅ Altre lezioni
 ├── 🎮 progetto-base/               # Playground interattivo React
 │   ├── src/lezioni/                # Demo integrate (08-19a)
